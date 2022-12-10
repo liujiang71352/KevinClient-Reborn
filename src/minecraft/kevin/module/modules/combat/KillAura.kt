@@ -25,6 +25,7 @@ import net.minecraft.network.play.client.*
 import net.minecraft.potion.Potion
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
+import net.minecraft.util.MathHelper
 import net.minecraft.util.Vec3
 import net.minecraft.world.WorldSettings
 import org.lwjgl.input.Keyboard
@@ -108,7 +109,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     }
 
     private val silentRotationValue = BooleanValue("SilentRotation", true)
-    private val rotationStrafeValue = ListValue("Strafe", arrayOf("Off", "Strict", "Silent"), "Off")
+    private val rotationStrafeValue = ListValue("Strafe", arrayOf("Off", "VanillaStrict", "Strict", "Silent"), "Off")
     private val randomCenterValue = BooleanValue("RandomCenter", true)
     private val outborderValue = BooleanValue("Outborder", false)
     private val fovValue = FloatValue("FOV", 180f, 0f, 180f)
@@ -258,6 +259,33 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
 
         if (currentTarget != null && RotationUtils.targetRotation != null) {
             when (rotationStrafeValue.get().toLowerCase()) {
+                "vanillastrict" -> {
+                    val (yaw) = RotationUtils.targetRotation ?: return
+                    var strafe = event.strafe
+                    var forward = event.forward
+                    val friction = event.friction
+
+                    var f = strafe * strafe + forward * forward
+
+                    if (f >= 1.0E-4F) {
+                        f = sqrt(f)
+
+                        if (f < 1.0F)
+                            f = 1.0F
+
+                        f = friction / f
+                        strafe *= f
+                        forward *= f
+
+                        val yawSin = MathHelper.sin((yaw * 0.017453292F).toFloat())
+                        val yawCos = MathHelper.cos((yaw * 0.017453292F).toFloat())
+
+                        val player = mc.thePlayer!!
+
+                        player.motionX += strafe * yawCos - forward * yawSin
+                        player.motionZ += forward * yawCos + strafe * yawSin
+                    }
+                }
                 "strict" -> {
                     val (yaw) = RotationUtils.targetRotation ?: return
                     var strafe = event.strafe

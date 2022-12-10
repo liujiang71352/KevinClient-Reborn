@@ -1,5 +1,6 @@
 package kevin.utils
 
+import net.minecraft.potion.Potion
 import java.lang.Math.toRadians
 import kotlin.math.*
 
@@ -79,5 +80,12 @@ object MovementUtils : MinecraftInstance() {
             mc.thePlayer.motionZ = (forward * speed * sin -
                     strafe * speed * cos)
         }
+    }
+    @JvmStatic
+    fun getJumpMotion(base: Double) : Double {
+        if (mc.thePlayer.isPotionActive(Potion.jump)) {
+            return base + (mc.thePlayer.getActivePotionEffect(Potion.jump).amplifier + 1) * 0.1
+        }
+        return base
     }
 }

@@ -36,6 +36,7 @@ class InventoryCleaner : Module(name = "InventoryCleaner", description = "Automa
     private val invOpenValue = BooleanValue("InvOpen", false)
     private val simulateInventory = BooleanValue("SimulateInventory", true)
     private val noMoveValue = BooleanValue("NoMove", false)
+    private val onlyStill = BooleanValue("OnlyStandingStill", false)
     private val ignoreVehiclesValue = BooleanValue("IgnoreVehicles", false)
     private val hotbarValue = BooleanValue("Hotbar", true)
     private val randomSlotValue = BooleanValue("RandomSlot", false)
@@ -73,6 +74,7 @@ class InventoryCleaner : Module(name = "InventoryCleaner", description = "Automa
         if (!InventoryUtils.CLICK_TIMER.hasTimePassed(delay) ||
              mc.currentScreen !is GuiInventory && invOpenValue.get() ||
             noMoveValue.get() && MovementUtils.isMoving ||
+            onlyStill.get() && mc.thePlayer.motionX != 0.0 && mc.thePlayer.motionZ != 0.0 ||
             thePlayer.openContainer != null && thePlayer.openContainer!!.windowId != 0
             || (KevinClient.moduleManager.getModule(AutoArmor::class.java)).isLocked)
             return

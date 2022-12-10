@@ -175,9 +175,9 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
             }
         }
     }
-    //跳跃检测
+    // 跳跃检测
     private val jumpCheckValue = BooleanValue("JumpCheck",false)
-    //向下检测
+    // 向下检测
     private val downCheckValue = BooleanValue("DownCheck",true)
 
     // Zitter

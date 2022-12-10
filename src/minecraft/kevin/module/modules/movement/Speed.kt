@@ -3,14 +3,10 @@ package kevin.module.modules.movement
 import kevin.event.*
 import kevin.module.*
 import kevin.module.modules.movement.speeds.SpeedMode
-import kevin.module.modules.movement.speeds.aac.AAC5Fast
-import kevin.module.modules.movement.speeds.aac.AAC5Long
+import kevin.module.modules.movement.speeds.aac.*
 import kevin.module.modules.movement.speeds.matrix.MatrixNew
-import kevin.module.modules.movement.speeds.other.AutoJump
-import kevin.module.modules.movement.speeds.other.Custom
-import kevin.module.modules.movement.speeds.other.YPort
-import kevin.module.modules.movement.speeds.verus.VerusHop
-import kevin.module.modules.movement.speeds.verus.VerusYPort
+import kevin.module.modules.movement.speeds.other.*
+import kevin.module.modules.movement.speeds.verus.*
 import kevin.module.modules.movement.speeds.vulcan.VulcanHop
 import kevin.utils.MovementUtils
 import net.minecraft.network.play.server.S12PacketEntityVelocity
@@ -21,11 +17,13 @@ class Speed : Module("Speed","Allows you to move faster.", category = ModuleCate
         AAC5Long,
         AAC5Fast,
         YPort,
+        LegacyNCP, // from Rise
         AutoJump,
         VerusYPort,
         VerusHop,
         MatrixNew, //from FDP
-        VulcanHop //from FDP
+        VulcanHop, //from FDP
+        Prediction // from Rise
     )
 
     private val names: Array<String>

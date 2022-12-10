@@ -13,7 +13,7 @@ import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S0BPacketAnimation
 
 class Criticals : Module(name = "Criticals", description = "Automatically deals critical hits.", category = ModuleCategory.COMBAT) {
-    val modeValue = ListValue("Mode", arrayOf("Packet", "NcpPacket", "AACPacket", "NoGround", "Hop", "Jump", "LowJump", "Visual", "MineMora", "Hypixel"), "Packet")
+    val modeValue = ListValue("Mode", arrayOf("Packet", "NcpPacket", "AACPacket", "NoGround", "Hop", "Jump", "LowJump", "Visual", "MineMora", "Hypixel", "BlocksMC"), "Packet")
     val delayValue = IntegerValue("Delay", 0, 0, 500)
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
     private val debug = BooleanValue("Debug", false)
@@ -71,7 +71,8 @@ class Criticals : Module(name = "Criticals", description = "Automatically deals 
                     thePlayer.onGround = false
                 }
 
-                "jump" -> thePlayer.motionY = 0.42
+//                "jump" -> thePlayer.motionY = 0.42
+                "jump" -> mc.thePlayer.jump()
                 "lowjump" -> thePlayer.motionY = 0.3425
                 "visual" -> thePlayer.onCriticalHit(entity)
                 "minemora" -> {
@@ -85,6 +86,11 @@ class Criticals : Module(name = "Criticals", description = "Automatically deals 
                     mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(x, y + 0.0410881200712020195, z, false))
                     mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(x, y + 0.00511681200107142817, z, false))
                     mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(x, y + 0.00231121200209234615, z, false))
+                }
+                "blocksmc" -> {
+                    mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(x, y + 0.05250000001304, z, false))
+                    mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(x, y + 0.00150000001304, z, false))
+                    thePlayer.onCriticalHit(entity)
                 }
             }
 
