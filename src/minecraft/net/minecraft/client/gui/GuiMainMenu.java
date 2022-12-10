@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import kevin.altmanager.AltManager;
 import kevin.font.RainbowFontShader;
 import kevin.main.KevinClient;
+import kevin.utils.proxy.GuiProxySelect;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -274,6 +275,8 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 
         //this.buttonList.add(this.realmsButton = new GuiButton(14, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, I18n.format("menu.online")));
         this.buttonList.add(this.altManagerButton = new GuiButton(114514, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, "AltManager"));
+        this.buttonList.add(new GuiButton(1145141919, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 3, "Proxy"));
+
     }
 
     /**
@@ -346,6 +349,10 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 
         if (button.id == 114514) {
             this.mc.displayGuiScreen(AltManager.INSTANCE.altManager(this));
+        }
+
+        if (button.id == 1145141919) {
+            this.mc.displayGuiScreen(new GuiProxySelect(this));
         }
     }
 

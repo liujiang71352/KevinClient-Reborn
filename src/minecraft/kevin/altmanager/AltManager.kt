@@ -12,6 +12,7 @@ import kevin.main.KevinClient
 import kevin.font.RainbowFontShader
 import kevin.utils.MSTimer
 import kevin.utils.RenderUtils
+import kevin.utils.StringUtils
 import kevin.utils.UserUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiButton
@@ -59,6 +60,7 @@ object AltManager : GuiScreen() {
         buttonList.add(GuiButton(0,mc.currentScreen.width - 75,mc.currentScreen.height - 25,70,20,"Back"))
         buttonList.add(GuiButton(1,mc.currentScreen.width - 75,40,70,20,"Add"))
         buttonList.add(GuiButton(5,mc.currentScreen.width - 75,140,70,20,"Reload"))
+        buttonList.add(GuiButton(6,mc.currentScreen.width - 75,165,70,20,"RandomName"))
         buttonList.add(removeButton)
         buttonList.add(changeButton)
         buttonList.add(loginButton)
@@ -156,6 +158,11 @@ object AltManager : GuiScreen() {
             }
             4 -> stateMessage = login(altList[chose!!])
             5 -> load()
+            6 -> {
+                val userName = StringUtils.randomString(9)
+                Minecraft.getMinecraft().session = Session(userName, UserUtils.getUUID(userName), "-", "legacy")
+                stateMessage = "§aYour name is now §f§l$userName§a."
+            }
         }
     }
     fun login(alt: Alt): String {

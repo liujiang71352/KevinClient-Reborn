@@ -22,6 +22,7 @@ import io.netty.channel.local.LocalChannel;
 import io.netty.channel.local.LocalEventLoopGroup;
 import io.netty.channel.local.LocalServerChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.ReadTimeoutHandler;
@@ -30,6 +31,7 @@ import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import java.net.InetAddress;
+import java.net.Proxy;
 import java.net.SocketAddress;
 import java.util.Queue;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -41,6 +43,7 @@ import kevin.event.PacketEvent;
 
 import kevin.main.KevinClient;
 import kevin.utils.PacketUtils;
+import kevin.utils.proxy.ProxyManager;
 import kevin.via.CommonTransformer;
 import kevin.via.DecodeHandler;
 import kevin.via.EncodeHandler;
@@ -371,6 +374,33 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
      */
     public static NetworkManager createNetworkManagerAndConnect(InetAddress address, int serverPort, boolean useNativeTransport)
     {
+        if (ProxyManager.INSTANCE.isEnable()) {
+            final NetworkManager networkmanager = new NetworkManager(EnumPacketDirection.CLIENTBOUND);
+
+            Bootstrap bootstrap = new Bootstrap();
+
+            EventLoopGroup eventLoopGroup;
+            Proxy proxy = ProxyManager.INSTANCE.getProxyInstance();
+            if(!Epoll.isAvailable() || !useNativeTransport){
+                System.out.println("Something goes wrong! Maybe you can disable proxy. [Epoll="+ Epoll.isAvailable()+", UNT="+useNativeTransport+"]");
+            }
+            eventLoopGroup = new OioEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Client IO #%d").setDaemon(true).build());
+            bootstrap.channelFactory(new ProxyManager.ProxyOioChannelFactory(proxy));
+
+            bootstrap.group(eventLoopGroup).handler(new ChannelInitializer<Channel>() {
+                protected void initChannel(Channel channel) {
+                    try {
+                        channel.config().setOption(ChannelOption.TCP_NODELAY, true);
+                    } catch (ChannelException var3) {
+                        var3.printStackTrace();
+                    }
+                    channel.pipeline().addLast("timeout", new ReadTimeoutHandler(30)).addLast("splitter", new MessageDeserializer2()).addLast("decoder", new MessageDeserializer(EnumPacketDirection.CLIENTBOUND)).addLast("prepender", new MessageSerializer2()).addLast("encoder", new MessageSerializer(EnumPacketDirection.SERVERBOUND)).addLast("packet_handler", networkmanager);
+                }
+            });
+
+            bootstrap.connect(address, serverPort).syncUninterruptibly();
+            return networkmanager;
+        } // Proxy from FDP
         final NetworkManager networkmanager = new NetworkManager(EnumPacketDirection.CLIENTBOUND);
         Class<? extends SocketChannel> oclass;
         LazyLoadBase<? extends EventLoopGroup> lazyloadbase;

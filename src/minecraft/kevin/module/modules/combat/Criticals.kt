@@ -42,7 +42,7 @@ class Criticals : Module(name = "Criticals", description = "Automatically deals 
             val y = thePlayer.posY
             val z = thePlayer.posZ
 
-            when (modeValue.get().toLowerCase()) {
+            when (modeValue.get().lowercase()) {
                 "aacpacket" -> {
                     mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(x, y + 0.05250000001304, z, false))
                     mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(x, y + 0.00150000001304, z, false))

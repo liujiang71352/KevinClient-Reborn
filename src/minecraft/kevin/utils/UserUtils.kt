@@ -7,6 +7,7 @@ import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
 object UserUtils {
+    @JvmStatic
     fun getUUID(username : String) : String {
         try {
 

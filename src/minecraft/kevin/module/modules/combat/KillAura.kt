@@ -277,14 +277,15 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                         strafe *= f
                         forward *= f
 
-                        val yawSin = MathHelper.sin((yaw * 0.017453292F).toFloat())
-                        val yawCos = MathHelper.cos((yaw * 0.017453292F).toFloat())
+                        val yawSin = MathHelper.sin(yaw * 0.017453292F)
+                        val yawCos = MathHelper.cos(yaw * 0.017453292F)
 
                         val player = mc.thePlayer!!
 
                         player.motionX += strafe * yawCos - forward * yawSin
                         player.motionZ += forward * yawCos + strafe * yawSin
                     }
+                    event.cancelEvent()
                 }
                 "strict" -> {
                     val (yaw) = RotationUtils.targetRotation ?: return
