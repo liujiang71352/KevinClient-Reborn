@@ -79,6 +79,7 @@ class ModuleManager : Listenable {
             Diastimeter(),
             HideAndSeekHack,
             KillerDetector(),
+            LagBackDetector(),
             NameProtect(),
             NoAchievement,
             NoCommand,

@@ -2,7 +2,10 @@ package kevin.utils
 
 import net.minecraft.potion.Potion
 import java.lang.Math.toRadians
-import kotlin.math.*
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
+
 
 object MovementUtils : MinecraftInstance() {
     val speed: Float
@@ -87,5 +90,12 @@ object MovementUtils : MinecraftInstance() {
             return base + (mc.thePlayer.getActivePotionEffect(Potion.jump).amplifier + 1) * 0.1
         }
         return base
+    }
+    fun getBaseMoveSpeed(): Double {
+        var baseSpeed = 0.2873
+        if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) baseSpeed *= 1.0 + 0.2 * (mc.thePlayer.getActivePotionEffect(
+            Potion.moveSpeed
+        ).amplifier + 1)
+        return baseSpeed
     }
 }
