@@ -4,10 +4,12 @@ import kevin.event.*
 import kevin.module.*
 import kevin.utils.MovementUtils
 import net.minecraft.network.play.server.S27PacketExplosion
+import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 
+@Suppress("unused_parameter")
 class LongJump : Module("LongJump", "Allows you to jump further.", category = ModuleCategory.MOVEMENT) {
-    private val modeValue = ListValue("Mode", arrayOf("NCP", "AACv1", "AACv2", "AACv3", "Mineplex", "Mineplex2", "Mineplex3", "Redesky", "ExplosionBoost"), "NCP")
+    private val modeValue = ListValue("Mode", arrayOf("NCP", "AACv1", "AACv2", "AACv3", "Mineplex", "Mineplex2", "Mineplex3", "Redesky", "BlocksMCBlockOver", "ExplosionBoost"), "NCP")
     private val ncpBoostValue = FloatValue("NCPBoost", 4.25f, 1f, 10f)
     private val autoJumpValue = BooleanValue("AutoJump", false)
     private val explosionBoostHigh = FloatValue("ExplosionBoostHigh",0.00F,0.01F,1F)
@@ -43,7 +45,7 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
                 return
             }
             run {
-                when (mode.toLowerCase()) {
+                when (mode.lowercase()) {
                     "ncp" -> {
                         MovementUtils.strafe(MovementUtils.speed * if (canBoost) ncpBoostValue.get() else 1f)
                         canBoost = false
@@ -99,6 +101,19 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
                         thePlayer.jumpMovementFactor = 0.15f
                         thePlayer.motionY += 0.05f
                     }
+                    "blocksmcblockover" -> {
+                        if (mc.theWorld.isBlockFullCube(BlockPos(mc.thePlayer.posX, mc.thePlayer.posY + 2, mc.thePlayer.posZ))) {
+                            canBoost = true
+                            mc.timer.timerSpeed = 0.2F
+                            return
+                        } else if (canBoost) {
+                            mc.thePlayer.motionY = 0.2
+                            mc.timer.timerSpeed = 1F
+                            MovementUtils.strafe(5.0f)
+                            canBoost = false
+                            return
+                        }
+                    }
                 }
             }
         }
@@ -138,7 +153,7 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
         teleported = false
 
         if (state) {
-            when (modeValue.get().toLowerCase()) {
+            when (modeValue.get().lowercase()) {
                 "mineplex" -> event.motion = event.motion * 4.08f
                 "mineplex2" -> {
                     if (mc.thePlayer!!.isCollidedHorizontally) {

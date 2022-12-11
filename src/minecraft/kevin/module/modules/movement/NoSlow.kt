@@ -15,6 +15,7 @@ import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import java.util.*
 
+@Suppress("unused_parameter", "unchecked_cast")
 class NoSlow : Module("NoSlow", "Cancels slowness effects caused by soulsand and using items.", category = ModuleCategory.MOVEMENT) {
 
     private val blockForwardMultiplier = FloatValue("BlockForwardMultiplier", 1.0F, 0.2F, 1.0F)
@@ -80,7 +81,7 @@ class NoSlow : Module("NoSlow", "Cancels slowness effects caused by soulsand and
                     mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 255, null, 0.0f, 0.0f, 0.0f))
                 }
             }
-            "ReverseNCP" -> {  // from Rise
+            "ReverseNCP" -> { // from Rise
                 when (event.eventState) {
                     EventState.PRE -> {
                         val blockPlace = C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 255, mc.thePlayer!!.inventory.getCurrentItem(), 0.0F, 0.0F, 0.0F)
@@ -104,15 +105,14 @@ class NoSlow : Module("NoSlow", "Cancels slowness effects caused by soulsand and
                     mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 255, mc.thePlayer.inventory.getCurrentItem(), 0f, 0f, 0f))
                 }
             }
-            "Intave" -> {  // from Rise
-                when (event.eventState) {
-                    EventState.PRE -> {
-                        if ((mc.thePlayer.isBlocking || aura.blockingStatus) && msTimer.hasTimePassed(delay)) {
+            "Intave" -> { // from Rise
+                if ((mc.thePlayer.isBlocking || aura.blockingStatus) && msTimer.hasTimePassed(delay)) {
+                    when (event.eventState) {
+                        EventState.PRE -> {
                             mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+
                         }
-                    }
-                    EventState.POST -> {
-                        if ((mc.thePlayer.isBlocking || aura.blockingStatus) && msTimer.hasTimePassed(delay)) {
+                        EventState.POST -> {
                             mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
                             delay = if (intave) {
                                 100L

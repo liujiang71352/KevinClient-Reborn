@@ -27,13 +27,14 @@ class LagBackDetector : Module("LagBackDetector", "Detect lag back from server."
         count = 0
     }
 
-    @EventTarget fun onWorldChange(event: WorldEvent) {
+    @Suppress("UNUSED_PARAMETER")
+    @EventTarget fun onWorld(event: WorldEvent) {
         count = 0
     }
     @EventTarget fun onPacket(event: PacketEvent) {
-        val event = if (event.packet is S08PacketPlayerPosLook) event.packet else return
+        val packet = if (event.packet is S08PacketPlayerPosLook) event.packet else return
         if (distanceCheckValue.get()) {
-            if (sqrt((event.x - mc.thePlayer.posX).pow(2) + (event.z - mc.thePlayer.posZ).pow(2)) > 10) return
+            if (sqrt((packet.x - mc.thePlayer.posX).pow(2) + (packet.z - mc.thePlayer.posZ).pow(2)) > 10) return
         }
         val message = "Flag detected ${if (countValue.get()) ", count: $count" else ""}"
         when (modeValue.get()) {
