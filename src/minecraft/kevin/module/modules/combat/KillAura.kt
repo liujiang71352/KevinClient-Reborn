@@ -126,6 +126,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
         }
     }
 
+    private val rotationModeValue = ListValue("RotationMode", arrayOf("LiquidBounce", "LiquidSense"), "LiquidSense")
     private val silentRotationValue = BooleanValue("SilentRotation", true)
     private val rotationStrafeValue = ListValue("Strafe", arrayOf("Off", "Vanilla", "Strict", "Silent"), "Off")
     private val randomCenterValue = BooleanValue("RandomCenter", true)
@@ -739,17 +740,25 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 (entity.posZ - entity.prevPosZ - (mc.thePlayer!!.posZ - mc.thePlayer!!.prevPosZ)) * RandomUtils.nextFloat(minPredictSize.get(), maxPredictSize.get())
             )
 
-        val (_, rotation) = RotationUtils.searchCenter(
-            boundingBox,
-            outborderValue.get() && !attackTimer.hasTimePassed(attackDelay / 2),
-            randomCenterValue.get(),
-            predictValue.get(),
-            mc.thePlayer!!.getDistanceToEntityBox(entity) < throughWallsRangeValue.get(),
-            maxRange
-        ) ?: return false
-
-        val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation, rotation,
-            (Math.random() * (maxTurnSpeed.get() - minTurnSpeed.get()) + minTurnSpeed.get()).toFloat())
+        val limitedRotation: Rotation = if (rotationModeValue.get().contains("liquidbounce", true)) {
+            val (_, rotation) = RotationUtils.searchCenter(
+                boundingBox,
+                outborderValue.get() && !attackTimer.hasTimePassed(attackDelay / 2),
+                randomCenterValue.get(),
+                predictValue.get(),
+                mc.thePlayer!!.getDistanceToEntityBox(entity) < throughWallsRangeValue.get(),
+                discoverRangeValue.get()
+            ) ?: return false
+                RotationUtils.limitAngleChange(RotationUtils.serverRotation, rotation,
+                    (Math.random() * (maxTurnSpeed.get() - minTurnSpeed.get()) + minTurnSpeed.get()).toFloat())
+        } else {
+            RotationUtils.limitAngleChange(RotationUtils.serverRotation,
+                RotationUtils.getOtherRotation(boundingBox, RotationUtils.getCenter(entity.entityBoundingBox), predictValue.get(),
+                    mc.thePlayer!!.getDistanceToEntityBox(entity) < throughWallsRangeValue.get(),
+                    discoverRangeValue.get()) ?: return false
+                , (Math.random() * (maxTurnSpeed.get() - minTurnSpeed.get()) + minTurnSpeed.get()).toFloat()
+            )
+        }
 
         if (silentRotationValue.get())
             RotationUtils.setTargetRotation(limitedRotation, if (aacValue.get() || keepRotationTickValue.get() > 0) keepRotationTickValue.get() + (if (aacValue.get()) 15 else 0) else 0)
