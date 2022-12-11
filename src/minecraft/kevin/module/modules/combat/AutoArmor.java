@@ -2,6 +2,7 @@ package kevin.module.modules.combat;
 
 import kevin.event.EventTarget;
 import kevin.event.Render3DEvent;
+import kevin.event.ScreenEvent;
 import kevin.module.BooleanValue;
 import kevin.module.IntegerValue;
 import kevin.module.Module;
@@ -24,7 +25,7 @@ import java.util.stream.IntStream;
 public class AutoArmor extends Module {
 
     public static final ArmorComparator ARMOR_COMPARATOR = new ArmorComparator();
-    private final IntegerValue minDelayValue = new IntegerValue("MinDelay", 100, 0, 400) {
+    private final IntegerValue minDelayValue = new IntegerValue("MinDelay", 100, 0, 500) {
 
         @Override
         protected void onChanged(final Integer oldValue, final Integer newValue) {
@@ -33,7 +34,7 @@ public class AutoArmor extends Module {
             if (maxDelay < newValue) set(maxDelay);
         }
     };
-    private final IntegerValue maxDelayValue = new IntegerValue("MaxDelay", 200, 0, 400) {
+    private final IntegerValue maxDelayValue = new IntegerValue("MaxDelay", 200, 0, 500) {
         @Override
         protected void onChanged(final Integer oldValue, final Integer newValue) {
             final int minDelay = minDelayValue.get();
@@ -105,6 +106,11 @@ public class AutoArmor extends Module {
         }
 
         locked = false;
+    }
+
+    @EventTarget
+    public void onGui(final ScreenEvent ignored) {
+        InventoryUtils.CLICK_TIMER.reset();
     }
 
     public boolean isLocked() {

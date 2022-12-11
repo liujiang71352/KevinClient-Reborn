@@ -33,6 +33,7 @@ import java.awt.Color
 import java.util.*
 import kotlin.math.*
 
+@Suppress("unused_parameter")
 class KillAura : Module("KillAura","Automatically attacks targets around you.", Keyboard.KEY_R, ModuleCategory.COMBAT) {
     /**
      * OPTIONS
@@ -60,9 +61,25 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
 
     // Range
-    private val rangeValue = FloatValue("Range", 3.7f, 1f, 8f)
-    private val throughWallsRangeValue = FloatValue("ThroughWallsRange", 3f, 0f, 8f)
+    private val rangeValue: FloatValue = object : FloatValue("Range", 3.7f, 1f, 8f) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            val i = discoverRangeValue.get()
+            if (i < newValue) set(i)
+        }
+    }
+    private val throughWallsRangeValue: FloatValue = object : FloatValue("ThroughWallsRange", 3f, 0f, 8f) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            val i = rangeValue.get()
+            if (i < newValue) set(i)
+        }
+    }
     private val rangeSprintReducementValue = FloatValue("RangeSprintReducement", 0f, 0f, 0.4f)
+    private val discoverRangeValue: FloatValue = object : FloatValue("DiscoverRange", 4.0f, 2.0f, 10f) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            val i = rangeValue.get()
+            if (i > newValue) set(i)
+        }
+    }
 
     // Modes
     private val priorityValue = ListValue("Priority", arrayOf("Health", "Distance", "Direction", "LivingTime"), "Distance")
@@ -92,6 +109,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
 
     // Bypass
     private val aacValue = BooleanValue("AAC", false)
+    private val keepRotationTickValue = IntegerValue("KeepRotationTick", 0, 0, 30)
 
     // Turn Speed
     private val maxTurnSpeed: FloatValue = object : FloatValue("MaxTurnSpeed", 180f, 0f, 180f) {
@@ -109,7 +127,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     }
 
     private val silentRotationValue = BooleanValue("SilentRotation", true)
-    private val rotationStrafeValue = ListValue("Strafe", arrayOf("Off", "VanillaStrict", "Strict", "Silent"), "Off")
+    private val rotationStrafeValue = ListValue("Strafe", arrayOf("Off", "Vanilla", "Strict", "Silent"), "Off")
     private val randomCenterValue = BooleanValue("RandomCenter", true)
     private val outborderValue = BooleanValue("Outborder", false)
     private val fovValue = FloatValue("FOV", 180f, 0f, 180f)
@@ -139,7 +157,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     private val limitedMultiTargetsValue = IntegerValue("LimitedMultiTargets", 0, 0, 50)
 
     // Visuals
-    private val markValue = ListValue("Mark", arrayOf("Off", "LiquidBounce", "Jello"), "LiquidBounce")
+    private val markValue = ListValue("Mark", arrayOf("Off", "LiquidBounce", "Box", "Jello"), "LiquidBounce")
     private val fakeSharpValue = BooleanValue("FakeSharp", true)
 
     /**
@@ -258,8 +276,8 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
         update()
 
         if (currentTarget != null && RotationUtils.targetRotation != null) {
-            when (rotationStrafeValue.get().toLowerCase()) {
-                "vanillastrict" -> {
+            when (rotationStrafeValue.get().lowercase()) {
+                "vanilla" -> {
                     val (yaw) = RotationUtils.targetRotation ?: return
                     var strafe = event.strafe
                     var forward = event.forward
@@ -268,7 +286,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                     var f = strafe * strafe + forward * forward
 
                     if (f >= 1.0E-4F) {
-                        f = sqrt(f)
+                        f = MathHelper.sqrt_float(f)
 
                         if (f < 1.0F)
                             f = 1.0F
@@ -277,8 +295,8 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                         strafe *= f
                         forward *= f
 
-                        val yawSin = MathHelper.sin(yaw * 0.017453292F)
-                        val yawCos = MathHelper.cos(yaw * 0.017453292F)
+                        val yawSin = MathHelper.sin(yaw * Math.PI.toFloat() / 180.0f)
+                        val yawCos = MathHelper.cos(yaw * Math.PI.toFloat() / 180.0f)
 
                         val player = mc.thePlayer!!
 
@@ -463,6 +481,14 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 else
                     RenderUtils.drawPlatform(sTarget, if (hitable) Color(37, 126, 255, 70) else Color(255, 0, 0, 70))
             }
+            "Box" -> {
+                if (targetModeValue.get().equals("Multi", ignoreCase = true))
+                    discoveredTargets.forEach { RenderUtils.drawEntityBox(it, Color(37, 126, 255, 120), false) }
+                else
+                    RenderUtils.drawEntityBox(sTarget, if (hitable) {
+                        if (sTarget !is EntityLivingBase || (sTarget as EntityLivingBase).hurtTime > 0) Color(255, 0, 0, 120) else Color(37, 126, 255, 120)
+                    } else Color(37, 255, 126, 120), false)
+            }
             "Jello" -> {
                 if (targetModeValue.get().equals("Multi", ignoreCase = true))
                     discoveredTargets.forEach { RenderUtils.drawCircle(it, -1.0, Color(255,255,255), true) }
@@ -584,12 +610,12 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
             val distance = thePlayer.getDistanceToEntityBox(entity)
             val entityFov = RotationUtils.getRotationDifference(entity)
 
-            if (distance <= maxRange && (fov == 180F || entityFov <= fov) && (entity !is EntityLivingBase || entity.hurtTime <= hurtTime))
+            if (distance <= discoverRangeValue.get() && (fov == 180F || entityFov <= fov) && (entity !is EntityLivingBase || entity.hurtTime <= hurtTime))
                 discoveredTargets.add(entity)
         }
 
         // Sort targets by priority
-        when (priorityValue.get().toLowerCase()) {
+        when (priorityValue.get().lowercase()) {
             "distance" -> discoveredTargets.sortBy { thePlayer.getDistanceToEntityBox(it) } // Sort by distance
             "health" -> discoveredTargets.sortBy { if (it is EntityLivingBase) it.health else thePlayer.getDistanceToEntityBox(it).toFloat() } // Sort by health
             "direction" -> discoveredTargets.sortBy { RotationUtils.getRotationDifference(it) } // Sort by FOV
@@ -726,7 +752,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
             (Math.random() * (maxTurnSpeed.get() - minTurnSpeed.get()) + minTurnSpeed.get()).toFloat())
 
         if (silentRotationValue.get())
-            RotationUtils.setTargetRotation(limitedRotation, if (aacValue.get()) 15 else 0)
+            RotationUtils.setTargetRotation(limitedRotation, if (aacValue.get() || keepRotationTickValue.get() > 0) keepRotationTickValue.get() + (if (aacValue.get()) 15 else 0) else 0)
         else
             limitedRotation.toPlayer(mc.thePlayer!!)
 
@@ -842,7 +868,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
      * Range
      */
     private val maxRange: Float
-        get() = max(rangeValue.get(), throughWallsRangeValue.get())
+        get() = rangeValue.get()
 
     private fun getRange(entity: Entity) =
         (if (mc.thePlayer!!.getDistanceToEntityBox(entity) >= throughWallsRangeValue.get()) rangeValue.get() else throughWallsRangeValue.get()) - if (mc.thePlayer!!.isSprinting) rangeSprintReducementValue.get() else 0F

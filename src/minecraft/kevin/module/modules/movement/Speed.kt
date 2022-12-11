@@ -23,7 +23,8 @@ class Speed : Module("Speed","Allows you to move faster.", category = ModuleCate
         VerusHop,
         MatrixNew, //from FDP
         VulcanHop, //from FDP
-        Prediction // from Rise
+        Prediction, // from Rise
+        IntaveHop // from FDP
     )
 
     private val names: Array<String>

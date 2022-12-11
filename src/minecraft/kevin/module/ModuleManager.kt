@@ -124,6 +124,7 @@ class ModuleManager : Listenable {
             Blink(),
             FastUse(),
             InventoryCleaner(),
+            NoC03(),
             NoFall(),
             Reach(),
             Regen()

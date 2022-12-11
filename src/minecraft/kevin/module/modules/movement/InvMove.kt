@@ -5,6 +5,7 @@ import kevin.module.BooleanValue
 import kevin.module.ListValue
 import kevin.module.Module
 import kevin.module.ModuleCategory
+import kevin.module.modules.render.ClickGui
 import kevin.utils.MovementUtils
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.gui.GuiIngameMenu
@@ -16,6 +17,7 @@ class InvMove : Module("InvMove","Allows you to walk while an inventory is opene
     private val sprintMode = ListValue("Sprint", arrayOf("Ignore", "AlwaysFake", "StopWhenOpen", "FakeWhenOpen"), "Ignore")
     private val bypass = BooleanValue("Bypass",false)
     private val noMoveClicksValue = BooleanValue("NoMoveClicks", false)
+    private val alwaysActiveWithClickGui = BooleanValue("AlwaysActiveInClickGUI", true)
 
     val needFakeSprint: Boolean
     get() = this.state && (sprintMode equal "AlwaysFake" || (sprintMode equal "FakeWhenOpen" && mc.currentScreen != null))
@@ -43,14 +45,11 @@ class InvMove : Module("InvMove","Allows you to walk while an inventory is opene
     fun onUpdate(event: UpdateEvent){
 
         //if (event.eventState == UpdateState.OnLivingUpdate){
-
-        if (mc.currentScreen !is GuiChat && mc.currentScreen !is GuiIngameMenu)
+        if (state && mc.currentScreen !is GuiChat && mc.currentScreen !is GuiIngameMenu)
             for (affectedBinding in affectedBindings) {
                 affectedBinding.pressed = GameSettings.isKeyDown(affectedBinding)
             }
-
         //}
-
     }
 
     @EventTarget
@@ -66,6 +65,9 @@ class InvMove : Module("InvMove","Allows you to walk while an inventory is opene
                 affectedBinding.pressed = false
         }
     }
+
+    override fun handleEvents(): Boolean = state || alwaysActiveWithClickGui.get() && (mc.currentScreen is ClickGui.ClickGUI || mc.currentScreen is ClickGui.NewClickGui)
+
 
     override val tag: String
         get() = "Sprint:${sprintMode.get()}" + if (bypass.get()) " & NoPacket" else ""

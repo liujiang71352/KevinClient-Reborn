@@ -15,7 +15,7 @@ import java.awt.Color
 @ElementInfo(name = "Notifications", single = true)
 class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)) : Element(x, y, scale, side) {
 
-    private val notificationMode = ListValue("NotificationMode", arrayOf("Connect","LiquidBounce-Kevin","Kevin", "Normal"),"Connect")
+    private val notificationMode = ListValue("NotificationMode", arrayOf("Connect","LiquidBounce-Kevin","Kevin", "Normal", "Simple"),"Connect")
     private val exampleNotification = Notification("Example Notification", "Example title")
     override fun drawElement(): Border? {
         var animationY = 30F
@@ -29,7 +29,8 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
                     "LiquidBounce-Kevin" -> i.drawNotification(animationY).also { animationY += 20 }
                     "Kevin" -> i.drawNotificationKevinNew(animationY).also { animationY += 40 }
                     "Connect" -> i.drawConnectNotification(animationY).also { animationY += 24 }
-                    "Normal" -> i.drawNormalNotification(animationY).also { animationY += 24}
+                    "Normal" -> i.drawNormalNotification(animationY).also { animationY += 24 }
+                    "Simple" -> i.drawSimpleNotification(animationY).also { animationY += 24 }
                 }
             } else {
                 when (notificationMode.get()) {
@@ -37,6 +38,7 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
                     "Kevin" -> exampleNotification.drawNotificationKevinNew(animationY)
                     "Connect" -> exampleNotification.drawConnectNotification(animationY)
                     "Normal" -> i.drawNormalNotification(animationY)
+                    "Simple" -> i.drawSimpleNotification(animationY)
                 }
             }
         }
@@ -473,18 +475,65 @@ class Notification(private val message: String, val title: String = "", val type
             animeTime = System.currentTimeMillis()
         }
         val c = 16.0 / 48.0
-        val long = textLength + KevinClient.fontManager.font35.getStringWidth("[$title]: ")
+        val long = textLength + KevinClient.fontManager.font35.getStringWidth("[$title] ")
         // Draw notification
         RenderUtils.drawRect(8 + long - x, -y, -x, -20F - y, Color(0, 0, 0, 155).rgb)
         RenderUtils.drawShadow(-x, -20F-y,  8F + long, 20F)
-        KevinClient.fontManager.font35.drawString("[$title]: ", 4 - x, -14F-y, Color(240, 240, 240).rgb)
+        KevinClient.fontManager.font35.drawString("[$title] ", 4 - x, -14F-y, Color(240, 240, 240).rgb)
         KevinClient.fontManager.font35.drawString(message, 4 + KevinClient.fontManager.font35.getStringWidth("[$title]: ") - x, -14F-y, Color(255, 255, 255, 255).rgb)
         if (fadeState != IN) {
             var pec = (System.currentTimeMillis() - timer).toDouble() / 3000
             if (pec > 1.0) pec = 1.0
-            RenderUtils.drawRect(((8 + long)*pec - x).toFloat(), -y, -x, -2F - y, Color(255, 144, 71, 255).rgb)
+            RenderUtils.drawRect(((8 + long)*pec - x).toFloat(), -y, -x, -2F - y, if (message.contains("Enable", true)) {Color(0, 255, 40, 255).rgb} else if (message.contains("Disable", true)) {Color(255, 20, 12, 255).rgb} else {Color(255, 144, 71, 255).rgb})
         }
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
+        // Animation
+        val delta = RenderUtils.deltaTime - 4
+        val width = long + 8F
+        when (fadeState) {
+            IN -> {
+                if (x < width) {
+                    x = AnimationUtils.easeOut(fadeStep, width) * width
+                    fadeStep += delta / 4F
+                }
+                if (x >= width) {
+                    fadeState = STAY
+                    timer = System.currentTimeMillis()
+                    x = width
+                    fadeStep = width
+                }
+            }
+            STAY -> {
+                if (System.currentTimeMillis() - timer >= 3000)
+                    fadeState = OUT
+            }
+            OUT -> if (x > 0) {
+                x = AnimationUtils.easeOut(fadeStep, width) * width
+                fadeStep -= delta / 4F
+            } else fadeState = END
+            END -> KevinClient.hud.removeNotification(this)
+        }
+    }
+    fun drawSimpleNotification(animationY: Float) {  // normal base
+        var y = animationY
+        if (firstY == 1919.0F)
+            firstY = y
+        if (firstY > y) {
+            val cacheY = firstY - (firstY - y) * ((System.currentTimeMillis() - animeTime).toFloat() / 300.0f)
+            if (cacheY <= y)
+                firstY = cacheY
+            y = cacheY
+        } else {
+            firstY = y
+            animeTime = System.currentTimeMillis()
+        }
+        val c = 16.0 / 48.0
+        val long = textLength
+        // Draw notification
+        RenderUtils.drawRect(8 + long - x, -y, -x, -19F - y, Color(0, 0, 0, 173).rgb)
+        RenderUtils.drawShadow(-x, -19F-y,  8F + long, 19F)
+        KevinClient.fontManager.font35.drawString(message, 4 - x, -14F-y, Color(255, 255, 255, 255).rgb)
+
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
         // Animation
         val delta = RenderUtils.deltaTime - 4
