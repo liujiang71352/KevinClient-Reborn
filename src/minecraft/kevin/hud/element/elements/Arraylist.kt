@@ -48,6 +48,7 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
     private val arrayListRectColorGreenValue = IntegerValue("ArrayList-Rect-G", 255, 0, 255)
     private val arrayListRectColorBlueValue = IntegerValue("ArrayList-Rect-B", 255, 0, 255)
     private val arrayListRectColorBlueAlpha = IntegerValue("ArrayList-Rect-Alpha", 255, 0, 255)
+    private val hideRenderModuleValue = BooleanValue("HideRenderModule", false)
     private val arrayListRectValue = ListValue("ArrayList-Rect", arrayOf("None", "Left", "Right", "All"), "All")
     private val arrayListRectWidth = FloatValue("ArrayList-RectWidth",2F,1F,3F)
 
@@ -230,7 +231,7 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
         val upperCaseValue = arrayListUpperCaseValue
         val tagsArrayColor = arrayListTagsArrayColor
         modules = KevinClient.moduleManager.getModules()
-            .filter { it.array && it.slide > 0 }
+            .filter { it.array && it.slide > 0 && (!hideRenderModuleValue.get() || it.category != ModuleCategory.RENDER) }
             .sortedBy { -fontValue.getStringWidth(if (upperCaseValue.get()) (if (!tags.get()) it.name else if (tagsArrayColor.get()) it.getColorlessTagName(tagLeft,tagRight) else it.getTagName(tagLeft,tagRight)).toUpperCase() else if (!tags.get()) it.name else if (tagsArrayColor.get()) it.getColorlessTagName(tagLeft,tagRight) else it.getTagName(tagLeft,tagRight)) }
     }
 }

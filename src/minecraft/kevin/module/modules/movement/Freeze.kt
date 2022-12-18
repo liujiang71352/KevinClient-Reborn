@@ -46,6 +46,7 @@ class Freeze : Module("Freeze", "Allows you to stay stuck in mid air.", category
                 "NoMove" -> {
                     packet.yaw = rotationYaw
                     packet.pitch = rotationPitch
+                    packet.rotating = false
                 }
             }
         }

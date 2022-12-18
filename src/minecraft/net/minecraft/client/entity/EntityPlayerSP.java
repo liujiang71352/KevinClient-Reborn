@@ -178,7 +178,9 @@ public class EntityPlayerSP extends AbstractClientPlayer
      */
     public void onUpdateWalkingPlayer() {
         try {
-            KevinClient.eventManager.callEvent(new MotionEvent(EventState.PRE));
+            final MotionEvent preEvent = new MotionEvent(EventState.PRE);
+            KevinClient.eventManager.callEvent(preEvent);
+            if (preEvent.isCancelled()) return;
             final InvMove invMove = KevinClient.moduleManager.getModule(InvMove.class);
             final boolean fakeSprint =
                     invMove.getNeedFakeSprint()
@@ -714,7 +716,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
      */
     public boolean isSneaking()
     {
-        boolean flag = this.movementInput != null ? this.movementInput.sneak : false;
+        boolean flag = this.movementInput != null && this.movementInput.sneak;
         return flag && !this.sleeping;
     }
 

@@ -1,15 +1,18 @@
 package kevin.module.modules.movement
 
 import kevin.event.EventTarget
+import kevin.event.PacketEvent
 import kevin.event.UpdateEvent
 import kevin.main.KevinClient
 import kevin.module.BooleanValue
+import kevin.module.ListValue
 import kevin.module.Module
 import kevin.module.ModuleCategory
 import kevin.module.modules.combat.SuperKnockback
 import kevin.utils.MovementUtils
 import kevin.utils.Rotation
 import kevin.utils.RotationUtils
+import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minecraft.potion.Potion
 import org.lwjgl.input.Keyboard
 
@@ -21,6 +24,8 @@ class Sprint : Module("Sprint","Automatically sprints all the time.", Keyboard.K
 
     val checkServerSide: BooleanValue = BooleanValue("CheckServerSide", false)
     val checkServerSideGround: BooleanValue = BooleanValue("CheckServerSideOnlyGround", false)
+
+    val packetMode = ListValue("PacketMode", arrayOf("Normal", "NoPacket", "NoStart", "NoStop"), "Normal")
 
     @EventTarget
     fun onUpdate(event: UpdateEvent?) {
@@ -41,5 +46,19 @@ class Sprint : Module("Sprint","Automatically sprints all the time.", Keyboard.K
             return
         }
         if (allDirectionsValue.get() || mc.thePlayer.movementInput.moveForward >= 0.8f) mc.thePlayer.isSprinting = true
+    }
+
+    @EventTarget fun onPacket(event: PacketEvent) {
+        if (packetMode equal "Normal") return
+        val packet = if (event.packet is C0BPacketEntityAction) event.packet else return
+        when (packet.action) {
+            C0BPacketEntityAction.Action.START_SPRINTING -> {
+                if (!(packetMode equal "NoStop")) event.cancelEvent()
+            }
+            C0BPacketEntityAction.Action.STOP_SPRINTING -> {
+                if (!(packetMode equal "NoStart")) event.cancelEvent()
+            }
+            else -> return
+        }
     }
 }

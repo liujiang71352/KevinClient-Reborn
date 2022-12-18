@@ -16,7 +16,7 @@ import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S19PacketEntityStatus
 
 class FastUse : Module("FastUse", "Allows you to use items faster.", category = ModuleCategory.PLAYER) {
-    private val modeValue = ListValue("Mode", arrayOf("Instant", "NCP", "AAC", "Custom"), "NCP")
+    private val modeValue = ListValue("Mode", arrayOf("Instant", "NCP", "AAC", "Semi", "Custom"), "NCP")
 
     private val noMoveValue = BooleanValue("NoMove", false)
 
@@ -75,6 +75,11 @@ class FastUse : Module("FastUse", "Allows you to use items faster.", category = 
 
                 "aac" -> {
                     mc.timer.timerSpeed = 1.22F
+                    usedTimer = true
+                }
+
+                "semi" -> {
+                    mc.timer.timerSpeed = if (usedTimer) mc.timer.timerSpeed + 0.002F else return
                     usedTimer = true
                 }
 

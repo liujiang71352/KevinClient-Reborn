@@ -7,9 +7,12 @@ import kevin.main.KevinClient
 import kevin.module.BooleanValue
 import kevin.module.Module
 import kevin.module.ModuleCategory
+import net.minecraft.network.play.client.C09PacketHeldItemChange
 
-class HUD : Module("HUD","Toggles visibility of the HUD.",category = ModuleCategory.RENDER) {
+class HUD(currentSlot: Int) : Module("HUD","Toggles visibility of the HUD.",category = ModuleCategory.RENDER) {
     var keepScoreboard = BooleanValue("KeepScoreboard", true)
+    private var hotBarShowCurrentSlot = BooleanValue("HotBarShowCurrentSlot", true)
+    private var currentPacketSlot = 0
 
     @EventTarget
     fun onRender2D(event: Render2DEvent?) {
@@ -34,6 +37,10 @@ class HUD : Module("HUD","Toggles visibility of the HUD.",category = ModuleCateg
         KevinClient.hud.update()
     }
 
+    @EventTarget(true) fun onPacket(event: PacketEvent) {
+        currentPacketSlot = if (event.packet is C09PacketHeldItemChange) event.packet.slotId else return
+    }
+
     @EventTarget(true)
     fun updateScoreboard(event: UpdateEvent) {
         if (!this.state && keepScoreboard.get() && KevinClient.hud.elements.filterIsInstance<ScoreboardElement>().isNotEmpty()) {
@@ -45,4 +52,7 @@ class HUD : Module("HUD","Toggles visibility of the HUD.",category = ModuleCateg
     fun onKey(event: KeyEvent) {
         KevinClient.hud.handleKey('a', event.key)
     }
+
+    val currentSlot: Int
+        get() = if (hotBarShowCurrentSlot.get()) currentPacketSlot else mc.thePlayer.inventory.currentItem
 }

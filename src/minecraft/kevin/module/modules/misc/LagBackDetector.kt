@@ -36,7 +36,7 @@ class LagBackDetector : Module("LagBackDetector", "Detect lag back from server."
         if (distanceCheckValue.get()) {
             if (sqrt((packet.x - mc.thePlayer.posX).pow(2) + (packet.z - mc.thePlayer.posZ).pow(2)) > 10) return
         }
-        val message = "Flag detected ${if (countValue.get()) ", count: $count" else ""}"
+        val message = "Flag detected${if (countValue.get()) ", count: ${++count}" else ""}"
         when (modeValue.get()) {
             "Chat" -> ChatUtils.messageWithStart("[LagBackDetector] $message")
             "Notification" -> KevinClient.hud.addNotification(Notification(message, "LagBackDetector", ConnectNotificationType.Warn))

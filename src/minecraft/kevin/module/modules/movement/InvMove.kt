@@ -66,7 +66,7 @@ class InvMove : Module("InvMove","Allows you to walk while an inventory is opene
         }
     }
 
-    override fun handleEvents(): Boolean = state || alwaysActiveWithClickGui.get() && (mc.currentScreen is ClickGui.ClickGUI || mc.currentScreen is ClickGui.NewClickGui)
+    override fun handleEvents(): Boolean = state || (alwaysActiveWithClickGui.get() && (mc.currentScreen is ClickGui.ClickGUI || mc.currentScreen is ClickGui.NewClickGui))
 
 
     override val tag: String

@@ -107,6 +107,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
     private static final Logger logger = LogManager.getLogger();
     private static final ResourceLocation locationRainPng = new ResourceLocation("textures/environment/rain.png");
     private static final ResourceLocation locationSnowPng = new ResourceLocation("textures/environment/snow.png");
+    private static final Render3DEvent renderEvent = new Render3DEvent(0f);
     public static boolean anaglyphEnable;
 
     /** Anaglyph field (0=R, 1=GB) */
@@ -1930,7 +1931,8 @@ public class EntityRenderer implements IResourceManagerReloadListener
             this.renderCloudsCheck(renderglobal, partialTicks, pass);
         }
 
-        KevinClient.eventManager.callEvent(new Render3DEvent(partialTicks));
+        renderEvent.setPartialTicks(partialTicks);
+        KevinClient.eventManager.callEvent(renderEvent);
 
         this.mc.mcProfiler.endStartSection("hand");
 

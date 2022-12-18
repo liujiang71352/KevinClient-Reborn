@@ -10,6 +10,7 @@ import java.util.Random;
 import kevin.event.Render2DEvent;
 import kevin.main.KevinClient;
 import kevin.module.modules.render.AntiBlind;
+import kevin.module.modules.render.HUD;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -50,6 +51,7 @@ import net.optifine.CustomColors;
 
 public class GuiIngame extends Gui
 {
+    private static final Render2DEvent render2DEvent = new Render2DEvent(0f);
     private static final ResourceLocation vignetteTexPath = new ResourceLocation("textures/misc/vignette.png");
     private static final ResourceLocation widgetsTexPath = new ResourceLocation("textures/gui/widgets.png");
     private static final ResourceLocation pumpkinBlurTexPath = new ResourceLocation("textures/misc/pumpkinblur.png");
@@ -108,6 +110,8 @@ public class GuiIngame extends Gui
 
     /** Used with updateCounter to make the heart bar flash */
     private long healthUpdateCounter = 0L;
+
+    private HUD hud;
 
     public GuiIngame(Minecraft mcIn)
     {
@@ -371,7 +375,8 @@ public class GuiIngame extends Gui
 
     protected void renderTooltip(ScaledResolution sr, float partialTicks)
     {
-        KevinClient.eventManager.callEvent(new Render2DEvent(partialTicks));
+        render2DEvent.setPartialTicks(partialTicks);
+        KevinClient.eventManager.callEvent(render2DEvent);
         if (this.mc.getRenderViewEntity() instanceof EntityPlayer)
         {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -380,8 +385,11 @@ public class GuiIngame extends Gui
             int i = sr.getScaledWidth() / 2;
             float f = this.zLevel;
             this.zLevel = -90.0F;
+            if (hud == null) {
+                hud = KevinClient.moduleManager.getModule(HUD.class);
+            }
             this.drawTexturedModalRect(i - 91, sr.getScaledHeight() - 22, 0, 0, 182, 22);
-            this.drawTexturedModalRect(i - 91 - 1 + entityplayer.inventory.currentItem * 20, sr.getScaledHeight() - 22 - 1, 0, 22, 24, 22);
+            this.drawTexturedModalRect(i - 91 - 1 + hud.getCurrentSlot() * 20, sr.getScaledHeight() - 22 - 1, 0, 22, 24, 22);
             this.zLevel = f;
             GlStateManager.enableRescaleNormal();
             GlStateManager.enableBlend();

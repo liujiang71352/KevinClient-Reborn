@@ -10,13 +10,12 @@ object IntaveHop: SpeedMode("IntaveHop") { // from Rise
     override fun onPreMotion() {
         offGroundTicks++
         if (mc.thePlayer.onGround) {
-            MovementUtils.strafe((MovementUtils.getBaseMoveSpeed() * 1.2).toFloat());
+            MovementUtils.strafe((MovementUtils.getBaseMoveSpeed() * 1.2).toFloat())
             offGroundTicks = 0
-            mc.thePlayer.jump();
-        } else if (offGroundTicks == 4) {
-            mc.thePlayer.motionY = -0.0784000015258789;
+            mc.thePlayer.jump()
         }
+//        else if (offGroundTicks == 4) { mc.thePlayer.motionY = -0.0784000015258789 }
 
-        MovementUtils.strafe();
+        MovementUtils.strafe()
     }
 }

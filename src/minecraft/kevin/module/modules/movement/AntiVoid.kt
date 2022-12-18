@@ -18,6 +18,7 @@ import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import org.lwjgl.opengl.GL11
 import java.awt.Color
+import kotlin.collections.ArrayList
 import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.max
@@ -111,7 +112,7 @@ class AntiVoid : Module("AntiVoid","Automatically setbacks you after falling a c
                 }
             }
         }
-        if(modeValue.get().toLowerCase() == "minemora-blink" && !KevinClient.moduleManager.getModule(Fly::class.java).state && !KevinClient.moduleManager.getModule(HighJump::class.java).state) {
+        if(modeValue.get().lowercase() == "minemora-blink" && !KevinClient.moduleManager.getModule(Fly::class.java).state && !KevinClient.moduleManager.getModule(HighJump::class.java).state) {
             if(!blink){
                 if(canBlink && thePlayer.fallDistance - lastFound > maxDistanceWithoutGround.get()){
                     posX=mc.thePlayer!!.posX

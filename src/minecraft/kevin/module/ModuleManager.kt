@@ -144,7 +144,7 @@ class ModuleManager : Listenable {
             ESP(),
             FreeCam(),
             FullBright(),
-            HUD(),
+            HUD(0),
             HudDesigner(),
             ItemESP(),
             NameTags(),

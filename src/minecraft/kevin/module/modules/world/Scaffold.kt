@@ -23,6 +23,7 @@ import net.minecraft.util.MathHelper.wrapAngleTo180_float
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 import java.util.*
+import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.*
 
 class Scaffold : Module("Scaffold", "Automatically places blocks beneath your feet.", category = ModuleCategory.WORLD) {
@@ -101,7 +102,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
 
     // Rotation Options
     private val rotationValues = arrayOf("Off", "Normal", "AAC", "Custom")
-    private val strafeMode = ListValue("Strafe", arrayOf("Off", "AAC"), "Off")
+    private val strafeMode = ListValue("Strafe", arrayOf("Off", "AAC", "Strict"), "Off")
     private val rotationsValue = ListValue("Rotations", rotationValues, "Normal")
     private val towerRotationsValue = ListValue("TowerRotations", rotationValues, "Normal")
     private val aacYawOffsetValue = IntegerValue("AACYawOffset", 0, 0, 90)
@@ -211,7 +212,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
     // Rotation lock
     private var lockRotation: Rotation? = null
     private var lockRotationTimer = TickTimer()
-
+    private var aacRotationPositive = true
 
     // Launch position
     private var launchY = 0
@@ -241,6 +242,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
         launchY = mc.thePlayer!!.posY.toInt()
         slot = mc.thePlayer!!.inventory.currentItem
         facesBlock = false
+        aacRotationPositive = ThreadLocalRandom.current().nextBoolean()
     }
 
     private fun fakeJump() {
@@ -424,7 +426,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
                     }
                 }
             }
-            if (placedBlocksWithoutEagle >= blocksToEagleValue.get()) {
+            if (placedBlocksWithoutEagle >= blocksToEagleValue.get() || !facesBlock) {
                 val shouldEagle: Boolean = mc.theWorld!!.getBlockState(
                     BlockPos(
                         mc.thePlayer!!.posX,
@@ -491,9 +493,15 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
             setRotation(lockRotation!!)
             lockRotationTimer.update()
         }
-        lockRotation?.applyStrafeToPlayer(event)
-        if (lockRotation != null)
+        // not null
+        lockRotation?.let {
+            if (strafeMode.get().equals("AAC", true)) {
+                it.applyStrafeToPlayer(event)
+            } else { // strafeMode.get().equals("Strict", true)
+                it.applyVanillaStrafeToPlayer(event)
+            }
             event.cancelEvent()
+        }
     }
 
     @EventTarget
@@ -503,7 +511,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
         if (motionSpeedEnabled.get())
             MovementUtils.setMotion(motionSpeedValue.get().toDouble())
 
-        //AutoJump
+        // AutoJump
         if (mc.thePlayer.onGround
             && mc.thePlayer.jumpTicks == 0
             && MovementUtils.isMoving
@@ -1061,7 +1069,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
             "Custom" -> Rotation(mc.thePlayer.rotationYaw + customTowerYawValue.get(), customTowerPitchValue.get())
             else -> rotation
         } else when(rotationsValue.get()) {
-            "AAC" -> Rotation(mc.thePlayer.rotationYaw + (if (mc.thePlayer.movementInput.moveForward < 0) 0 else 180) + aacYawOffsetValue.get(), rotation.pitch)
+            "AAC" -> Rotation(mc.thePlayer.rotationYaw + ((if (mc.thePlayer.movementInput.moveForward < 0) 0 else 180) * if (aacRotationPositive) 1 else -1) + aacYawOffsetValue.get(), rotation.pitch)
             "Custom" -> Rotation(mc.thePlayer.rotationYaw + customYawValue.get(), customPitchValue.get())
             else -> rotation
         }

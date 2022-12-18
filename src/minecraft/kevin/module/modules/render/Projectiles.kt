@@ -244,7 +244,7 @@ class Projectiles : Module("Projectiles", "Allows you to see where arrows will l
                 2 -> GL11.glRotatef(90F, 1F, 0F, 0F)
             }
 
-            // Check if hitting a entity
+            // Check if hitting an entity
             if (hitEntity)
                 RenderUtils.glColor(Color(255, 0, 0, 150))
         }

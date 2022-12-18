@@ -8,7 +8,13 @@ import net.minecraft.block.material.Material
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.entity.Entity
+import net.minecraft.entity.item.EntityEnderPearl
 import net.minecraft.entity.projectile.EntityArrow
+import net.minecraft.entity.projectile.EntityEgg
+import net.minecraft.entity.projectile.EntityFireball
+import net.minecraft.entity.projectile.EntityFishHook
+import net.minecraft.entity.projectile.EntityPotion
+import net.minecraft.entity.projectile.EntitySnowball
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.Vec3
@@ -28,13 +34,32 @@ class Trajectories : Module("Trajectories", description = "Shows the trajectory 
     @EventTarget
     fun onRender3D(event: Render3DEvent){
         for (e in mc.theWorld?.loadedEntityList ?: return) {
-            if (e !is EntityArrow) continue
+            if (e !is EntityArrow && e !is EntityFishHook && e !is EntitySnowball && e !is EntityEnderPearl && e !is EntityEgg && e !is EntityFireball) continue
             val thePlayer = mc.thePlayer ?: return
             val theWorld = mc.theWorld ?: return
             val renderManager = mc.renderManager
-            val motionSlowdown = 0.99F
-            val gravity = 0.05F
-            val size = 0.3F
+            var motionSlowdown = 0.99F
+            var gravity = 0.05F
+            var size = 0.3F
+            when (e) {
+                is EntityArrow -> {
+                    motionSlowdown = 0.99F
+                }
+                is EntityFishHook -> {
+                    gravity = 0.04F
+                    size = 0.25F
+                    motionSlowdown = 0.92F
+                }
+                is EntityFireball -> {
+                    gravity = 0F
+                    size = 0.5F
+                    motionSlowdown = 1F
+                }
+                else -> {
+                    gravity = 0.03F
+                    size = 0.25F
+                }
+            }
 
             var motionX = e.motionX
             var motionY = e.motionY
@@ -63,7 +88,7 @@ class Trajectories : Module("Trajectories", description = "Shows the trajectory 
                 val posBefore = Vec3(posX, posY, posZ)
                 val posAfter = Vec3(posX + motionX, posY + motionY, posZ + motionZ)
 
-                val landingPosition = theWorld.rayTraceBlocks(posBefore, posAfter,false, true,false)
+                var landingPosition = theWorld.rayTraceBlocks(posBefore, posAfter,false, true,false)
 
                 if (landingPosition != null) {
                     hasLanded = true
@@ -86,7 +111,14 @@ class Trajectories : Module("Trajectories", description = "Shows the trajectory 
 
                 for (possibleEntity in collidedEntities) {
                     if (possibleEntity.canBeCollidedWith()) {
+                        val possibleEntityBoundingBox = possibleEntity.entityBoundingBox
+                            .expand(size.toDouble(), size.toDouble(), size.toDouble())
+
+                        val possibleEntityLanding = possibleEntityBoundingBox
+                            .calculateIntercept(posBefore, posAfter) ?: continue
                         hasLanded = true
+
+                        landingPosition = possibleEntityLanding
                     }
                 }
 

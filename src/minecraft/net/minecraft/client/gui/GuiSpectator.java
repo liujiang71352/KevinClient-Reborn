@@ -15,6 +15,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class GuiSpectator extends Gui implements ISpectatorMenuRecipient
 {
+    private static final Render2DEvent render2DEvent = new Render2DEvent(0f);
     private static final ResourceLocation field_175267_f = new ResourceLocation("textures/gui/widgets.png");
     public static final ResourceLocation field_175269_a = new ResourceLocation("textures/gui/spectator_widgets.png");
     private final Minecraft field_175268_g;
@@ -48,7 +49,8 @@ public class GuiSpectator extends Gui implements ISpectatorMenuRecipient
 
     public void renderTooltip(ScaledResolution p_175264_1_, float p_175264_2_)
     {
-        KevinClient.eventManager.callEvent(new Render2DEvent(p_175264_2_));
+        render2DEvent.setPartialTicks(p_175264_2_);
+        KevinClient.eventManager.callEvent(render2DEvent);
         if (this.field_175271_i != null)
         {
             float f = this.func_175265_c();

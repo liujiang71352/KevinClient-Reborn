@@ -60,8 +60,8 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
 
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
 
-    // Range
-    private val rangeValue: FloatValue = object : FloatValue("Range", 3.7f, 1f, 8f) {
+    // Range (public because velocity...)
+    val rangeValue: FloatValue = object : FloatValue("Range", 3.7f, 1f, 8f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
             val i = discoverRangeValue.get()
             if (i < newValue) set(i)
@@ -86,7 +86,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     private val targetModeValue = ListValue("TargetMode", arrayOf("Single", "Switch", "Multi"), "Switch")
 
     // Bypass
-    private val swingValue = ListValue("SwingMode", arrayOf("Normal", "Packet", "OFF"), "Normal")
+    private val swingValue = ListValue("SwingMode", arrayOf("Normal", "BetterVisual", "Packet", "OFF"), "Normal")
     private val keepSprintValue = BooleanValue("KeepSprint", true)
     private val scaffoldCheck = BooleanValue("ScaffoldCheck", true)
 
@@ -524,6 +524,12 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     private fun doSwing() {
         when(swingValue.get()) {
             "Normal" -> mc.thePlayer.swingItem()
+            "BetterVisual" -> {
+                if (currentTarget == null || currentTarget !is EntityLivingBase || (currentTarget as EntityLivingBase).hurtTime <= 1)
+                    mc.thePlayer.swingItem()
+                else
+                    mc.netHandler.addToSendQueue(C0APacketAnimation())
+            }
             "Packet" -> mc.netHandler.addToSendQueue(C0APacketAnimation())
         }
     }

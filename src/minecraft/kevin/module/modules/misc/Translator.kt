@@ -28,7 +28,12 @@ object Translator : Module("Translator","Translate chat messages from server.") 
     private fun getLink(msg: String):String{
         val message=msg.replace(" ","%20")
         return when(apiValue.get().lowercase()){
-            "google" -> "http://translate.google.cn/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl=" + (if (languageValue.equals("chinese")) "zh_cn" else "en_us") + "&q=$message"
+            "google" -> "http://translate.google.cn/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl=${
+                if (languageValue.equals(
+                        "chinese"
+                    )
+                ) "zh_cn" else "en_us"
+            }&q=$message"
             "youdao" -> "http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=$message"
             else -> ""
         }
@@ -56,7 +61,7 @@ object Translator : Module("Translator","Translate chat messages from server.") 
                 val response = client.execute(request)
 
                 if (response.statusLine.statusCode != 200) {
-                    throw IllegalStateException("resp code: "+response.statusLine.statusCode+" != 200")
+                    throw IllegalStateException("resp code: ${response.statusLine.statusCode} != 200")
                 }
                 chatMessage = ChatComponentText(getResult(EntityUtils.toString(response.entity)))
                 chatMessage.chatStyle = msg.chatStyle

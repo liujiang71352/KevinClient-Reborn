@@ -126,9 +126,10 @@ public class AutoArmor extends Module {
      */
     private boolean move(int item, boolean isArmorSlot) {
         if (!isArmorSlot && item < 9 && hotbarValue.get() && !(mc.currentScreen instanceof GuiInventory)) {
-            mc.getNetHandler().addToSendQueue(new C09PacketHeldItemChange(item));
+            final boolean changed = mc.thePlayer.inventory.currentItem != item; // GrimAC BadPackets check - type A (or F)
+            if (changed) mc.getNetHandler().addToSendQueue(new C09PacketHeldItemChange(item));
             mc.getNetHandler().addToSendQueue(new C08PacketPlayerBlockPlacement(mc.thePlayer.inventoryContainer.getSlot(item).getStack()));
-            mc.getNetHandler().addToSendQueue(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
+            if (changed) mc.getNetHandler().addToSendQueue(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
 
             delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get());
 

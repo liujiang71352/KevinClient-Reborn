@@ -395,10 +395,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         targetRotation = null;
     }
 
-    /**
-     * @return YESSSS!!!
-     */
-    @Override
-    public boolean handleEvents() {return true;}
+    // why? here is no @EventTarget
+    @Override public boolean handleEvents() {return true;}
 }
 

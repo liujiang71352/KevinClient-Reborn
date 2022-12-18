@@ -58,7 +58,8 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
                 "LiquidBounce-Kevin" -> return Border(-118.114514191981F, -50F, 0F, -30F)
                 "Kevin" -> return Border(-114.5F, -70F, 0F, -30F)
                 "Connect" -> return Border(-220F, -50F, 0F, -30F) //
-                "Normal" -> return Border(-220F, -50F, 0F, -30F)
+                "Normal" -> return Border(-150F, -50F, 0F, -30F)
+                "Simple" -> return Border(-110F, -50F, 0F, -30F)
             }
         }
         GL11.glDisable(GL11.GL_BLEND)

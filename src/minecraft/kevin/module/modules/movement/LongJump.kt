@@ -102,12 +102,12 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
                         thePlayer.motionY += 0.05f
                     }
                     "blocksmcblockover" -> {
-                        if (mc.theWorld.isBlockFullCube(BlockPos(mc.thePlayer.posX, mc.thePlayer.posY + 2, mc.thePlayer.posZ))) {
+                        if (mc.theWorld.isBlockFullCube(BlockPos(mc.thePlayer.posX, mc.thePlayer.posY + 2.1, mc.thePlayer.posZ))) {
                             canBoost = true
                             mc.timer.timerSpeed = 0.2F
                             return
-                        } else if (canBoost) {
-                            mc.thePlayer.motionY = 0.2
+                        } else if (canBoost && thePlayer.onGround) {
+                            thePlayer.motionY = 0.2
                             mc.timer.timerSpeed = 1F
                             MovementUtils.strafe(5.0f)
                             canBoost = false

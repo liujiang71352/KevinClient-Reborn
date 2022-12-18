@@ -29,7 +29,7 @@ class JumpEvent(var motion: Float) : CancellableEvent()
 
 class KeyEvent(val key: Int) : Event()
 
-class MotionEvent(val eventState: EventState) : Event()
+class MotionEvent(val eventState: EventState) : CancellableEvent()
 
 class SlowDownEvent(var strafe: Float, var forward: Float) : Event()
 
@@ -54,9 +54,9 @@ class PacketEvent(val packet: Packet<*>/**,val eventState: PacketMode**/) : Canc
 
 class PushOutEvent : CancellableEvent()
 
-class Render2DEvent(val partialTicks: Float) : Event()
+class Render2DEvent(var partialTicks: Float) : Event()
 
-class Render3DEvent(val partialTicks: Float) : Event()
+class Render3DEvent(var partialTicks: Float) : Event()
 
 class RenderEntityEvent(val entity: Entity, val x: Double, val y: Double, val z: Double, val entityYaw: Float,
                         val partialTicks: Float) : Event()
