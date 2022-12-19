@@ -29,7 +29,7 @@ class KeepRange: Module("KeepDistance", "Keep yourself out of a range with your 
         if (mode equal "CancelMove") {
             target?.let {
                 if (mc.thePlayer.getDistanceToEntityBox(it) <= minDistance.get()) {
-                    if (!onlyForward.get() || event.forward == 1.0F) {
+                    if (!onlyForward.get() || event.forward > 0F) {
                         event.cancelEvent()
                     }
                 }
@@ -43,9 +43,14 @@ class KeepRange: Module("KeepDistance", "Keep yourself out of a range with your 
             target = null
             return
         }
-        if (mode equal "ReleaseKey" && distance <= minDistance.get()) {
-            if (onlyForward.get()) mc.gameSettings.keyBindForward.pressed = false
-            else for (bind in binds) bind.pressed = false
+        if (mode equal "ReleaseKey") {
+            if (distance <= minDistance.get()) {
+                if (onlyForward.get()) mc.gameSettings.keyBindForward.pressed = false
+                else for (bind in binds) bind.pressed = false
+            } else {
+                if (onlyForward.get()) mc.gameSettings.keyBindForward.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindForward)
+                else for (bind in binds) bind.pressed = GameSettings.isKeyDown(bind)
+            }
         }
     }
 }

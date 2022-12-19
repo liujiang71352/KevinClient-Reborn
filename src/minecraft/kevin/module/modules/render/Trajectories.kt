@@ -24,7 +24,7 @@ import org.lwjgl.util.glu.Cylinder
 import org.lwjgl.util.glu.GLU
 import java.awt.Color
 import kotlin.math.floor
-import kotlin.math.max
+import kotlin.math.min
 
 class Trajectories : Module("Trajectories", description = "Shows the trajectory of the flying arrows.", category = ModuleCategory.RENDER) {
 
@@ -56,7 +56,7 @@ class Trajectories : Module("Trajectories", description = "Shows the trajectory 
                 }
                 is EntityFireball -> {
                     gravity = 0F
-                    size = 0.5F
+                    size = 0.4F
                     motionSlowdown = 1F
                 }
                 else -> {
@@ -83,10 +83,10 @@ class Trajectories : Module("Trajectories", description = "Shows the trajectory 
             if (colorMode.get() == "Rainbow"){
                 RenderUtils.glColor(ColorUtils.rainbow())
             }else if (colorMode equal "Distance") {
-                val distance = max(Vec3(posX, posY, posZ).squareDistanceTo(Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ)).times(10).toInt(), 255)
+                val distance = min(Vec3(posX, posY, posZ).squareDistanceTo(Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ)).times(2).toInt(), 255)
                 RenderUtils.glColor(Color(255 - distance, cColorG.get(), cColorB.get(), cColorA.get()))
             } else if (colorMode equal "Speed") {
-                RenderUtils.glColor(Color(cColorR.get(), 255 - max((motionX * motionX * 100 + motionZ * motionZ * 100).toInt(), 255), cColorB.get(), cColorA.get()))
+                RenderUtils.glColor(Color(cColorR.get(), 255 - min((motionX * motionX * 100 + motionZ * motionZ * 100).toInt(), 255), cColorB.get(), cColorA.get()))
             } else {
                 RenderUtils.glColor(Color(cColorR.get(), cColorG.get(), cColorB.get(), cColorA.get()))
             }
@@ -119,6 +119,7 @@ class Trajectories : Module("Trajectories", description = "Shows the trajectory 
                     for (z in chunkMinZ..chunkMaxZ)
                         theWorld.getChunkFromChunkCoords(x, z)
                             .getEntitiesWithinAABBForEntity(thePlayer, arrowBox, collidedEntities, null)
+                collidedEntities.add(thePlayer)
 
                 for (possibleEntity in collidedEntities) {
                     if (possibleEntity.canBeCollidedWith()) {

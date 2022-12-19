@@ -8,6 +8,7 @@ import kevin.hud.element.Side
 import kevin.main.KevinClient
 import kevin.utils.MSTimer
 import kevin.utils.RenderUtils
+import kevin.utils.getPing
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.server.S02PacketChat
 import net.minecraft.network.play.server.S03PacketTimeUpdate
@@ -33,6 +34,8 @@ class Information(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,side: Sid
     private var lastZ = 0.0
     //Playtime
     private val startTime: Long
+    //Ping
+    private var ping = -1
 
     override fun drawElement(): Border {
         RenderUtils.drawRectRoundedCorners(10.0,10.0,100.0,70.0,5.0, Color(255,255,255,100))
@@ -51,6 +54,7 @@ class Information(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,side: Sid
         GL11.glPushMatrix()
         GL11.glScaled(0.6,0.6,0.6)
         KevinClient.fontManager.font40.drawString("TPS: $tps",20/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,if(tps >= 19.0) Color(0,255,0,200).rgb else Color(255,0,0,200).rgb)
+        KevinClient.fontManager.font40.drawString("Ping: $ping",20/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,if(ping <= 150) Color(0,255,0,200).rgb else Color(255,0,0,200).rgb)
         y += 2+ KevinClient.fontManager.font40.fontHeight/2F
         KevinClient.fontManager.font40.drawString("HurtTime: ${mc.thePlayer.hurtTime}",20/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,if (mc.thePlayer.hurtTime>0) Color(255,0,0,200).rgb else Color(0,20,255,200).rgb)
         y += 2+ KevinClient.fontManager.font40.fontHeight/2F
@@ -85,6 +89,7 @@ class Information(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,side: Sid
     fun onWorld(event: WorldEvent){
         tps = 20.0
         kills = 0
+        ping = -1
         attackEntities.clear()
         packetHistoryTime.clear()
     }
@@ -95,6 +100,7 @@ class Information(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,side: Sid
         attackEntities.forEach {if(it.isDead || it.health == 0F){kills+=1;attackEntities.remove(it)}}
         //BPS
         updateBPS()
+        ping = mc.thePlayer?.getPing() ?: -1
     }
 
     private fun updateTPS(){

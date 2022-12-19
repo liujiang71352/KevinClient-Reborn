@@ -317,6 +317,16 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
                 currentRotation.getPitch() + (pitchDifference > turnSpeed ? turnSpeed : Math.max(pitchDifference, -turnSpeed)
                 ));
     }
+    @NotNull
+    public static Rotation limitAngleChange(final Rotation currentRotation, final Rotation targetRotation, final float horizontalSpeed, final float verticalSpeed) {
+        final float yawDifference = getAngleDifference(targetRotation.getYaw(), currentRotation.getYaw());
+        final float pitchDifference = getAngleDifference(targetRotation.getPitch(), currentRotation.getPitch());
+
+        return new Rotation(
+                currentRotation.getYaw() + (yawDifference > horizontalSpeed ? horizontalSpeed : Math.max(yawDifference, -horizontalSpeed)),
+                currentRotation.getPitch() + (pitchDifference > verticalSpeed ? verticalSpeed : Math.max(pitchDifference, -verticalSpeed)
+                ));
+    }
 
     /**
      * Calculate difference between two angle points

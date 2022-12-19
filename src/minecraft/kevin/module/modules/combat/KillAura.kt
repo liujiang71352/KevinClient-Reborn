@@ -112,16 +112,30 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     private val keepRotationTickValue = IntegerValue("KeepRotationTick", 0, 0, 30)
 
     // Turn Speed
-    private val maxTurnSpeed: FloatValue = object : FloatValue("MaxTurnSpeed", 180f, 0f, 180f) {
+    private val yawMaxTurnSpeed: FloatValue = object : FloatValue("YawMaxTurnSpeed", 180f, 0f, 180f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
-            val v = minTurnSpeed.get()
+            val v = yawMinTurnSpeed.get()
             if (v > newValue) set(v)
         }
     }
 
-    private val minTurnSpeed: FloatValue = object : FloatValue("MinTurnSpeed", 180f, 0f, 180f) {
+    private val yawMinTurnSpeed: FloatValue = object : FloatValue("YawMinTurnSpeed", 180f, 0f, 180f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
-            val v = maxTurnSpeed.get()
+            val v = yawMaxTurnSpeed.get()
+            if (v < newValue) set(v)
+        }
+    }
+
+    private val pitchMaxTurnSpeed: FloatValue = object : FloatValue("PitchMaxTurnSpeed", 180f, 0f, 180f) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            val v = pitchMinTurnSpeed.get()
+            if (v > newValue) set(v)
+        }
+    }
+
+    private val pitchMinTurnSpeed: FloatValue = object : FloatValue("PitchMinTurnSpeed", 180f, 0f, 180f) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            val v = pitchMaxTurnSpeed.get()
             if (v < newValue) set(v)
         }
     }
@@ -735,7 +749,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
      * Update killaura rotations to enemy
      */
     private fun updateRotations(entity: Entity): Boolean {
-        if (maxTurnSpeed.get() <= 0F)
+        if (yawMaxTurnSpeed.get() <= 0F)
             return true
 
         var boundingBox = entity.entityBoundingBox
@@ -757,7 +771,9 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 discoverRangeValue.get()
             ) ?: return false
                 RotationUtils.limitAngleChange(RotationUtils.serverRotation, rotation,
-                    (Math.random() * (maxTurnSpeed.get() - minTurnSpeed.get()) + minTurnSpeed.get()).toFloat())
+                    (Math.random() * (yawMaxTurnSpeed.get() - yawMinTurnSpeed.get()) + yawMinTurnSpeed.get()).toFloat(),
+                    (Math.random() * (pitchMaxTurnSpeed.get() - pitchMinTurnSpeed.get()) + pitchMinTurnSpeed.get()).toFloat()
+                )
         } else {
             RotationUtils.limitAngleChange(
                 RotationUtils.serverRotation,
@@ -768,7 +784,8 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                     mc.thePlayer!!.getDistanceToEntityBox(entity) < throughWallsRangeValue.get(),
                     discoverRangeValue.get()
                 ) ?: return false,
-                (Math.random() * (maxTurnSpeed.get() - minTurnSpeed.get()) + minTurnSpeed.get()).toFloat()
+                (Math.random() * (yawMaxTurnSpeed.get() - yawMinTurnSpeed.get()) + yawMinTurnSpeed.get()).toFloat(),
+                (Math.random() * (pitchMaxTurnSpeed.get() - pitchMinTurnSpeed.get()) + pitchMinTurnSpeed.get()).toFloat()
             )
         }
 
@@ -789,7 +806,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
      */
     private fun updateHitable() {
         // Disable hitable check if turn speed is zero
-        if (maxTurnSpeed.get() <= 0F || alwaysHitable.get()) {
+        if (yawMaxTurnSpeed.get() <= 0F || alwaysHitable.get()) {
             hitable = true
             return
         }
@@ -809,7 +826,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 /**&& (LiquidBounce.moduleManager[NoFriends::class.java].state || !(classProvider.isEntityPlayer(raycastedEntity) && raycastedEntity.asEntityPlayer().isClientFriend()))**/)
                 currentTarget = raycastedEntity
 
-            hitable = if (maxTurnSpeed.get() > 0F) currentTarget == raycastedEntity else true
+            hitable = if (yawMaxTurnSpeed.get() > 0F) currentTarget == raycastedEntity else true
         } else
             hitable = RotationUtils.isFaced(currentTarget, reach)
     }
