@@ -4,6 +4,8 @@ import kevin.event.StrafeEvent
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.MathHelper
 import net.minecraft.util.Vec3
+import net.minecraft.util.Vec3i
+import net.minecraft.util.Vector3d
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -210,9 +212,17 @@ data class Rotation(var yaw: Float, var pitch: Float) : MinecraftInstance() {
             calcForward *= d
             val yawSin = MathHelper.sin(yaw * Math.PI.toFloat() / 180f)
             val yawCos = MathHelper.cos(yaw * Math.PI.toFloat() / 180f)
-            player.motionX += calcStrafe * yawCos - calcForward * yawSin.toDouble()
-            player.motionZ += calcForward * yawCos + calcStrafe * yawSin.toDouble()
+            player.motionX += calcStrafe * yawCos - calcForward * yawSin
+            player.motionZ += calcForward * yawCos + calcStrafe * yawSin
         }
+    }
+
+    fun toDirection(): Vec3 {
+        val f: Float = MathHelper.cos(-yaw * 0.017453292f - Math.PI.toFloat())
+        val f1: Float = MathHelper.sin(-yaw * 0.017453292f - Math.PI.toFloat())
+        val f2: Float = -MathHelper.cos(-pitch * 0.017453292f)
+        val f3: Float = MathHelper.sin(-pitch * 0.017453292f)
+        return Vec3((f1 * f2).toDouble(), f3.toDouble(), (f * f2).toDouble())
     }
 }
 

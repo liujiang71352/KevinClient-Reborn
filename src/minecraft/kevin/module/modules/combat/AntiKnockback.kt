@@ -322,7 +322,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
 
         raycastedEntity?.let {
             if (it !is EntityPlayer) return true
-            if (mc.thePlayer.getDistanceToEntityBox(it) >= range) return false
+            if (mc.thePlayer.getLookDistanceToEntityBox(it, RotationUtils.serverRotation) >= range) return false
             if (doAttack) {
                 KevinClient.eventManager.callEvent(AttackEvent(it))
                 repeat(attack) { _ ->

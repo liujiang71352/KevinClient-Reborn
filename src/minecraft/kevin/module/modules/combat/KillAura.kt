@@ -101,6 +101,12 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     private val interactAutoBlockValue = BooleanValue("InteractAutoBlock", true)
     private val blockStatusCheck = BooleanValue("BlockStatusCheck", true)
     private val blockRate = IntegerValue("BlockRate", 100, 1, 100)
+    private val blockRange: FloatValue = object : FloatValue("BlockRange", rangeValue.get(), 0f, 8f) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            val i = discoverRangeValue.get()
+            if (i < newValue) set(i)
+        }
+    }
 
     // Raycast
     private val raycastValue = BooleanValue("RayCast", true)
@@ -452,7 +458,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     private fun runBlock() {
         if (discoveredTargets.isNotEmpty() && canBlock) {
             val target = this.target ?: discoveredTargets.first()
-            if (mc.thePlayer.getDistanceToEntityBox(target) <= rangeValue.get()) {
+            if (mc.thePlayer.getDistanceToEntityBox(target) <= blockRange.get()) {
                 startBlocking(
                     target,
                     interactAutoBlockValue.get() && (mc.thePlayer.getDistanceToEntityBox(target) < maxRange)

@@ -39,6 +39,9 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
     public static Rotation getOtherRotation(final AxisAlignedBB bb,final Vec3 vec, final boolean predict,final boolean throughWalls, final float distance) {
         final Vec3 eyesPos = new Vec3(mc.thePlayer.posX, mc.thePlayer.getEntityBoundingBox().minY +
                 mc.thePlayer.getEyeHeight(), mc.thePlayer.posZ);
+        /*
+        合着您这一大段与接下来的东西是一点关系都没有...
+        寻思过两天给他加点什么?
         final Vec3 eyes = mc.thePlayer.getPositionEyes(1F);
         VecRotation vecRotation = null;
         for(double xSearch = 0.15D; xSearch < 0.85D; xSearch += 0.1D) {
@@ -61,7 +64,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
                 }
             }
         }
-
+        */
         if(predict) eyesPos.addVector(mc.thePlayer.motionX, mc.thePlayer.motionY, mc.thePlayer.motionZ);
 
         final double diffX = vec.xCoord - eyesPos.xCoord;
@@ -314,8 +317,8 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
 
         return new Rotation(
                 currentRotation.getYaw() + (yawDifference > turnSpeed ? turnSpeed : Math.max(yawDifference, -turnSpeed)),
-                currentRotation.getPitch() + (pitchDifference > turnSpeed ? turnSpeed : Math.max(pitchDifference, -turnSpeed)
-                ));
+                currentRotation.getPitch() + (pitchDifference > turnSpeed ? turnSpeed : Math.max(pitchDifference, -turnSpeed))
+        );
     }
     @NotNull
     public static Rotation limitAngleChange(final Rotation currentRotation, final Rotation targetRotation, final float horizontalSpeed, final float verticalSpeed) {
@@ -324,8 +327,8 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
 
         return new Rotation(
                 currentRotation.getYaw() + (yawDifference > horizontalSpeed ? horizontalSpeed : Math.max(yawDifference, -horizontalSpeed)),
-                currentRotation.getPitch() + (pitchDifference > verticalSpeed ? verticalSpeed : Math.max(pitchDifference, -verticalSpeed)
-                ));
+                currentRotation.getPitch() + (pitchDifference > verticalSpeed ? verticalSpeed : Math.max(pitchDifference, -verticalSpeed))
+        );
     }
 
     /**

@@ -101,7 +101,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
     get() = expandLengthValue.get()!=0&&!(jumpCheckValue.get()&&mc.gameSettings.keyBindJump.isKeyDown)&&!(downCheckValue.get()&&shouldGoDown)&&(!expandOnlyMove.get()||(MovementUtils.isMoving||(expandOnlyMoveOnlyGround.get()&&!mc.thePlayer.onGround)))
 
     // Rotation Options
-    private val rotationValues = arrayOf("Off", "Normal", "AAC", "Custom")
+    private val rotationValues = arrayOf("Off", "Normal", "AAC", "LimitedAAC", "MoveDirection", "Custom")
     private val strafeMode = ListValue("Strafe", arrayOf("Off", "AAC", "Strict"), "Off")
     private val rotationsValue = ListValue("Rotations", rotationValues, "Normal")
     private val towerRotationsValue = ListValue("TowerRotations", rotationValues, "Normal")
@@ -199,6 +199,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
     private val sameYJumpUp = BooleanValue("SameYJumpUp", false)
     private val safeWalkValue = BooleanValue("SafeWalk", true)
     private val airSafeValue = BooleanValue("AirSafe", false)
+    private val invalidPlaceFacingMode = ListValue("WhenPlaceFacingInvalid", arrayOf("CancelIt", "FixIt", "IgnoreIt"), "IgnoreIt")
 
     // Visuals
     private val counterDisplayValue = BooleanValue("Counter", true)
@@ -878,6 +879,26 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
             return
         }
 
+        //2022-12-19 Hit facing check
+        val f: Float = (targetPlace!!.vec3.xCoord - targetPlace!!.blockPos.x.toDouble()).toFloat()
+        val f1: Float = (targetPlace!!.vec3.yCoord - targetPlace!!.blockPos.y.toDouble()).toFloat()
+        val f2: Float = (targetPlace!!.vec3.zCoord - targetPlace!!.blockPos.z.toDouble()).toFloat()
+        if (f > 1 || f1 > 1 || f2 > 1 || f < 0 || f1 < 0 || f2 < 0) {
+            if (invalidPlaceFacingMode equal "CancelIt") {
+                targetPlace = null
+                facesBlock = false
+                return
+            } else if (invalidPlaceFacingMode equal "FixIt") {
+                val vec = targetPlace!!.vec3
+                val pos = targetPlace!!.blockPos
+                targetPlace!!.vec3 = Vec3(
+                    MathHelper.clamp_double(vec.xCoord, pos.x + 0.0, pos.x + 1.0),
+                    MathHelper.clamp_double(vec.yCoord, pos.y + 0.0, pos.y + 1.0),
+                    MathHelper.clamp_double(vec.zCoord, pos.z + 0.0, pos.z + 1.0)
+                )
+            }
+        }
+
         if (!delayTimer.hasTimePassed(delay) || sameY() && launchY - 1 != targetPlace!!.vec3.yCoord.toInt())
             return
 
@@ -1003,13 +1024,13 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
             RenderUtils.drawBorderedRect(
                 scaledResolution.scaledWidth / 2 - 2.toFloat(),
                 scaledResolution.scaledHeight / 2 + 5.toFloat(),
-                scaledResolution.scaledWidth / 2 + KevinClient.fontManager.font40!!.getStringWidth(info) + 2.toFloat(),
+                scaledResolution.scaledWidth / 2 + KevinClient.fontManager.font40.getStringWidth(info) + 2.toFloat(),
                 scaledResolution.scaledHeight / 2 + 16.toFloat(), 3f, Color.BLACK.rgb, Color.BLACK.rgb
             )
 
             GlStateManager.resetColor()
 
-            KevinClient.fontManager.font40!!.drawString(
+            KevinClient.fontManager.font40.drawString(
                 info, scaledResolution.scaledWidth / 2.toFloat(),
                 scaledResolution.scaledHeight / 2 + 7.toFloat(), Color.WHITE.rgb
             )
@@ -1067,9 +1088,12 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
     private fun calculateRotation(rotation: Rotation): Rotation {
         return if (towerState) when(towerRotationsValue.get()) {
             "Custom" -> Rotation(mc.thePlayer.rotationYaw + customTowerYawValue.get(), customTowerPitchValue.get())
+            "MoveDirection" -> Rotation(MovementUtils.movingYaw - 180, rotation.pitch)
             else -> rotation
         } else when(rotationsValue.get()) {
-            "AAC" -> Rotation(mc.thePlayer.rotationYaw + ((if (mc.thePlayer.movementInput.moveForward < 0) 0 else 180) * if (aacRotationPositive) 1 else -1) + aacYawOffsetValue.get(), rotation.pitch)
+            "AAC" -> Rotation(mc.thePlayer.rotationYaw + (((if (mc.thePlayer.movementInput.moveForward < 0) 0 else 180) - aacYawOffsetValue.get()) * if (aacRotationPositive) 1 else -1), rotation.pitch)
+            "LimitedAAC" -> Rotation(mc.thePlayer.rotationYaw + (((if (mc.thePlayer.movementInput.moveForward < 0) 0 else 180) - aacYawOffsetValue.get()) * if (aacRotationPositive) 1 else -1), customPitchValue.get())
+            "MoveDirection" -> Rotation(MovementUtils.movingYaw - 180, customPitchValue.get())
             "Custom" -> Rotation(mc.thePlayer.rotationYaw + customYawValue.get(), customPitchValue.get())
             else -> rotation
         }

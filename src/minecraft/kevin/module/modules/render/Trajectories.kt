@@ -83,8 +83,8 @@ class Trajectories : Module("Trajectories", description = "Shows the trajectory 
             if (colorMode.get() == "Rainbow"){
                 RenderUtils.glColor(ColorUtils.rainbow())
             }else if (colorMode equal "Distance") {
-                val distance = min(Vec3(posX, posY, posZ).squareDistanceTo(Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ)).times(2).toInt(), 255)
-                RenderUtils.glColor(Color(255 - distance, cColorG.get(), cColorB.get(), cColorA.get()))
+                val distance = min(Vec3(posX, posY, posZ).squareDistanceTo(Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ)).toInt(), 255)
+                RenderUtils.glColor(Color(255 - distance, min(255, cColorG.get() + distance), cColorB.get(), cColorA.get()))
             } else if (colorMode equal "Speed") {
                 RenderUtils.glColor(Color(cColorR.get(), 255 - min((motionX * motionX * 100 + motionZ * motionZ * 100).toInt(), 255), cColorB.get(), cColorA.get()))
             } else {

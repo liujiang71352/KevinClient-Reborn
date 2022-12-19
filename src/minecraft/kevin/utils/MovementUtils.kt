@@ -49,6 +49,9 @@ object MovementUtils : MinecraftInstance() {
             return toRadians(rotationYaw.toDouble())
         }
 
+    val movingYaw: Float
+        get() = (direction * 180f / Math.PI).toFloat()
+
     fun move(speed: Float) {
         if (!isMoving) return
         val yaw = direction
