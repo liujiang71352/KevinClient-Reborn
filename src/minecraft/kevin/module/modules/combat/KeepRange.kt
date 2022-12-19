@@ -43,7 +43,7 @@ class KeepRange: Module("KeepDistance", "Keep yourself out of a range with your 
             target = null
             return
         }
-        if (distance <= minDistance.get()) {
+        if (mode equal "ReleaseKey" && distance <= minDistance.get()) {
             if (onlyForward.get()) mc.gameSettings.keyBindForward.pressed = false
             else for (bind in binds) bind.pressed = false
         }

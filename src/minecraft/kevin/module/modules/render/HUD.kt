@@ -8,6 +8,7 @@ import kevin.module.BooleanValue
 import kevin.module.Module
 import kevin.module.ModuleCategory
 import net.minecraft.network.play.client.C09PacketHeldItemChange
+import net.minecraft.network.play.server.S09PacketHeldItemChange
 
 class HUD(currentSlot: Int) : Module("HUD","Toggles visibility of the HUD.",category = ModuleCategory.RENDER) {
     var keepScoreboard = BooleanValue("KeepScoreboard", true)
@@ -38,7 +39,12 @@ class HUD(currentSlot: Int) : Module("HUD","Toggles visibility of the HUD.",cate
     }
 
     @EventTarget(true) fun onPacket(event: PacketEvent) {
-        currentPacketSlot = if (event.packet is C09PacketHeldItemChange) event.packet.slotId else return
+        currentPacketSlot =
+            when (event.packet) {
+                is C09PacketHeldItemChange -> event.packet.slotId
+                is S09PacketHeldItemChange -> event.packet.heldItemHotbarIndex
+                else -> return
+            }
     }
 
     @EventTarget(true)
