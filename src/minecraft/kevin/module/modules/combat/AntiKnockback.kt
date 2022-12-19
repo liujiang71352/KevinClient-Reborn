@@ -41,6 +41,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
     private val clickTime = IntegerValue("ClickMinHurtTime", 8, 1, 10) // 10: only click when receive velocity packet
     private val clickRange = FloatValue("ClickRange", 3.0F, 2.5F, 7F)
     private val clickOnPacket = BooleanValue("ClickOnPacket", true)
+    private val clickFakeSwing = BooleanValue("ClickFakeSwing", true)
 
     // explosion value
     private val cancelExplosionPacket = BooleanValue("CancelExplosionPacket",false)
@@ -186,7 +187,10 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                 }
             }
             "click" -> if (velocityInput && thePlayer.hurtTime >= clickTime.get()) {
-                if (!attackRayTrace(clickCount.get(), clickRange.get().toDouble())) velocityInput = false
+                if (!attackRayTrace(clickCount.get(), clickRange.get().toDouble(), thePlayer.isSprinting)) {
+                    if (clickFakeSwing.get()) mc.netHandler.addToSendQueue(C0APacketAnimation())
+                    velocityInput = false
+                }
             } else velocityInput = false
             "testintave" -> if (velocityInput && thePlayer.hurtTime > 0) {
                 if (thePlayer.hurtTime in 3..7) {
@@ -216,7 +220,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
 
             velocityTimer.reset()
 
-            when (modeValue.get().toLowerCase()) {
+            when (modeValue.get().lowercase(Locale.getDefault())) {
                 "simple" -> {
                     if (explosion && explosionCheck.get()) {
                         explosion = false;return
@@ -236,9 +240,16 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                 "aac", "reverse", "smoothreverse", "aaczero", "testintave" -> velocityInput = true
 
                 "aac5packet" -> {
-                    if(mc.isIntegratedServerRunning) return
-                    if (thePlayer.isBurning&&fireCheck.get()) return
-                    PacketUtils.sendPacketNoEvent(C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, Double.MAX_VALUE, mc.thePlayer.posZ, mc.thePlayer.onGround))
+                    if (mc.isIntegratedServerRunning) return
+                    if (thePlayer.isBurning && fireCheck.get()) return
+                    PacketUtils.sendPacketNoEvent(
+                        C03PacketPlayer.C04PacketPlayerPosition(
+                            mc.thePlayer.posX,
+                            Double.MAX_VALUE,
+                            mc.thePlayer.posZ,
+                            mc.thePlayer.onGround
+                        )
+                    )
                     event.cancelEvent()
                 }
 
@@ -265,7 +276,12 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                 }
                 "click" -> {
                     if (packet.motionX == 0 && packet.motionZ == 0) return
-                    if (attackRayTrace(clickCount.get(), clickRange.get().toDouble(), clickOnPacket.get()))
+                    if (attackRayTrace(
+                            clickCount.get(),
+                            clickRange.get().toDouble(),
+                            clickOnPacket.get() && mc.thePlayer.isSprinting
+                        )
+                    )
                         velocityInput = true
                 }
             }
@@ -284,7 +300,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
         if (thePlayer == null || thePlayer.isInWater || thePlayer.isInLava || thePlayer.isInWeb)
             return
 
-        when (modeValue.get().toLowerCase()) {
+        when (modeValue.get().lowercase(Locale.getDefault())) {
             "aacpush" -> {
                 jump = true
 
@@ -297,21 +313,23 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
     }
 
     fun attackRayTrace(attack: Int, range: Double, doAttack: Boolean=true): Boolean {
+        if (mc.thePlayer == null) return false
         val raycastedEntity = RaycastUtils.raycastEntity(range, object : RaycastUtils.EntityFilter {
             override fun canRaycast(entity: Entity?): Boolean {
-                return entity != null && entity is EntityPlayer && mc.theWorld!!.getEntitiesWithinAABBExcludingEntity(entity, entity.entityBoundingBox).isNotEmpty()
+                return entity != null && entity is EntityLivingBase && mc.theWorld!!.getEntitiesWithinAABBExcludingEntity(entity, entity.entityBoundingBox).isNotEmpty()
             }
         })
 
         raycastedEntity?.let {
-            if (mc.thePlayer == null || mc.thePlayer.getDistanceToEntityBox(it) >= range) return false
+            if (it !is EntityPlayer) return true
+            if (mc.thePlayer.getDistanceToEntityBox(it) >= range) return false
             if (doAttack) {
                 KevinClient.eventManager.callEvent(AttackEvent(it))
                 repeat(attack) { _ ->
                     mc.netHandler.addToSendQueue(C0APacketAnimation())
                     mc.netHandler.addToSendQueue(C02PacketUseEntity(it, C02PacketUseEntity.Action.ATTACK))
                 }
-                mc.thePlayer?.attackTargetEntityWithCurrentItem(it)
+                mc.thePlayer.attackTargetEntityWithCurrentItem(it)
             }
             return true
         }

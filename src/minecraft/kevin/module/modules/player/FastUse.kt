@@ -14,6 +14,7 @@ import net.minecraft.item.ItemFood
 import net.minecraft.item.ItemPotion
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S19PacketEntityStatus
+import java.util.*
 
 class FastUse : Module("FastUse", "Allows you to use items faster.", category = ModuleCategory.PLAYER) {
     private val modeValue = ListValue("Mode", arrayOf("Instant", "NCP", "AAC", "Semi", "Custom"), "NCP")
@@ -56,7 +57,7 @@ class FastUse : Module("FastUse", "Allows you to use items faster.", category = 
                 first = false
                 debugTimer = System.currentTimeMillis()
             }
-            when (modeValue.get().toLowerCase()) {
+            when (modeValue.get().lowercase(Locale.getDefault())) {
                 "instant" -> {
                     repeat(35) {
                         mc.netHandler.addToSendQueue(C03PacketPlayer(thePlayer.onGround))

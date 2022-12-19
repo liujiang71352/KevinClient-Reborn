@@ -86,7 +86,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     private val targetModeValue = ListValue("TargetMode", arrayOf("Single", "Switch", "Multi"), "Switch")
 
     // Bypass
-    private val swingValue = ListValue("SwingMode", arrayOf("Normal", "BetterVisual", "Packet", "OFF"), "Normal")
+    private val swingValue = ListValue("SwingMode", arrayOf("Normal", "OnlyWhenNoHurt", "Packet", "OFF"), "Normal")
     private val keepSprintValue = BooleanValue("KeepSprint", true)
     private val scaffoldCheck = BooleanValue("ScaffoldCheck", true)
 
@@ -127,7 +127,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     }
 
     private val rotationModeValue = ListValue("RotationMode", arrayOf("LiquidBounce", "LiquidSense"), "LiquidSense")
-    private val silentRotationValue = BooleanValue("SilentRotation", true)
+    private val silentRotationValue = ListValue("SilentRotation", arrayOf("Always", "OnlyNoMove", "Off"), "Always")
     private val rotationStrafeValue = ListValue("Strafe", arrayOf("Off", "Vanilla", "Strict", "Silent"), "Off")
     private val randomCenterValue = BooleanValue("RandomCenter", true)
     private val outborderValue = BooleanValue("Outborder", false)
@@ -151,6 +151,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     }
 
     // Bypass
+    private val alwaysHitable = BooleanValue("AlwaysHitable", false)
     private val failRateValue = FloatValue("FailRate", 0f, 0f, 100f)
     private val fakeSwingValue = BooleanValue("FakeSwing", true)
     private val noInventoryAttackValue = BooleanValue("NoInvAttack", false)
@@ -524,8 +525,8 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     private fun doSwing() {
         when(swingValue.get()) {
             "Normal" -> mc.thePlayer.swingItem()
-            "BetterVisual" -> {
-                if (currentTarget == null || currentTarget !is EntityLivingBase || (currentTarget as EntityLivingBase).hurtTime <= 1)
+            "OnlyWhenNoHurt" -> {
+                if (currentTarget == null || currentTarget !is EntityLivingBase || (currentTarget as EntityLivingBase).hurtTime < 1)
                     mc.thePlayer.swingItem()
                 else
                     mc.netHandler.addToSendQueue(C0APacketAnimation())
@@ -746,7 +747,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 (entity.posZ - entity.prevPosZ - (mc.thePlayer!!.posZ - mc.thePlayer!!.prevPosZ)) * RandomUtils.nextFloat(minPredictSize.get(), maxPredictSize.get())
             )
 
-        val limitedRotation: Rotation = if (rotationModeValue.get().contains("liquidbounce", true)) {
+        val limitedRotation: Rotation = if (rotationModeValue.get().contains("LiquidBounce", true)) {
             val (_, rotation) = RotationUtils.searchCenter(
                 boundingBox,
                 outborderValue.get() && !attackTimer.hasTimePassed(attackDelay / 2),
@@ -758,18 +759,27 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 RotationUtils.limitAngleChange(RotationUtils.serverRotation, rotation,
                     (Math.random() * (maxTurnSpeed.get() - minTurnSpeed.get()) + minTurnSpeed.get()).toFloat())
         } else {
-            RotationUtils.limitAngleChange(RotationUtils.serverRotation,
-                RotationUtils.getOtherRotation(boundingBox, RotationUtils.getCenter(entity.entityBoundingBox), predictValue.get(),
+            RotationUtils.limitAngleChange(
+                RotationUtils.serverRotation,
+                RotationUtils.getOtherRotation(
+                    boundingBox,
+                    RotationUtils.getCenter(entity.entityBoundingBox),
+                    predictValue.get(),
                     mc.thePlayer!!.getDistanceToEntityBox(entity) < throughWallsRangeValue.get(),
-                    discoverRangeValue.get()) ?: return false
-                , (Math.random() * (maxTurnSpeed.get() - minTurnSpeed.get()) + minTurnSpeed.get()).toFloat()
+                    discoverRangeValue.get()
+                ) ?: return false,
+                (Math.random() * (maxTurnSpeed.get() - minTurnSpeed.get()) + minTurnSpeed.get()).toFloat()
             )
         }
 
-        if (silentRotationValue.get())
-            RotationUtils.setTargetRotation(limitedRotation, if (aacValue.get() || keepRotationTickValue.get() > 0) keepRotationTickValue.get() + (if (aacValue.get()) 15 else 0) else 0)
-        else
-            limitedRotation.toPlayer(mc.thePlayer!!)
+        when (silentRotationValue.get()) {
+            "Always" -> RotationUtils.setTargetRotation(limitedRotation, if (aacValue.get() || keepRotationTickValue.get() > 0) keepRotationTickValue.get() + (if (aacValue.get()) 15 else 0) else 0)
+            "Off" -> limitedRotation.toPlayer(mc.thePlayer!!)
+            else -> {
+                if (MovementUtils.isMoving) limitedRotation.toPlayer(mc.thePlayer!!)
+                else RotationUtils.setTargetRotation(limitedRotation, if (aacValue.get() || keepRotationTickValue.get() > 0) keepRotationTickValue.get() + (if (aacValue.get()) 15 else 0) else 0)
+            }
+        }
 
         return true
     }
@@ -779,7 +789,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
      */
     private fun updateHitable() {
         // Disable hitable check if turn speed is zero
-        if (maxTurnSpeed.get() <= 0F) {
+        if (maxTurnSpeed.get() <= 0F || alwaysHitable.get()) {
             hitable = true
             return
         }

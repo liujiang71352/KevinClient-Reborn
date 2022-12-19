@@ -6,6 +6,7 @@ import kevin.module.*
 import kevin.utils.MovementUtils
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.potion.Potion
+import java.util.*
 
 class Regen : Module("Regen", "Regenerates your health much faster.", category = ModuleCategory.PLAYER) {
 
@@ -31,7 +32,7 @@ class Regen : Module("Regen", "Regenerates your health much faster.", category =
             if (potionEffectValue.get() && !thePlayer.isPotionActive(Potion.regeneration))
                 return
 
-            when (modeValue.get().toLowerCase()) {
+            when (modeValue.get().lowercase(Locale.getDefault())) {
                 "vanilla" -> {
                     repeat(speedValue.get()) {
                         mc.netHandler.addToSendQueue(C03PacketPlayer(thePlayer.onGround))
@@ -51,8 +52,8 @@ class Regen : Module("Regen", "Regenerates your health much faster.", category =
                 }
 
                 "aac4nofire" -> {
-                    if(mc.thePlayer!!.isBurning && mc.thePlayer!!.ticksExisted%10==0){
-                        repeat(35){
+                    if (mc.thePlayer!!.isBurning && mc.thePlayer!!.ticksExisted % 10 == 0) {
+                        repeat(35) {
                             mc.netHandler.addToSendQueue(C03PacketPlayer(true))
                         }
                     }

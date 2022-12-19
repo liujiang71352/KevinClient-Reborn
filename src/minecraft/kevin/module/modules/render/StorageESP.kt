@@ -18,6 +18,9 @@ import org.lwjgl.opengl.EXTFramebufferObject
 import org.lwjgl.opengl.EXTPackedDepthStencil
 import org.lwjgl.opengl.GL11
 import java.awt.Color
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 class StorageESP : Module("StorageESP", "Allows you to see chests, dispensers, etc. through walls.", category = ModuleCategory.RENDER) {
     val modeValue = ListValue("Mode", arrayOf("Box", "OtherBox", "Outline", "ShaderOutline", "ShaderGlow", "2D", "WireFrame"), "Outline")
@@ -89,14 +92,18 @@ class StorageESP : Module("StorageESP", "Allows you to see chests, dispensers, e
             mc.gameSettings.gammaSetting = 100000.0f
 
             for (tileEntity in mc.theWorld!!.loadedTileEntityList) {
-                val color: Color = getColor(tileEntity)?: continue
+                val color: Color = getColor(tileEntity) ?: continue
 
                 if (!((tileEntity) is TileEntityChest || (tileEntity) is TileEntityEnderChest)) {
                     RenderUtils.drawBlockBox(tileEntity.pos, color, !mode.equals("otherbox", ignoreCase = true))
                     continue
                 }
-                when (mode.toLowerCase()) {
-                    "otherbox", "box" -> RenderUtils.drawBlockBox(tileEntity.pos, color, !mode.equals("otherbox", ignoreCase = true))
+                when (mode.lowercase(Locale.getDefault())) {
+                    "otherbox", "box" -> RenderUtils.drawBlockBox(
+                        tileEntity.pos,
+                        color,
+                        !mode.equals("otherbox", ignoreCase = true)
+                    )
                     "2d" -> RenderUtils.draw2D(tileEntity.pos, color.rgb, Color.BLACK.rgb)
                     "outline" -> {
                         RenderUtils.glColor(color)
@@ -131,8 +138,12 @@ class StorageESP : Module("StorageESP", "Allows you to see chests, dispensers, e
             }
             for (entity in mc.theWorld!!.loadedEntityList) {
                 if ((entity)is EntityMinecartChest) {
-                    when (mode.toLowerCase()) {
-                        "otherbox", "box" -> RenderUtils.drawEntityBox(entity, Color(0, 66, 255), !mode.equals("otherbox", ignoreCase = true))
+                    when (mode.lowercase(Locale.getDefault())) {
+                        "otherbox", "box" -> RenderUtils.drawEntityBox(
+                            entity,
+                            Color(0, 66, 255),
+                            !mode.equals("otherbox", ignoreCase = true)
+                        )
                         "2d" -> RenderUtils.draw2D(entity.position, Color(0, 66, 255).rgb, Color.BLACK.rgb)
                         "outline" -> {
                             val entityShadow: Boolean = mc.gameSettings.entityShadows

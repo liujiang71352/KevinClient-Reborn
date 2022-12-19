@@ -18,6 +18,7 @@ import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import org.lwjgl.opengl.GL11
 import java.awt.Color
+import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.abs
 import kotlin.math.floor
@@ -89,7 +90,7 @@ class AntiVoid : Module("AntiVoid","Automatically setbacks you after falling a c
             if (thePlayer.fallDistance - lastFound > maxDistanceWithoutGround.get()) {
                 val mode = modeValue.get()
 
-                when (mode.toLowerCase()) {
+                when (mode.lowercase(Locale.getDefault())) {
                     "teleportback" -> {
                         thePlayer.setPositionAndUpdate(prevX, prevY, prevZ)
                         thePlayer.fallDistance = 0F
@@ -103,7 +104,14 @@ class AntiVoid : Module("AntiVoid","Automatically setbacks you after falling a c
 
                     "motionteleport-flag" -> {
                         thePlayer.setPositionAndUpdate(thePlayer.posX, thePlayer.posY + 1f, thePlayer.posZ)
-                        mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(thePlayer.posX, thePlayer.posY, thePlayer.posZ, true))
+                        mc.netHandler.addToSendQueue(
+                            C03PacketPlayer.C04PacketPlayerPosition(
+                                thePlayer.posX,
+                                thePlayer.posY,
+                                thePlayer.posZ,
+                                true
+                            )
+                        )
                         thePlayer.motionY = 0.1
 
                         MovementUtils.strafe()
@@ -208,7 +216,7 @@ class AntiVoid : Module("AntiVoid","Automatically setbacks you after falling a c
     @EventTarget
     fun onPacket(event: PacketEvent){
         val packet=event.packet
-        if(modeValue.get().toLowerCase() == "minemora-blink" && (packet)is C03PacketPlayer && blink){
+        if(modeValue.get().lowercase(Locale.getDefault()) == "minemora-blink" && (packet) is C03PacketPlayer && blink){
             packetCache.add(packet)
             event.cancelEvent()
         }

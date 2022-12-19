@@ -12,6 +12,7 @@ import net.minecraft.init.Blocks
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
+import java.util.*
 
 class LiquidWalk : Module(name = "LiquidWalk", description = "Allows you to walk on water.", category = ModuleCategory.MOVEMENT) {
     val modeValue = ListValue("Mode", arrayOf("Vanilla", "NCP", "AAC", "AAC3.3.11", "AACFly", "Spartan", "Dolphin"), "NCP")
@@ -26,8 +27,10 @@ class LiquidWalk : Module(name = "LiquidWalk", description = "Allows you to walk
 
         if (thePlayer == null || thePlayer.isSneaking) return
 
-        when (modeValue.get().toLowerCase()) {
-            "ncp", "vanilla" -> if (collideBlock(thePlayer.entityBoundingBox) { it is BlockLiquid } && thePlayer.isInsideOfMaterial(Material.air) && !thePlayer.isSneaking) thePlayer.motionY = 0.08
+        when (modeValue.get().lowercase(Locale.getDefault())) {
+            "ncp", "vanilla" -> if (collideBlock(thePlayer.entityBoundingBox) { it is BlockLiquid } && thePlayer.isInsideOfMaterial(
+                    Material.air
+                ) && !thePlayer.isSneaking) thePlayer.motionY = 0.08
             "aac" -> {
                 val blockPos = thePlayer.position.down()
                 if (!thePlayer.onGround && getBlock(blockPos) == Blocks.water || thePlayer.isInWater) {
@@ -35,14 +38,17 @@ class LiquidWalk : Module(name = "LiquidWalk", description = "Allows you to walk
                         thePlayer.motionX *= 0.99999
                         thePlayer.motionY *= 0.0
                         thePlayer.motionZ *= 0.99999
-                        if (thePlayer.isCollidedHorizontally) thePlayer.motionY = ((thePlayer.posY - (thePlayer.posY - 1).toInt()).toInt() / 8f).toDouble()
+                        if (thePlayer.isCollidedHorizontally) thePlayer.motionY =
+                            ((thePlayer.posY - (thePlayer.posY - 1).toInt()).toInt() / 8f).toDouble()
                     } else {
                         thePlayer.motionX *= 0.99999
                         thePlayer.motionY *= 0.0
                         thePlayer.motionZ *= 0.99999
-                        if (thePlayer.isCollidedHorizontally) thePlayer.motionY = ((thePlayer.posY - (thePlayer.posY - 1).toInt()).toInt() / 8f).toDouble()
+                        if (thePlayer.isCollidedHorizontally) thePlayer.motionY =
+                            ((thePlayer.posY - (thePlayer.posY - 1).toInt()).toInt() / 8f).toDouble()
                     }
-                    if (thePlayer.fallDistance >= 4) thePlayer.motionY = -0.004 else if (thePlayer.isInWater) thePlayer.motionY = 0.09
+                    if (thePlayer.fallDistance >= 4) thePlayer.motionY =
+                        -0.004 else if (thePlayer.isInWater) thePlayer.motionY = 0.09
                 }
                 if (thePlayer.hurtTime != 0) thePlayer.onGround = false
             }
@@ -67,7 +73,10 @@ class LiquidWalk : Module(name = "LiquidWalk", description = "Allows you to walk
             "aac3.3.11" -> if (thePlayer.isInWater) {
                 thePlayer.motionX *= 1.17
                 thePlayer.motionZ *= 1.17
-                if (thePlayer.isCollidedHorizontally) thePlayer.motionY = 0.24 else if (mc.theWorld!!.getBlockState(BlockPos(thePlayer.posX, thePlayer.posY + 1.0, thePlayer.posZ)).block != Blocks.air) thePlayer.motionY += 0.04
+                if (thePlayer.isCollidedHorizontally) thePlayer.motionY = 0.24 else if (mc.theWorld!!.getBlockState(
+                        BlockPos(thePlayer.posX, thePlayer.posY + 1.0, thePlayer.posZ)
+                    ).block != Blocks.air
+                ) thePlayer.motionY += 0.04
             }
             "dolphin" -> if (thePlayer.isInWater) thePlayer.motionY += 0.03999999910593033
         }
@@ -75,7 +84,7 @@ class LiquidWalk : Module(name = "LiquidWalk", description = "Allows you to walk
 
     @EventTarget
     fun onMove(event: MoveEvent) {
-        if ("aacfly" == modeValue.get().toLowerCase() && mc.thePlayer!!.isInWater) {
+        if ("aacfly" == modeValue.get().lowercase(Locale.getDefault()) && mc.thePlayer!!.isInWater) {
             event.y = aacFlyValue.get().toDouble()
             mc.thePlayer!!.motionY = aacFlyValue.get().toDouble()
         }
@@ -87,8 +96,15 @@ class LiquidWalk : Module(name = "LiquidWalk", description = "Allows you to walk
             return
 
         if (event.block is BlockLiquid && !collideBlock(mc.thePlayer!!.entityBoundingBox) { it is BlockLiquid } && !mc.thePlayer!!.isSneaking) {
-            when (modeValue.get().toLowerCase()) {
-                "ncp", "vanilla" -> event.boundingBox = AxisAlignedBB(event.x.toDouble(), event.y.toDouble(), event.z.toDouble(), event.x + 1.toDouble(), event.y + 1.toDouble(), event.z + 1.toDouble())
+            when (modeValue.get().lowercase(Locale.getDefault())) {
+                "ncp", "vanilla" -> event.boundingBox = AxisAlignedBB(
+                    event.x.toDouble(),
+                    event.y.toDouble(),
+                    event.z.toDouble(),
+                    event.x + 1.toDouble(),
+                    event.y + 1.toDouble(),
+                    event.z + 1.toDouble()
+                )
             }
         }
     }

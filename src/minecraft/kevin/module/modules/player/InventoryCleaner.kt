@@ -17,6 +17,7 @@ import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.client.C0DPacketCloseWindow
 import net.minecraft.network.play.client.C16PacketClientStatus
 import net.minecraft.potion.Potion
+import java.util.*
 
 class InventoryCleaner : Module(name = "InventoryCleaner", description = "Automatically throws away useless items.", category = ModuleCategory.PLAYER) {
     private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 600, 0, 1000) {
@@ -243,7 +244,7 @@ class InventoryCleaner : Module(name = "InventoryCleaner", description = "Automa
 
         val thePlayer = mc.thePlayer ?: return null
 
-        when (type.toLowerCase()) {
+        when (type.lowercase(Locale.getDefault())) {
             "sword", "pickaxe", "axe" -> {
                 val currentTypeChecker: ((Item?) -> Boolean) = when {
                     type.equals("Sword", ignoreCase = true) -> { item: Item? -> item is ItemSword }
@@ -257,7 +258,11 @@ class InventoryCleaner : Module(name = "InventoryCleaner", description = "Automa
                 else -1
 
                 thePlayer.inventory.mainInventory.forEachIndexed { index, itemStack ->
-                    if (itemStack != null && currentTypeChecker(itemStack.item) && !type(index).equals(type, ignoreCase = true)) {
+                    if (itemStack != null && currentTypeChecker(itemStack.item) && !type(index).equals(
+                            type,
+                            ignoreCase = true
+                        )
+                    ) {
                         if (bestWeapon == -1) {
                             bestWeapon = index
                         } else {
@@ -308,8 +313,13 @@ class InventoryCleaner : Module(name = "InventoryCleaner", description = "Automa
                     if (stack != null) {
                         val item = stack.item
 
-                        if (item is ItemFood && item !is ItemAppleGold && !type(index).equals("Food", ignoreCase = true)) {
-                            val replaceCurr = ItemUtils.isStackEmpty(slotStack) || slotStack?.item !is ItemFood || slotStack.item is ItemAppleGold
+                        if (item is ItemFood && item !is ItemAppleGold && !type(index).equals(
+                                "Food",
+                                ignoreCase = true
+                            )
+                        ) {
+                            val replaceCurr =
+                                ItemUtils.isStackEmpty(slotStack) || slotStack?.item !is ItemFood || slotStack.item is ItemAppleGold
 
                             return if (replaceCurr) index else null
                         }
@@ -323,8 +333,12 @@ class InventoryCleaner : Module(name = "InventoryCleaner", description = "Automa
                         val item = stack.item!!
 
                         if (item is ItemBlock && !InventoryUtils.BLOCK_BLACKLIST.contains(item.block) &&
-                            !type(index).equals("Block", ignoreCase = true)) {
-                            val replaceCurr = ItemUtils.isStackEmpty(slotStack) || slotStack?.item !is ItemBlock || (slotStack.item is ItemBlock && InventoryUtils.BLOCK_BLACKLIST.contains((slotStack.item as ItemBlock).block))
+                            !type(index).equals("Block", ignoreCase = true)
+                        ) {
+                            val replaceCurr =
+                                ItemUtils.isStackEmpty(slotStack) || slotStack?.item !is ItemBlock || (slotStack.item is ItemBlock && InventoryUtils.BLOCK_BLACKLIST.contains(
+                                    (slotStack.item as ItemBlock).block
+                                ))
 
                             return if (replaceCurr) index else null
                         }
@@ -337,8 +351,13 @@ class InventoryCleaner : Module(name = "InventoryCleaner", description = "Automa
                     if (stack != null) {
                         val item = stack.item
 
-                        if ((item is ItemSnowball||item is ItemEgg) && !type(index).equals("Throwable", ignoreCase = true)) {
-                            val replaceCurr = ItemUtils.isStackEmpty(slotStack) || (slotStack?.item !is ItemSnowball && slotStack?.item !is ItemEgg)
+                        if ((item is ItemSnowball || item is ItemEgg) && !type(index).equals(
+                                "Throwable",
+                                ignoreCase = true
+                            )
+                        ) {
+                            val replaceCurr =
+                                ItemUtils.isStackEmpty(slotStack) || (slotStack?.item !is ItemSnowball && slotStack?.item !is ItemEgg)
 
                             return if (replaceCurr) index else null
                         }
@@ -351,7 +370,11 @@ class InventoryCleaner : Module(name = "InventoryCleaner", description = "Automa
                     if (stack != null) {
                         val item = stack.item!!
 
-                        if (item is ItemBucket && item.isFull == Blocks.flowing_water && !type(index).equals("Water", ignoreCase = true)) {
+                        if (item is ItemBucket && item.isFull == Blocks.flowing_water && !type(index).equals(
+                                "Water",
+                                ignoreCase = true
+                            )
+                        ) {
                             val replaceCurr = ItemUtils.isStackEmpty(slotStack) || item.isFull != Blocks.flowing_water
 
                             return if (replaceCurr) index else null
@@ -393,8 +416,16 @@ class InventoryCleaner : Module(name = "InventoryCleaner", description = "Automa
                     if (stack != null) {
                         val item = stack.item
 
-                        if (item is ItemPotion && !item.getEffects(stack).any { Potion.potionTypes[it.potionID].isBadEffect } && !type(index).equals("Potion", ignoreCase = true)) {
-                            val replaceCurr = ItemUtils.isStackEmpty(slotStack) || slotStack?.item !is ItemPotion || (slotStack.item as ItemPotion).getEffects(slotStack).any { Potion.potionTypes[it.potionID].isBadEffect }
+                        if (item is ItemPotion && !item.getEffects(stack)
+                                .any { Potion.potionTypes[it.potionID].isBadEffect } && !type(index).equals(
+                                "Potion",
+                                ignoreCase = true
+                            )
+                        ) {
+                            val replaceCurr =
+                                ItemUtils.isStackEmpty(slotStack) || slotStack?.item !is ItemPotion || (slotStack.item as ItemPotion).getEffects(
+                                    slotStack
+                                ).any { Potion.potionTypes[it.potionID].isBadEffect }
 
                             return if (replaceCurr) index else null
                         }
@@ -407,8 +438,16 @@ class InventoryCleaner : Module(name = "InventoryCleaner", description = "Automa
                     if (stack != null) {
                         val item = stack.item
 
-                        if (item is ItemPotion && item.getEffects(stack).any { Potion.potionTypes[it.potionID].isBadEffect } && !type(index).equals("Potion", ignoreCase = true)) {
-                            val replaceCurr = ItemUtils.isStackEmpty(slotStack) || slotStack?.item !is ItemPotion || !(slotStack.item as ItemPotion).getEffects(slotStack).any { Potion.potionTypes[it.potionID].isBadEffect }
+                        if (item is ItemPotion && item.getEffects(stack)
+                                .any { Potion.potionTypes[it.potionID].isBadEffect } && !type(index).equals(
+                                "Potion",
+                                ignoreCase = true
+                            )
+                        ) {
+                            val replaceCurr =
+                                ItemUtils.isStackEmpty(slotStack) || slotStack?.item !is ItemPotion || !(slotStack.item as ItemPotion).getEffects(
+                                    slotStack
+                                ).any { Potion.potionTypes[it.potionID].isBadEffect }
 
                             return if (replaceCurr) index else null
                         }

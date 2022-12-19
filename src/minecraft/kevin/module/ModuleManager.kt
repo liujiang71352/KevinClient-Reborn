@@ -39,6 +39,7 @@ class ModuleManager : Listenable {
             Criticals(),
             FastBow(),
             HitBox(),
+            KeepRange(),
             KillAura(),
             SuperKnockback(),
             TeleportAttack()

@@ -8,6 +8,7 @@ import kevin.module.Module
 import kevin.module.ModuleCategory
 import net.minecraft.potion.Potion
 import net.minecraft.potion.PotionEffect
+import java.util.*
 
 class FullBright : Module("FullBright", "Brightens up the world around you.", category = ModuleCategory.RENDER) {
     private val modeValue = ListValue("Mode", arrayOf("Gamma", "NightVision"), "Gamma")
@@ -30,7 +31,7 @@ class FullBright : Module("FullBright", "Brightens up the world around you.", ca
     @EventTarget(ignoreCondition = true)
     fun onUpdate(event: UpdateEvent?) {
         if (state /**|| LiquidBounce.moduleManager.getModule(XRay::class.java)!!.state**/) {
-            when (modeValue.get().toLowerCase()) {
+            when (modeValue.get().lowercase(Locale.getDefault())) {
                 "gamma" -> when {
                     mc.gameSettings.gammaSetting <= 100f -> mc.gameSettings.gammaSetting++
                 }

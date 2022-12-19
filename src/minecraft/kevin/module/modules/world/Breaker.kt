@@ -26,6 +26,7 @@ import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.Vec3
 import java.awt.Color
+import java.util.*
 
 class Breaker : Module("Breaker",description = "Destroys selected blocks around you.", category = ModuleCategory.WORLD) {
 
@@ -274,13 +275,17 @@ class Breaker : Module("Breaker",description = "Destroys selected blocks around 
     private fun isHitable(blockPos: BlockPos): Boolean {
         val thePlayer = mc.thePlayer ?: return false
 
-        return when (throughWallsValue.get().toLowerCase()) {
+        return when (throughWallsValue.get().lowercase(Locale.getDefault())) {
             "raycast" -> {
-                val eyesPos = Vec3(thePlayer.posX, thePlayer.entityBoundingBox.minY +
-                        thePlayer.eyeHeight, thePlayer.posZ)
-                val movingObjectPosition = mc.theWorld!!.rayTraceBlocks(eyesPos,
+                val eyesPos = Vec3(
+                    thePlayer.posX, thePlayer.entityBoundingBox.minY +
+                            thePlayer.eyeHeight, thePlayer.posZ
+                )
+                val movingObjectPosition = mc.theWorld!!.rayTraceBlocks(
+                    eyesPos,
                     Vec3(blockPos.x + 0.5, blockPos.y + 0.5, blockPos.z + 0.5), false,
-                    true, false)
+                    true, false
+                )
 
                 movingObjectPosition != null && movingObjectPosition.blockPos == blockPos
             }

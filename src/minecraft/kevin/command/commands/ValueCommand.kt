@@ -61,9 +61,14 @@ class ValueCommand : ICommand {
                 } else {
                     if (args.size < 3) {
                         if (value is IntegerValue || value is FloatValue || value is TextValue)
-                            ChatUtils.messageWithStart("§cUsage: §9.§6${m.name} §b${args[1].toLowerCase()} §c<value>")
+                            ChatUtils.messageWithStart("§cUsage: §9.§6${m.name} §b${args[1].lowercase(Locale.getDefault())} §c<value>")
                         else if (value is ListValue)
-                            ChatUtils.messageWithStart("§6${m.name} §b${args[1].toLowerCase()} §c<${value.values.joinToString(separator = "/").toLowerCase()}>")
+                            ChatUtils.messageWithStart(
+                                "§6${m.name} §b${args[1].lowercase(Locale.getDefault())} §c<${
+                                    value.values.joinToString(
+                                        separator = "/"
+                                    ).lowercase(Locale.getDefault())
+                                }>")
                         return
                     }
 
@@ -85,7 +90,12 @@ class ValueCommand : ICommand {
                                 }
 
                                 value.set(id)
-                                ChatUtils.messageWithStart("§6${m.name} §b${args[1].toLowerCase()}§9 was set to §b${Block.getBlockById(id).localizedName}§9.")
+                                ChatUtils.messageWithStart(
+                                    "§6${m.name} §b${args[1].lowercase(Locale.getDefault())}§9 was set to §b${
+                                        Block.getBlockById(
+                                            id
+                                        ).localizedName
+                                    }§9.")
                                 playSound()
                                 return
                             }
@@ -93,7 +103,12 @@ class ValueCommand : ICommand {
                             is FloatValue -> value.set(args[2].toFloat())
                             is ListValue -> {
                                 if (!value.contains(args[2])) {
-                                    ChatUtils.messageWithStart("§6${m.name} §b${args[1].toLowerCase()} §c<${value.values.joinToString(separator = "/").toLowerCase()}>")
+                                    ChatUtils.messageWithStart(
+                                        "§6${m.name} §b${args[1].lowercase(Locale.getDefault())} §c<${
+                                            value.values.joinToString(
+                                                separator = "/"
+                                            ).lowercase(Locale.getDefault())
+                                        }>")
                                     return
                                 }
 

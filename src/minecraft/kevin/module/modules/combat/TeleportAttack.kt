@@ -13,6 +13,9 @@ import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11
 import java.awt.Color
+import java.util.*
+import kotlin.ConcurrentModificationException
+import kotlin.collections.ArrayList
 
 class TeleportAttack : Module("TeleportAttack","Attack the target over a long distance!", category = ModuleCategory.COMBAT) {
     private val packetMode = ListValue("PacketMode", arrayOf("C04PacketPlayerPosition","C06PacketPlayerPosLook"),"C04PacketPlayerPosition")
@@ -60,29 +63,29 @@ class TeleportAttack : Module("TeleportAttack","Attack the target over a long di
     }
 
     @EventTarget
-    fun onUpdate(event: UpdateEvent){
+    fun onUpdate(event: UpdateEvent) {
         if (modeV.get() == "ClickAura" && aliveTimer.hasTimePassed(aliveTicks.get() * 50L)) points.clear()
-        if(!timer.hasTimePassed(getDelay().toLong())) return
-        when (modeV.get().toLowerCase()){
+        if (!timer.hasTimePassed(getDelay().toLong())) return
+        when (modeV.get().lowercase(Locale.getDefault())) {
             "aura" -> {
-                if(thread == null || !thread!!.isAlive){
+                if (thread == null || !thread!!.isAlive) {
                     thread = Thread { doTeleportAura() }
                     points.clear()
                     timer.reset()
                     thread!!.start()
-                }else{
+                } else {
                     timer.reset()
                 }
             }
 
             "clickaura" -> {
-                if(mc.gameSettings.keyBindAttack.isKeyDown&&(thread == null || !thread!!.isAlive)){
+                if (mc.gameSettings.keyBindAttack.isKeyDown && (thread == null || !thread!!.isAlive)) {
                     thread = Thread { doTeleportAura() }
                     aliveTimer.reset()
                     points.clear()
                     timer.reset()
                     thread!!.start()
-                }else{
+                } else {
                     timer.reset()
                 }
             }

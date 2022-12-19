@@ -15,7 +15,7 @@ import net.minecraft.block.Block
 import net.minecraft.init.Blocks
 import net.minecraft.util.BlockPos
 import java.awt.Color
-import java.util.ArrayList
+import java.util.*
 
 class BlockESP : Module("BlockESP", "Allows you to see a selected block through walls.", category = ModuleCategory.RENDER) {
     private val modeValue = ListValue("Mode", arrayOf("Box", "2D"), "Box")
@@ -75,8 +75,13 @@ class BlockESP : Module("BlockESP", "Allows you to see a selected block through 
         synchronized(posList) {
             val teams = KevinClient.moduleManager.getModule(Teams::class.java)
             for (blockPos in posList) {
-                val color = if (teams.bedCheckValue.get()&&blockPos in teams.teamBed) Color.green else if (colorRainbow.get()) rainbow() else Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get())
-                when (modeValue.get().toLowerCase()) {
+                val color =
+                    if (teams.bedCheckValue.get() && blockPos in teams.teamBed) Color.green else if (colorRainbow.get()) rainbow() else Color(
+                        colorRedValue.get(),
+                        colorGreenValue.get(),
+                        colorBlueValue.get()
+                    )
+                when (modeValue.get().lowercase(Locale.getDefault())) {
                     "box" -> RenderUtils.drawBlockBox(blockPos, color, true)
                     "2d" -> RenderUtils.draw2D(blockPos, color.rgb, Color.BLACK.rgb)
                 }

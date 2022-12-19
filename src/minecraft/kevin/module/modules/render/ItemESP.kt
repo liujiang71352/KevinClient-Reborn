@@ -11,6 +11,7 @@ import kevin.utils.RenderUtils
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.projectile.EntityArrow
 import java.awt.Color
+import java.util.*
 
 class ItemESP : Module("ItemESP", "Allows you to see items through walls.", category = ModuleCategory.RENDER) {
     private val modeValue = ListValue("Mode", arrayOf("Box", "OtherBox", "ShaderOutline", "ShaderGlow"), "Box")
@@ -28,8 +29,8 @@ class ItemESP : Module("ItemESP", "Allows you to see items through walls.", cate
     fun onRender3D(event: Render3DEvent?) {
         val color=getColor()
         for (entity in mc.theWorld!!.loadedEntityList) {
-            if (!((entity)is EntityItem || (entity)is EntityArrow)) continue
-            when (modeValue.get().toLowerCase()) {
+            if (!((entity) is EntityItem || (entity) is EntityArrow)) continue
+            when (modeValue.get().lowercase(Locale.getDefault())) {
                 "box" -> RenderUtils.drawEntityBox(entity, color, true)
                 "otherbox" -> RenderUtils.drawEntityBox(entity, color, false)
             }

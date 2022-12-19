@@ -17,14 +17,18 @@ import net.minecraft.entity.projectile.EntityPotion
 import net.minecraft.entity.projectile.EntitySnowball
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
+import net.minecraft.util.MovingObjectPosition
 import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11
+import org.lwjgl.util.glu.Cylinder
+import org.lwjgl.util.glu.GLU
 import java.awt.Color
 import kotlin.math.floor
+import kotlin.math.max
 
 class Trajectories : Module("Trajectories", description = "Shows the trajectory of the flying arrows.", category = ModuleCategory.RENDER) {
 
-    private val colorMode = ListValue("ColorMode", arrayOf("Custom","Rainbow"),"Rainbow")
+    private val colorMode = ListValue("ColorMode", arrayOf("Custom","Rainbow", "Distance", "Speed"),"Rainbow")
     private val cColorR = IntegerValue("R",255,0,255)
     private val cColorG = IntegerValue("G",0,0,255)
     private val cColorB = IntegerValue("B",0,0,255)
@@ -78,19 +82,26 @@ class Trajectories : Module("Trajectories", description = "Shows the trajectory 
             GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST)
             if (colorMode.get() == "Rainbow"){
                 RenderUtils.glColor(ColorUtils.rainbow())
-            }else{
+            }else if (colorMode equal "Distance") {
+                val distance = max(Vec3(posX, posY, posZ).squareDistanceTo(Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ)).times(10).toInt(), 255)
+                RenderUtils.glColor(Color(255 - distance, cColorG.get(), cColorB.get(), cColorA.get()))
+            } else if (colorMode equal "Speed") {
+                RenderUtils.glColor(Color(cColorR.get(), 255 - max((motionX * motionX * 100 + motionZ * motionZ * 100).toInt(), 255), cColorB.get(), cColorA.get()))
+            } else {
                 RenderUtils.glColor(Color(cColorR.get(), cColorG.get(), cColorB.get(), cColorA.get()))
             }
             GL11.glLineWidth(lineWidth.get())
             worldRenderer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION)
             var hasLanded = false
+            var landingPosition: MovingObjectPosition? = null
+            var hitEntity = false
             while (!hasLanded && posY > 0.0) {
                 val posBefore = Vec3(posX, posY, posZ)
                 val posAfter = Vec3(posX + motionX, posY + motionY, posZ + motionZ)
 
-                var landingPosition = theWorld.rayTraceBlocks(posBefore, posAfter,false, true,false)
+                landingPosition = theWorld.rayTraceBlocks(posBefore, posAfter,false, true,false)
 
-                if (landingPosition != null) {
+                if (landingPosition != null || posBefore.squareDistanceTo(posAfter) <= 0) {
                     hasLanded = true
                 }
 
@@ -117,7 +128,7 @@ class Trajectories : Module("Trajectories", description = "Shows the trajectory 
                         val possibleEntityLanding = possibleEntityBoundingBox
                             .calculateIntercept(posBefore, posAfter) ?: continue
                         hasLanded = true
-
+                        hitEntity = true
                         landingPosition = possibleEntityLanding
                     }
                 }
@@ -145,8 +156,29 @@ class Trajectories : Module("Trajectories", description = "Shows the trajectory 
             }
             tessellator.draw()
             GL11.glPushMatrix()
-            GL11.glTranslated(posX - renderManager.renderPosX, posY - renderManager.renderPosY,
-                posZ - renderManager.renderPosZ)
+            GL11.glTranslated(
+                posX - renderManager.renderPosX, posY - renderManager.renderPosY,
+                posZ - renderManager.renderPosZ
+            )
+            if (landingPosition != null) {
+                // Switch rotation of hit cylinder of the hit axis
+                when (landingPosition.sideHit!!.axis.ordinal) {
+                    0 -> GL11.glRotatef(90F, 0F, 0F, 1F)
+                    2 -> GL11.glRotatef(90F, 1F, 0F, 0F)
+                }
+
+                // Check if hitting an entity
+                if (hitEntity)
+                    RenderUtils.glColor(Color(255, 0, 0, 150))
+            }
+
+            // Rendering hit cylinder
+            GL11.glRotatef(-90F, 1F, 0F, 0F)
+
+            val cylinder = Cylinder()
+            cylinder.drawStyle = GLU.GLU_LINE
+            cylinder.draw(0.2F, 0F, 0F, 60, 1)
+
             GL11.glPopMatrix()
             GL11.glDepthMask(true)
             RenderUtils.resetCaps()

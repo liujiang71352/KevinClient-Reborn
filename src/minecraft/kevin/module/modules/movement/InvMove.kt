@@ -29,6 +29,7 @@ class InvMove : Module("InvMove","Allows you to walk while an inventory is opene
         mc.gameSettings.keyBindBack,
         mc.gameSettings.keyBindRight,
         mc.gameSettings.keyBindLeft,
+        mc.gameSettings.keyBindSneak,
         mc.gameSettings.keyBindJump,
         mc.gameSettings.keyBindSprint
     )
@@ -45,7 +46,7 @@ class InvMove : Module("InvMove","Allows you to walk while an inventory is opene
     fun onUpdate(event: UpdateEvent){
 
         //if (event.eventState == UpdateState.OnLivingUpdate){
-        if (state && mc.currentScreen !is GuiChat && mc.currentScreen !is GuiIngameMenu)
+        if (((state && mc.currentScreen !is GuiChat) || (alwaysActiveWithClickGui.get() && (mc.currentScreen is ClickGui.ClickGUI || mc.currentScreen is ClickGui.NewClickGui))) && mc.currentScreen !is GuiIngameMenu)
             for (affectedBinding in affectedBindings) {
                 affectedBinding.pressed = GameSettings.isKeyDown(affectedBinding)
             }

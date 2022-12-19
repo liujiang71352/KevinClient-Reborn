@@ -12,6 +12,8 @@ import net.minecraft.block.BlockLiquid
 import net.minecraft.init.Blocks
 import net.minecraft.util.BlockPos
 import java.awt.Color
+import java.util.*
+import kotlin.collections.ArrayList
 
 class SourceESP: Module("SourceESP", "Allow you to see the source of lava/water.", category = ModuleCategory.RENDER) {
     private val waterMode = ListValue("WaterMode", arrayOf("Box", "2D"), "Box")
@@ -98,8 +100,12 @@ class SourceESP: Module("SourceESP", "Allow you to see the source of lava/water.
     fun onRender3D(event: Render3DEvent?) {
         if (waterEnable) synchronized(waterPosList) {
             for (blockPos in waterPosList) {
-                val color = if (waterRainbow.get()) ColorUtils.rainbow() else Color(waterRedValue.get(), waterGreenValue.get(), waterBlueValue.get())
-                when (waterMode.get().toLowerCase()) {
+                val color = if (waterRainbow.get()) ColorUtils.rainbow() else Color(
+                    waterRedValue.get(),
+                    waterGreenValue.get(),
+                    waterBlueValue.get()
+                )
+                when (waterMode.get().lowercase(Locale.getDefault())) {
                     "box" -> RenderUtils.drawBlockBox(blockPos, color, true)
                     "2d" -> RenderUtils.draw2D(blockPos, color.rgb, Color.BLACK.rgb)
                 }
@@ -107,8 +113,12 @@ class SourceESP: Module("SourceESP", "Allow you to see the source of lava/water.
         }
         if (lavaEnable) synchronized(lavaPosList) {
             for (blockPos in lavaPosList) {
-                val color = if (lavaRainbow.get()) ColorUtils.rainbow() else Color(lavaRedValue.get(), lavaGreenValue.get(), lavaBlueValue.get())
-                when (lavaMode.get().toLowerCase()) {
+                val color = if (lavaRainbow.get()) ColorUtils.rainbow() else Color(
+                    lavaRedValue.get(),
+                    lavaGreenValue.get(),
+                    lavaBlueValue.get()
+                )
+                when (lavaMode.get().lowercase(Locale.getDefault())) {
                     "box" -> RenderUtils.drawBlockBox(blockPos, color, true)
                     "2d" -> RenderUtils.draw2D(blockPos, color.rgb, Color.BLACK.rgb)
                 }

@@ -313,7 +313,7 @@ object Renderer : Module("Renderer","Allows you to modify some renderings.",cate
         get() = playerModel.get()
 
     class Texture(name:String,image: BufferedImage){
-        val resource = ResourceLocation("kevin/texture/${name.toLowerCase().replace(" ","_")}")
+        val resource = ResourceLocation("kevin/texture/${name.lowercase(Locale.getDefault()).replace(" ", "_")}")
         init {
             val mc = Minecraft.getMinecraft()
             mc.addScheduledTask{mc.textureManager.loadTexture(resource, DynamicTexture(image))}

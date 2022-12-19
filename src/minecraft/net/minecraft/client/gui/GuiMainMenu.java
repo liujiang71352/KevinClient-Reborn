@@ -275,7 +275,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 
         //this.buttonList.add(this.realmsButton = new GuiButton(14, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, I18n.format("menu.online")));
         this.buttonList.add(this.altManagerButton = new GuiButton(114514, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, 98, 20, "AltManager"));
-        this.buttonList.add(new GuiButton(1145141919, this.width / 2 + 2, p_73969_1_ + p_73969_2_ * 2, 98, 20, "Proxy"));
+        this.buttonList.add(new GuiButton(1145141919, this.width / 2 + 2, p_73969_1_ + p_73969_2_ * 2, 98, 20, "ProxyManager"));
 
     }
 

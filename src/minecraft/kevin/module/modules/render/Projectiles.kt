@@ -22,6 +22,7 @@ import org.lwjgl.opengl.GL11
 import org.lwjgl.util.glu.Cylinder
 import org.lwjgl.util.glu.GLU
 import java.awt.Color
+import java.util.*
 import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.sin
@@ -50,7 +51,7 @@ class Projectiles : Module("Projectiles", "Allows you to see where arrows will l
         val size: Float
 
         // Check items
-        if ((item)is ItemBow) {
+        if ((item) is ItemBow) {
             if (!thePlayer.isUsingItem)
                 return
 
@@ -68,16 +69,16 @@ class Projectiles : Module("Projectiles", "Allows you to see where arrows will l
                 power = 1F
 
             motionFactor = power * 3F
-        } else if ((item)is ItemFishingRod) {
+        } else if ((item) is ItemFishingRod) {
             gravity = 0.04F
             size = 0.25F
             motionSlowdown = 0.92F
-        } else if ((item)is ItemPotion && ItemPotion.isSplash(heldItem.metadata)) {
+        } else if ((item) is ItemPotion && ItemPotion.isSplash(heldItem.metadata)) {
             gravity = 0.05F
             size = 0.25F
             motionFactor = 0.5F
         } else {
-            if ((item) !is ItemSnowball && (item)!is ItemEnderPearl && (item)!is ItemEgg)
+            if ((item) !is ItemSnowball && (item) !is ItemEnderPearl && (item) !is ItemEgg)
                 return
 
             gravity = 0.03F
@@ -106,9 +107,11 @@ class Projectiles : Module("Projectiles", "Allows you to see where arrows will l
         // Motions
         var motionX = (-sin(yawRadians) * cos(pitchRadians)
                 * if (isBow) 1.0 else 0.4)
-        var motionY = -sin((pitch +
-                if ((item)is ItemPotion && ItemPotion.isSplash(heldItem.metadata)) -20 else 0)
-                / 180f * 3.1415927f) * if (isBow) 1.0 else 0.4
+        var motionY = -sin(
+            (pitch +
+                    if ((item) is ItemPotion && ItemPotion.isSplash(heldItem.metadata)) -20 else 0)
+                    / 180f * 3.1415927f
+        ) * if (isBow) 1.0 else 0.4
         var motionZ = (cos(yawRadians) * cos(pitchRadians)
                 * if (isBow) 1.0 else 0.4)
         val distance = sqrt(motionX * motionX + motionY * motionY + motionZ * motionZ)
@@ -139,7 +142,7 @@ class Projectiles : Module("Projectiles", "Allows you to see where arrows will l
 
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
         GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST)
-        when (colorMode.get().toLowerCase()) {
+        when (colorMode.get().lowercase(Locale.getDefault())) {
             "custom" -> {
                 RenderUtils.glColor(Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get(), 255))
             }
@@ -160,8 +163,10 @@ class Projectiles : Module("Projectiles", "Allows you to see where arrows will l
             var posAfter = Vec3(posX + motionX, posY + motionY, posZ + motionZ)
 
             // Get landing position
-            landingPosition = theWorld.rayTraceBlocks(posBefore, posAfter, false,
-                true, false)
+            landingPosition = theWorld.rayTraceBlocks(
+                posBefore, posAfter, false,
+                true, false
+            )
 
             // Set pos before and after
             posBefore = Vec3(posX, posY, posZ)
@@ -170,12 +175,15 @@ class Projectiles : Module("Projectiles", "Allows you to see where arrows will l
             // Check if arrow is landing
             if (landingPosition != null) {
                 hasLanded = true
-                posAfter = Vec3(landingPosition.hitVec.xCoord, landingPosition.hitVec.yCoord, landingPosition.hitVec.zCoord)
+                posAfter =
+                    Vec3(landingPosition.hitVec.xCoord, landingPosition.hitVec.yCoord, landingPosition.hitVec.zCoord)
             }
 
             // Set arrow box
-            val arrowBox = AxisAlignedBB(posX - size, posY - size, posZ - size, posX + size,
-                posY + size, posZ + size).addCoord(motionX, motionY, motionZ).expand(1.0, 1.0, 1.0)
+            val arrowBox = AxisAlignedBB(
+                posX - size, posY - size, posZ - size, posX + size,
+                posY + size, posZ + size
+            ).addCoord(motionX, motionY, motionZ).expand(1.0, 1.0, 1.0)
 
             val chunkMinX = floor((arrowBox.minX - 2.0) / 16.0).toInt()
             val chunkMaxX = floor((arrowBox.maxX + 2.0) / 16.0).toInt()
@@ -227,15 +235,19 @@ class Projectiles : Module("Projectiles", "Allows you to see where arrows will l
             motionY -= gravity.toDouble()
 
             // Draw path
-            worldRenderer.pos(posX - renderManager.renderPosX, posY - renderManager.renderPosY,
-                posZ - renderManager.renderPosZ).endVertex()
+            worldRenderer.pos(
+                posX - renderManager.renderPosX, posY - renderManager.renderPosY,
+                posZ - renderManager.renderPosZ
+            ).endVertex()
         }
 
         // End the rendering of the path
         tessellator.draw()
         GL11.glPushMatrix()
-        GL11.glTranslated(posX - renderManager.renderPosX, posY - renderManager.renderPosY,
-            posZ - renderManager.renderPosZ)
+        GL11.glTranslated(
+            posX - renderManager.renderPosX, posY - renderManager.renderPosY,
+            posZ - renderManager.renderPosZ
+        )
 
         if (landingPosition != null) {
             // Switch rotation of hit cylinder of the hit axis

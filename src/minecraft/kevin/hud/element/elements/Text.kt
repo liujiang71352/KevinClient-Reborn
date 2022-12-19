@@ -17,6 +17,7 @@ import org.lwjgl.input.Keyboard
 import java.awt.Color
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.math.sqrt
 
 @ElementInfo(name = "Text")
@@ -81,7 +82,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
         val thePlayer = mc.thePlayer
 
         if (thePlayer != null) {
-            when (str.toLowerCase()) {
+            when (str.lowercase(Locale.getDefault())) {
                 "x" -> return DECIMAL_FORMAT.format(thePlayer.posX)
                 "y" -> return DECIMAL_FORMAT.format(thePlayer.posY)
                 "z" -> return DECIMAL_FORMAT.format(thePlayer.posZ)
@@ -96,7 +97,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
             }
         }
 
-        return when (str.toLowerCase()) {
+        return when (str.lowercase(Locale.getDefault())) {
             "username" -> mc.session.username
             "clientname" -> KevinClient.name
             "clientversion" -> KevinClient.version

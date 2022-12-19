@@ -373,7 +373,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
             mc.thePlayer!!.motionZ = mc.thePlayer!!.motionZ * slowSpeed.get()
         }
         if (mc.thePlayer!!.onGround) {
-            when (zitterMode.get().toLowerCase()) {
+            when (zitterMode.get().lowercase(Locale.getDefault())) {
                 //"off" -> return //LiquidBounce B73, WTF is this?? if you turn off zitter u cant use eagle??????
                 "smooth" -> {
                     if (!GameSettings.isKeyDown(mc.gameSettings.keyBindRight)) {
@@ -893,7 +893,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
             if (blockSlot == -1)
                 return
 
-            when (autoBlockValue.get().toLowerCase()) {
+            when (autoBlockValue.get().lowercase(Locale.getDefault())) {
                 "off" -> return
                 "pick" -> {
                     mc.thePlayer!!.inventory.currentItem = blockSlot - 36
