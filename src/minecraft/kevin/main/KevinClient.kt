@@ -20,6 +20,7 @@ import kevin.script.ScriptManager
 import kevin.skin.SkinManager
 import kevin.utils.CombatManager
 import kevin.font.FontManager
+import kevin.utils.RotationUtils
 import kevin.via.ViaVersion
 import org.lwjgl.opengl.Display
 
@@ -29,7 +30,7 @@ object KevinClient {
 
     var isStarting = true
 
-    val debug = true
+    val debug = false
 
     lateinit var moduleManager: ModuleManager
     lateinit var fileManager: FileManager
@@ -60,6 +61,7 @@ object KevinClient {
         fileManager.loadConfig(fileManager.modulesConfig)
         fileManager.loadConfig(fileManager.bindCommandConfig)
         eventManager.registerListener(BindCommandManager)
+        eventManager.registerListener(RotationUtils())
         hud = createDefault()
         fileManager.loadConfig(fileManager.hudConfig)
         commandManager.load()

@@ -38,6 +38,7 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
 //    @EventTarget
     // for safety, see in met.minecraft.network.NetworkManager
     fun onPacket(event: PacketEvent) {
+        mc.thePlayer ?: return
         val packet = event.packet
         if (packet.javaClass.name.contains("net.minecraft.network.play.server.", true)) {
             if (packet is S14PacketEntity) {
@@ -55,9 +56,9 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
                     var beforeRange = entity.getLookDistanceToEntityBox()
                     if (afterRange == Double.MAX_VALUE) {
                         val eyes = mc.thePlayer!!.getPositionEyes(1F)
-                        afterRange = getNearestPointBB(eyes, afterBB).distanceTo(eyes) + 0.1
+                        afterRange = getNearestPointBB(eyes, afterBB).distanceTo(eyes) + 0.075
                     }
-                    if (beforeRange == Double.MAX_VALUE) beforeRange = mc.thePlayer!!.getDistanceToEntityBox(entity) + 0.1
+                    if (beforeRange == Double.MAX_VALUE) beforeRange = mc.thePlayer!!.getDistanceToEntityBox(entity) + 0.075
 
                     if (beforeRange < minDistance.get()) {
                         if (afterRange in minDistance.get()..maxDistance.get()) {
@@ -70,8 +71,10 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
                             return
                         }
                         else {
-                            if (smartPacket.get() && needFreeze) {
-                                releasePackets()
+                            if (smartPacket.get()) {
+                                if (afterRange < beforeRange) {
+                                    if (needFreeze) releasePackets()
+                                }
                             }
                         }
                     }
@@ -129,6 +132,7 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
         }
 
         // pre draw
+        glPushMatrix()
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_BLEND)
         glDisable(GL_TEXTURE_2D)
@@ -137,14 +141,15 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
         glDepthMask(false)
 
         if (outline) {
-            glLineWidth(3f)
+            glLineWidth(1f)
             glEnable(GL_LINE_SMOOTH)
         }
         // drawing
+        val renderManager = mc.renderManager
         for (entity in storageEntities) {
-            val x = entity.serverPosX.toDouble() / 32.0
-            val y = entity.serverPosY.toDouble() / 32.0
-            val z = entity.serverPosZ.toDouble() / 32.0
+            val x = entity.serverPosX.toDouble() / 32.0 - renderManager.renderPosX
+            val y = entity.serverPosY.toDouble() / 32.0 - renderManager.renderPosY
+            val z = entity.serverPosZ.toDouble() / 32.0 - renderManager.renderPosZ
             val bb = AxisAlignedBB(x - 0.4F, y, z - 0.4F, x + 0.4F, y + 1.9F, z + 0.4F)
             if (outline) {
                 RenderUtils.glColor(32, 200, 32, 255)
@@ -165,6 +170,7 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
         glDisable(GL_BLEND)
         glEnable(GL_TEXTURE_2D)
         glEnable(GL_DEPTH_TEST)
+        glPopMatrix()
     }
 
     fun releasePackets() {
