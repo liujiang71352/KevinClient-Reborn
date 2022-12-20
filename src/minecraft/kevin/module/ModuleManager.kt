@@ -34,6 +34,7 @@ class ModuleManager : Listenable {
             AutoBow(),
             AutoClicker(),
             AutoWeapon(),
+            BackTrack(),
             BowAimbot(),
             BowAura(),
             Criticals(),

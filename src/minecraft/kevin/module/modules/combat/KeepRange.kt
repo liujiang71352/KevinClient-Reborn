@@ -49,6 +49,7 @@ class KeepRange: Module("KeepDistance", "Keep yourself out of a range with your 
         val distance = mc.thePlayer.getDistanceToEntityBox(target!!)
         if (target!!.isDead || distance >= maxDistance.get()) {
             target = null
+            for (bind in binds) bind.pressed = GameSettings.isKeyDown(bind)
             return
         }
         if (mode equal "ReleaseKey") {

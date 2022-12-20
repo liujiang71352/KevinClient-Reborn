@@ -1,5 +1,6 @@
 package kevin.utils
 
+import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.Entity
 import net.minecraft.entity.boss.EntityDragon
 import net.minecraft.entity.monster.EntityGhast
@@ -23,9 +24,9 @@ fun Entity.getDistanceToEntityBox(entity: Entity): Double {
     val zDist = abs(pos.zCoord - eyes.zCoord)
     return sqrt(xDist.pow(2) + yDist.pow(2) + zDist.pow(2))
 }
-fun Entity.getLookDistanceToEntityBox(entity: Entity, rotation: Rotation): Double {
+fun Entity.getLookDistanceToEntityBox(entity: Entity=this, rotation: Rotation? = null, range: Double=10.0): Double {
     val eyes = this.getPositionEyes(1F)
-    val end = rotation.toDirection()
+    val end = (rotation?: RotationUtils.serverRotation).toDirection().multiply(range)
     return entity.entityBoundingBox.calculateIntercept(eyes, end)?.hitVec?.distanceTo(eyes) ?: Double.MAX_VALUE
 }
 
