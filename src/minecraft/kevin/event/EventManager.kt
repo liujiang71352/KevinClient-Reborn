@@ -1,5 +1,11 @@
 package kevin.event
 
+import kevin.hud.element.elements.ConnectNotificationType
+import kevin.hud.element.elements.Notification
+import kevin.main.KevinClient
+import net.minecraft.client.Minecraft
+import java.lang.reflect.InvocationTargetException
+
 class EventManager {
     private val registry = HashMap<Class<out Event>, MutableList<EventHook>>()
     fun registerListener(listener: Listenable) {
@@ -35,6 +41,18 @@ class EventManager {
                 invokableEventTarget.method.invoke(invokableEventTarget.eventClass, event)
             } catch (throwable: Throwable) {
                 throwable.printStackTrace()
+                if (KevinClient.debug) {
+                    if (throwable is InvocationTargetException) {
+                        KevinClient.hud.addNotification(
+                            Notification(
+                                "Exception caught when calling ${event.javaClass.simpleName} in ${invokableEventTarget.eventClass.javaClass.simpleName}: ${throwable.targetException.message}",
+                                "Debug",
+                                ConnectNotificationType.Error
+                            )
+                        )
+                        Minecraft.logger.warn("Exception caught when calling ${event.javaClass.simpleName} in listener ${invokableEventTarget.eventClass.javaClass.simpleName}: ${throwable.targetException.stackTraceToString()}")
+                    }
+                }
             }
         }
     }

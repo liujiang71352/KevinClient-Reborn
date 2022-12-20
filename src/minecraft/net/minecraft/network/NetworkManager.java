@@ -42,6 +42,7 @@ import kevin.event.PacketEvent;
 //import kevin.event.PacketMode;
 
 import kevin.main.KevinClient;
+import kevin.module.modules.combat.BackTrack;
 import kevin.utils.PacketUtils;
 import kevin.utils.proxy.ProxyManager;
 import kevin.via.CommonTransformer;
@@ -68,6 +69,7 @@ import org.apache.logging.log4j.MarkerManager;
 public class NetworkManager extends SimpleChannelInboundHandler<Packet>
 {
     private static final Logger logger = LogManager.getLogger();
+    public static BackTrack backTrack = null;
     public static final Marker logMarkerNetwork = MarkerManager.getMarker("NETWORK");
     public static final Marker logMarkerPackets = MarkerManager.getMarker("NETWORK_PACKETS", logMarkerNetwork);
     public static final AttributeKey<EnumConnectionState> attrKeyConnectionState = AttributeKey.valueOf("protocol");
@@ -168,17 +170,20 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
         {
             try
             {
-
                 final PacketEvent packetEvent = new PacketEvent(p_channelRead0_2_/*, PacketMode.RECEIVE**/);
+                if (backTrack == null) {
+                    backTrack = KevinClient.moduleManager.getModule(BackTrack.class);
+                }
+                if (backTrack.getState()) {
+                    backTrack.onPacket(packetEvent);
+                    if (packetEvent.isCancelled()) return;
+                }
 
                 if (!PacketUtils.INSTANCE.getPacketList().contains(p_channelRead0_2_)) KevinClient.eventManager.callEvent(packetEvent);
                 if (packetEvent.isCancelled()) return;
                 p_channelRead0_2_.processPacket(this.packetListener);
             }
-            catch (ThreadQuickExitException var4)
-            {
-                ;
-            }
+            catch (ThreadQuickExitException ignored) {}
         }
     }
 

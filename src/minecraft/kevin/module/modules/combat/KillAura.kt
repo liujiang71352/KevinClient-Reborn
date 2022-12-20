@@ -364,6 +364,24 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
             }
         }
     }
+    @EventTarget fun onJump(event: JumpEvent) {
+        if (rotationStrafeValue equal "Vanilla") {
+            val thePlayer = mc.thePlayer ?: return
+            val (yaw) = RotationUtils.targetRotation ?: return
+            thePlayer.motionY = event.motion.toDouble()
+
+            if (thePlayer.isPotionActive(Potion.jump)) thePlayer.motionY += ((thePlayer.getActivePotionEffect(Potion.jump).amplifier + 1).toFloat() * 0.1f).toDouble()
+
+            if (thePlayer.isSprinting) {
+                val f: Float = yaw * (Math.PI.toFloat() / 180f)
+                thePlayer.motionX -= (MathHelper.sin(f) * 0.2f).toDouble()
+                thePlayer.motionZ += (MathHelper.cos(f) * 0.2f).toDouble()
+            }
+
+            thePlayer.isAirBorne = true
+            event.cancelEvent()
+        }
+    }
 
     fun update() {
         if (cancelRun || (noInventoryAttackValue.get() && ((mc.currentScreen)is GuiContainer ||
@@ -387,30 +405,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
         }
     }
 
-    @EventTarget(ignoreCondition = true)
-    fun onPacket(event: PacketEvent){
-        val packet: Packet<*> = event.packet
-
-        if (packet is C03PacketPlayer) {
-            if (RotationUtils.targetRotation != null && !RotationUtils.keepCurrentRotation && (RotationUtils.targetRotation.yaw != RotationUtils.serverRotation.yaw || RotationUtils.targetRotation.pitch != RotationUtils.serverRotation.pitch)) {
-                packet.setYaw(RotationUtils.targetRotation.yaw)
-                packet.setPitch(RotationUtils.targetRotation.pitch)
-                packet.setRotating(true)
-            }
-            if (packet.getRotating()) RotationUtils.serverRotation = Rotation(packet.getYaw(), packet.getPitch())
-        }
-    }
-
-    @EventTarget(ignoreCondition = true)
-    fun onTick(event: TickEvent?) {
-        if (RotationUtils.targetRotation != null) {
-            RotationUtils.keepLength--
-            if (RotationUtils.keepLength <= 0) RotationUtils.reset()
-        }
-        if (RotationUtils.random.nextGaussian() > 0.8) RotationUtils.x = Math.random()
-        if (RotationUtils.random.nextGaussian() > 0.8) RotationUtils.y = Math.random()
-        if (RotationUtils.random.nextGaussian() > 0.8) RotationUtils.z = Math.random()
-    }
+    // MOVED: PacketEvent & TickEvent -> utils.RotationUtils
 
     /**
      * Update event

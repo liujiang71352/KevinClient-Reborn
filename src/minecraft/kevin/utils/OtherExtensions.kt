@@ -12,3 +12,7 @@ fun AxisAlignedBB.getLookingTargetVec(thePlayer: EntityPlayerSP, rotation: Rotat
     val eyes = thePlayer.getPositionEyes(1F)
     return this.calculateIntercept(eyes, (rotation ?: RotationUtils.serverRotation).toDirection().multiply(range))?.hitVec?.distanceTo(eyes) ?: Double.MAX_VALUE
 }
+
+fun AxisAlignedBB.expands(v: Double, modifyYDown: Boolean=true, modifyYUp: Boolean=true): AxisAlignedBB {
+    return AxisAlignedBB(this.minX - v, this.minY - (if (modifyYDown) v else 0.0), this.minZ - v, this.maxX + v, this.maxY + (if (modifyYUp) v else 0.0), this.maxZ + v)
+}

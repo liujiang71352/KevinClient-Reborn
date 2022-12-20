@@ -1,13 +1,18 @@
 package kevin.utils;
 
 import com.sun.istack.internal.NotNull;
+import kevin.event.EventTarget;
 import kevin.event.Listenable;
+import kevin.event.PacketEvent;
+import kevin.event.TickEvent;
 import kevin.main.KevinClient;
 import kevin.module.modules.combat.FastBow;
 import kevin.module.modules.player.FastUse;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.util.*;
 
 import java.util.Random;
@@ -28,7 +33,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
     public static double z = random.nextDouble();
 
     public static Rotation getRotationsEntity(EntityLivingBase entity) {
-        return RotationUtils.getRotations(entity.posX, entity.posY + entity.getEyeHeight() - 0.4, entity.posZ);
+        return getRotations(entity.posX, entity.posY + entity.getEyeHeight() - 0.4, entity.posZ);
     }
 
     /**
@@ -79,7 +84,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
     }
 
     public static Rotation getRotations(double posX, double posY, double posZ) {
-        EntityPlayerSP player = RotationUtils.mc.thePlayer;
+        EntityPlayerSP player = mc.thePlayer;
         double x = posX - player.posX;
         double y = posY - (player.posY + (double)player.getEyeHeight());
         double z = posZ - player.posZ;
@@ -93,7 +98,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         double x = ent.posX;
         double z = ent.posZ;
         double y = ent.posY + (double)(ent.getEyeHeight() / 2.0f);
-        return RotationUtils.getRotationFromPosition(x, z, y);
+        return getRotationFromPosition(x, z, y);
     }
     public static Rotation getRotationFromPosition(double x, double z, double y) {
         double xDiff = x - mc.thePlayer.posX;
@@ -408,7 +413,32 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         targetRotation = null;
     }
 
-    // why? here is no @EventTarget
+    @EventTarget(ignoreCondition = true)
+    public void onPacket(final PacketEvent event){
+        Packet<?> packet = event.getPacket();
+
+        if (packet instanceof C03PacketPlayer) {
+            C03PacketPlayer c03 = (C03PacketPlayer) packet;
+            if (targetRotation != null && !keepCurrentRotation && (targetRotation.getYaw() != serverRotation.getYaw() || targetRotation.getPitch() != serverRotation.getPitch())) {
+                c03.setYaw(targetRotation.getYaw());
+                c03.setPitch(targetRotation.getPitch());
+                c03.setRotating(true);
+            }
+            if (c03.getRotating()) serverRotation = new Rotation(c03.getYaw(), c03.getPitch());
+        }
+    }
+
+    @EventTarget(ignoreCondition = true)
+    public void onTick(final TickEvent ignored) {
+        if (targetRotation != null) {
+            keepLength--;
+            if (keepLength <= 0) reset();
+        }
+        if (random.nextGaussian() > 0.8) x = Math.random();
+        if (random.nextGaussian() > 0.8) y = Math.random();
+        if (random.nextGaussian() > 0.8) z = Math.random();
+    }
+
     @Override public boolean handleEvents() {return true;}
 }
 

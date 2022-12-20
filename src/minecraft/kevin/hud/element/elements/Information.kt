@@ -57,11 +57,11 @@ class Information(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,side: Sid
         GL11.glPushMatrix()
         GL11.glScaled(0.6,0.6,0.6)
         KevinClient.fontManager.font40.drawString("TPS: $tps",20/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,if(tps >= 19.0) Color(0,255,0,200).rgb else Color(255,0,0,200).rgb)
-        KevinClient.fontManager.font40.drawString("Ping: $ping",200/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,if(ping <= 150) Color(0,255,0,200).rgb else Color(255,0,0,200).rgb)
+        KevinClient.fontManager.font40.drawString("Ping: $ping",65/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,if(ping <= 150) Color(0,255,0,200).rgb else Color(255,0,0,200).rgb)
         y += 2+ KevinClient.fontManager.font40.fontHeight/2F
         KevinClient.fontManager.font40.drawString("HurtTime: ${mc.thePlayer.hurtTime}",20/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,if (mc.thePlayer.hurtTime>0) Color(255,0,0,200).rgb else Color(0,20,255,200).rgb)
         y += 2+ KevinClient.fontManager.font40.fontHeight/2F
-        KevinClient.fontManager.font40.drawString("Kills: $kills, CPS: ${cps.size()}",20/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,Color(255,0,0,200).rgb)
+        KevinClient.fontManager.font40.drawString("Kills: $kills CPS: ${cps.size()}",20/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,Color(255,0,0,200).rgb)
         y += 2+ KevinClient.fontManager.font40.fontHeight/2F
         KevinClient.fontManager.font40.drawString("Speed: ${bps}BPS",20/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,Color(0,40,255,200).rgb)
         y += 2+ KevinClient.fontManager.font40.fontHeight/2F
@@ -83,9 +83,7 @@ class Information(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,side: Sid
     @EventTarget
     fun onPacket(event: PacketEvent){
         val packet = event.packet
-        if (packet is C0APacketAnimation) {
-            cps.add(1)
-        }
+        if (packet is C0APacketAnimation) cps.add(1)
         if (packet is S03PacketTimeUpdate){
             packetHistoryTime.add(System.currentTimeMillis())
         }

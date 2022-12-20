@@ -1,44 +1,48 @@
-@file:Suppress("UNCHECKED_CAST")
+@file:Suppress("UNCHECKED_CAST", "UNUSED_PARAMETER")
 
 package kevin.module.modules.combat
 
 import kevin.event.*
 import kevin.main.KevinClient
 import kevin.module.*
-import kevin.utils.MSTimer
-import kevin.utils.RenderUtils
-import kevin.utils.getLookDistanceToEntityBox
-import kevin.utils.getLookingTargetVec
+import kevin.utils.*
+import kevin.utils.PacketUtils.packetList
 import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.network.NetworkManager
 import net.minecraft.network.Packet
+import net.minecraft.network.ThreadQuickExitException
 import net.minecraft.network.play.INetHandlerPlayClient
 import net.minecraft.network.play.server.S14PacketEntity
 import net.minecraft.util.AxisAlignedBB
-import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL11.*
 
-class BackTrack: kevin.module.Module("BackTrack", "(IN TEST) Lets you attack people in their previous locations", category = ModuleCategory.COMBAT) {
+class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their previous locations", category = ModuleCategory.COMBAT) {
     private val minDistance = FloatValue("MinDistance", 2.99f, 2f, 4f)
     private val maxDistance = FloatValue("MaxDistance", 5f, 2f, 6f)
     private val maxTime = IntegerValue("MaxTime", 200, 0, 1000)
     private val onlyKillAura = BooleanValue("OnlyKillAura", true)
     private val onlyPlayer = BooleanValue("OnlyPlayer", true)
+    private val smartPacket = BooleanValue("Smart", true)
 
     private val espMode = ListValue("ESPMode", arrayOf("FullBox", "OutlineBox", "NormalBox", "None"), "Box")
 
-    private val storagePackets = ArrayList<Packet<INetHandlerPlayClient>>()
+    val storagePackets = ArrayList<Packet<INetHandlerPlayClient>>()
     private val storageEntities = ArrayList<Entity>()
 
     private val killAura: KillAura by lazy { KevinClient.moduleManager.getModule(KillAura::class.java) }
-    private var currentTarget : EntityLivingBase? = null
+//    private var currentTarget : EntityLivingBase? = null
     private var timer = MSTimer()
     var needFreeze = false
 
-    @EventTarget fun onPacket(event: PacketEvent) {
+//    @EventTarget
+    // for safety, see in met.minecraft.network.NetworkManager
+    fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if (packet.javaClass.name.contains("net.minecraft.network.play.server.", true)) {
             if (packet is S14PacketEntity) {
                 val entity = packet.getEntity(mc.theWorld!!)?: return
+                if (onlyPlayer.get() && entity !is EntityPlayer) return
                 entity.serverPosX += packet.func_149062_c().toInt()
                 entity.serverPosY += packet.func_149061_d().toInt()
                 entity.serverPosZ += packet.func_149064_e().toInt()
@@ -47,23 +51,35 @@ class BackTrack: kevin.module.Module("BackTrack", "(IN TEST) Lets you attack peo
                 val z = entity.serverPosZ.toDouble() / 32.0
                 if (!onlyKillAura.get() || killAura.state || needFreeze) {
                     val afterBB = AxisAlignedBB(x - 0.3F, y, z - 0.3F, x + 0.3F, y + 1.8F, z + 0.3F)
-                    val afterRange = afterBB.getLookingTargetVec(mc.thePlayer!!)
-                    val beforeRange = entity.getLookDistanceToEntityBox()
+                    var afterRange = afterBB.getLookingTargetVec(mc.thePlayer!!)
+                    var beforeRange = entity.getLookDistanceToEntityBox()
+                    if (afterRange == Double.MAX_VALUE) {
+                        val eyes = mc.thePlayer!!.getPositionEyes(1F)
+                        afterRange = getNearestPointBB(eyes, afterBB).distanceTo(eyes) + 0.1
+                    }
+                    if (beforeRange == Double.MAX_VALUE) beforeRange = mc.thePlayer!!.getDistanceToEntityBox(entity) + 0.1
+
                     if (beforeRange < minDistance.get()) {
                         if (afterRange in minDistance.get()..maxDistance.get()) {
                             if (!needFreeze) {
                                 timer.reset()
                                 needFreeze = true
                             }
+                            if (!storageEntities.contains(entity)) storageEntities.add(entity)
                             event.cancelEvent()
                             return
                         }
-//                        else {
-//                            if (needFreeze) {
-//                                releasePackets()
-//                            }
-//                        }
+                        else {
+                            if (smartPacket.get() && needFreeze) {
+                                releasePackets()
+                            }
+                        }
                     }
+                }
+                if (needFreeze) {
+                    if (!storageEntities.contains(entity)) storageEntities.add(entity)
+                    event.cancelEvent()
+                    return
                 }
                 if (!event.isCancelled && !needFreeze) {
                     KevinClient.eventManager.callEvent(EntityMovementEvent(entity))
@@ -72,15 +88,10 @@ class BackTrack: kevin.module.Module("BackTrack", "(IN TEST) Lets you attack peo
                     entity.setPositionAndRotation2(x, y, z, f, f1, 3, false)
                     entity.onGround = packet.onGround
                 }
-                if (needFreeze) {
-                    if (!storageEntities.contains(entity)) {
-                        storageEntities.add(entity)
-                    }
-                }
                 event.cancelEvent()
 //                storageEntities.add(entity)
             } else {
-                if (needFreeze) {
+                if (needFreeze && !event.isCancelled) {
                     storagePackets.add(packet as Packet<INetHandlerPlayClient>)
                     event.cancelEvent()
                 }
@@ -94,17 +105,9 @@ class BackTrack: kevin.module.Module("BackTrack", "(IN TEST) Lets you attack peo
         }
     }
 
-    fun releasePackets() {
-        val netHandler: INetHandlerPlayClient = mc.netHandler
-        while (storagePackets.isNotEmpty()) {
-            storagePackets.removeAt(0).processPacket(netHandler)
-        }
-        needFreeze = false
-    }
-
-    @EventTarget fun onAttack(event: AttackEvent) {
-        val attackTarget = event.targetEntity ?: return
-        if (onlyKillAura.get()) return
+    @EventTarget fun onWorld(event: WorldEvent) {
+        storageEntities.clear()
+        releasePackets()
     }
 
     @EventTarget fun onRender3D(event: Render3DEvent) {
@@ -113,37 +116,38 @@ class BackTrack: kevin.module.Module("BackTrack", "(IN TEST) Lets you attack peo
         var outline = false
         var filled = false
         when (espMode.get()) {
-            "OutlineBox" -> {
+            "NormalBox" -> {
                 outline = true
+                filled = true
             }
             "FullBox" -> {
                 filled = true
             }
             else -> {
                 outline = true
-                filled = true
             }
         }
 
         // pre draw
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
-        GL11.glEnable(GL11.GL_BLEND)
-        GL11.glDisable(GL11.GL_TEXTURE_2D)
-        GL11.glDisable(GL11.GL_DEPTH_TEST)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glEnable(GL_BLEND)
+        glDisable(GL_TEXTURE_2D)
+        glDisable(GL_DEPTH_TEST)
 
-        GL11.glDepthMask(false)
+        glDepthMask(false)
+
         if (outline) {
-            GL11.glLineWidth(1f)
-            GL11.glEnable(GL11.GL_LINE_SMOOTH)
+            glLineWidth(3f)
+            glEnable(GL_LINE_SMOOTH)
         }
         // drawing
         for (entity in storageEntities) {
             val x = entity.serverPosX.toDouble() / 32.0
             val y = entity.serverPosY.toDouble() / 32.0
             val z = entity.serverPosZ.toDouble() / 32.0
-            val bb = AxisAlignedBB(x - 0.3F, y, z - 0.3F, x + 0.3F, y + 1.8F, z + 0.3F)
+            val bb = AxisAlignedBB(x - 0.4F, y, z - 0.4F, x + 0.4F, y + 1.9F, z + 0.4F)
             if (outline) {
-                RenderUtils.glColor(32, 255, 32, 150)
+                RenderUtils.glColor(32, 200, 32, 255)
                 RenderUtils.drawSelectionBoundingBox(bb)
             }
             if (filled) {
@@ -153,14 +157,43 @@ class BackTrack: kevin.module.Module("BackTrack", "(IN TEST) Lets you attack peo
         }
 
         // post draw
-        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
-        GL11.glDepthMask(true)
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
+        glDepthMask(true)
         if (outline) {
-            GL11.glDisable(GL11.GL_LINE_SMOOTH)
+            glDisable(GL_LINE_SMOOTH)
         }
-        GL11.glDisable(GL11.GL_BLEND)
-        GL11.glEnable(GL11.GL_TEXTURE_2D)
-        GL11.glEnable(GL11.GL_DEPTH_TEST)
+        glDisable(GL_BLEND)
+        glEnable(GL_TEXTURE_2D)
+        glEnable(GL_DEPTH_TEST)
+    }
+
+    fun releasePackets() {
+        val netHandler: INetHandlerPlayClient = mc.netHandler
+        while (storagePackets.isNotEmpty()) {
+            storagePackets.removeAt(0).let{
+                try {
+                    val packetEvent = PacketEvent(it)
+                    if (!packetList.contains(it)) KevinClient.eventManager.callEvent(packetEvent)
+                    if (packetEvent.isCancelled) return@let
+                    it.processPacket(netHandler)
+                } catch (_: ThreadQuickExitException) { }
+            }
+        }
+        while (storageEntities.isNotEmpty()) {
+            storageEntities.removeAt(0).let { entity ->
+                if (!entity.isDead) {
+                    val x = entity.serverPosX.toDouble() / 32.0
+                    val y = entity.serverPosY.toDouble() / 32.0
+                    val z = entity.serverPosZ.toDouble() / 32.0
+                    entity.setPosition(x, y, z)
+                }
+            }
+        }
+        needFreeze = false
+    }
+
+    init {
+        NetworkManager.backTrack = this
     }
 //    val target: EntityLivingBase?
 //    get() = if (onlyKillAura.get()) {

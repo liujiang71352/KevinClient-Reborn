@@ -32,6 +32,8 @@ class LagBackDetector : Module("LagBackDetector", "Detect lag back from server."
         count = 0
     }
     @EventTarget fun onPacket(event: PacketEvent) {
+        mc.thePlayer ?: return
+        mc.theWorld  ?: return
         val packet = if (event.packet is S08PacketPlayerPosLook) event.packet else return
         if (distanceCheckValue.get()) {
             if (sqrt((packet.x - mc.thePlayer.posX).pow(2) + (packet.z - mc.thePlayer.posZ).pow(2)) > 10) return
