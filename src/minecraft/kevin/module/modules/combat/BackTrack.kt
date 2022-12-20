@@ -29,7 +29,7 @@ class BackTrack: kevin.module.Module("BackTrack", "(IN TEST) Lets you attack peo
     private val storagePackets = ArrayList<Packet<INetHandlerPlayClient>>()
     private val storageEntities = ArrayList<Entity>()
 
-    private val killAura: KillAura = KevinClient.moduleManager.getModule(KillAura::class.java)
+    private val killAura: KillAura by lazy { KevinClient.moduleManager.getModule(KillAura::class.java) }
     private var currentTarget : EntityLivingBase? = null
     private var timer = MSTimer()
     var needFreeze = false
