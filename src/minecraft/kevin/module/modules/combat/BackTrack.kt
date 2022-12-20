@@ -13,6 +13,7 @@ import net.minecraft.network.NetworkManager
 import net.minecraft.network.Packet
 import net.minecraft.network.ThreadQuickExitException
 import net.minecraft.network.play.INetHandlerPlayClient
+import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.server.S14PacketEntity
 import net.minecraft.util.AxisAlignedBB
 import org.lwjgl.opengl.GL11.*
@@ -24,6 +25,7 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
     private val onlyKillAura = BooleanValue("OnlyKillAura", true)
     private val onlyPlayer = BooleanValue("OnlyPlayer", true)
     private val smartPacket = BooleanValue("Smart", true)
+    private val resetOnVelocity = BooleanValue("ResetOnVelocity", true)
 
     private val espMode = ListValue("ESPMode", arrayOf("FullBox", "OutlineBox", "NormalBox", "None"), "Box")
 
@@ -56,12 +58,12 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
                     var beforeRange = entity.getLookDistanceToEntityBox()
                     if (afterRange == Double.MAX_VALUE) {
                         val eyes = mc.thePlayer!!.getPositionEyes(1F)
-                        afterRange = getNearestPointBB(eyes, afterBB).distanceTo(eyes) + 0.075
+                        afterRange = getNearestPointBB(eyes, afterBB).distanceTo(eyes) + 0.1
                     }
-                    if (beforeRange == Double.MAX_VALUE) beforeRange = mc.thePlayer!!.getDistanceToEntityBox(entity) + 0.075
+                    if (beforeRange == Double.MAX_VALUE) beforeRange = mc.thePlayer!!.getDistanceToEntityBox(entity) + 0.1
 
                     if (beforeRange < minDistance.get()) {
-                        if (afterRange in minDistance.get()..maxDistance.get()) {
+                        if (afterRange in minDistance.get()..maxDistance.get() && (!smartPacket.get() || afterRange >= beforeRange)) {
                             if (!needFreeze) {
                                 timer.reset()
                                 needFreeze = true
@@ -70,11 +72,10 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
                             event.cancelEvent()
                             return
                         }
-                        else {
-                            if (smartPacket.get()) {
-                                if (afterRange < beforeRange) {
-                                    if (needFreeze) releasePackets()
-                                }
+                    } else {
+                        if (smartPacket.get()) {
+                            if (afterRange <= beforeRange) {
+                                if (needFreeze) releasePackets()
                             }
                         }
                     }
@@ -94,6 +95,12 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
                 event.cancelEvent()
 //                storageEntities.add(entity)
             } else {
+                if (packet is S12PacketEntityVelocity && resetOnVelocity.get()) {
+                    storagePackets.add(packet as Packet<INetHandlerPlayClient>)
+                    event.cancelEvent()
+                    releasePackets()
+                    return
+                }
                 if (needFreeze && !event.isCancelled) {
                     storagePackets.add(packet as Packet<INetHandlerPlayClient>)
                     event.cancelEvent()
@@ -110,7 +117,7 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
 
     @EventTarget fun onWorld(event: WorldEvent) {
         storageEntities.clear()
-        releasePackets()
+        if (event.worldClient == null) storagePackets.clear()
     }
 
     @EventTarget fun onRender3D(event: Render3DEvent) {

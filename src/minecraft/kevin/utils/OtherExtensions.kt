@@ -10,7 +10,7 @@ fun Vec3.multiply(value: Double): Vec3 {
 
 fun AxisAlignedBB.getLookingTargetVec(thePlayer: EntityPlayerSP, rotation: Rotation?= null, range: Double=6.0): Double {
     val eyes = thePlayer.getPositionEyes(1F)
-    return this.calculateIntercept(eyes, (rotation ?: RotationUtils.serverRotation).toDirection().multiply(range))?.hitVec?.distanceTo(eyes) ?: Double.MAX_VALUE
+    return this.calculateIntercept(eyes, (rotation ?: RotationUtils.bestServerRotation()).toDirection().multiply(range))?.hitVec?.distanceTo(eyes) ?: Double.MAX_VALUE
 }
 
 fun AxisAlignedBB.expands(v: Double, modifyYDown: Boolean=true, modifyYUp: Boolean=true): AxisAlignedBB {

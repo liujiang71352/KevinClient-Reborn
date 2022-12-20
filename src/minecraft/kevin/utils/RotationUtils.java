@@ -72,6 +72,10 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         */
         if(predict) eyesPos.addVector(mc.thePlayer.motionX, mc.thePlayer.motionY, mc.thePlayer.motionZ);
 
+        if (!throughWalls && !isVisible(vec)) {
+            return null;
+        }
+
         final double diffX = vec.xCoord - eyesPos.xCoord;
         final double diffY = vec.yCoord - eyesPos.yCoord;
         final double diffZ = vec.zCoord - eyesPos.zCoord;
@@ -214,6 +218,10 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         ), MathHelper.wrapAngleTo180_float(
                 (float) (-Math.toDegrees(Math.atan2(diffY, Math.sqrt(diffX * diffX + diffZ * diffZ))))
         ));
+    }
+
+    public static Rotation bestServerRotation() {
+        return targetRotation != null ? targetRotation : serverRotation;
     }
 
     /**
