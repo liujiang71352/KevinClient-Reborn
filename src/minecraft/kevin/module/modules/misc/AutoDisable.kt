@@ -14,7 +14,7 @@ import kevin.utils.MSTimer
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import java.util.*
 
-object AutoDisable : Module("AutoDisable","Auto disable modules.(Use Command .AutoDisable <ModuleName> <add/remove> <World/SetBack/All>)"),ICommand {
+object AutoDisable : Module("AutoDisable","Auto disable modules.(Use Command .AutoDisableSet <ModuleName> <add/remove> <World/SetBack/All>)"),ICommand {
     override fun run(args: Array<out String>?) {
         if (args.isNullOrEmpty()||args.size<2) {
             usageMessage()

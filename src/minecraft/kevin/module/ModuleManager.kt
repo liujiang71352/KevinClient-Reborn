@@ -43,7 +43,8 @@ class ModuleManager : Listenable {
             KeepRange(),
             KillAura(),
             SuperKnockback(),
-            TeleportAttack()
+            TeleportAttack(),
+            TimerRange
         )
         exploitList = arrayListOf(
             AbortBreaking(),

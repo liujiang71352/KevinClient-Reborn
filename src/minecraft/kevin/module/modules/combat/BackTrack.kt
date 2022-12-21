@@ -13,6 +13,7 @@ import net.minecraft.network.NetworkManager
 import net.minecraft.network.Packet
 import net.minecraft.network.ThreadQuickExitException
 import net.minecraft.network.play.INetHandlerPlayClient
+import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.server.S14PacketEntity
 import net.minecraft.util.AxisAlignedBB
@@ -26,6 +27,7 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
     private val onlyPlayer = BooleanValue("OnlyPlayer", true)
     private val smartPacket = BooleanValue("Smart", true)
     private val resetOnVelocity = BooleanValue("ResetOnVelocity", true)
+    private val resetOnLagging = BooleanValue("ResetOnLagging", true)
 
     private val espMode = ListValue("ESPMode", arrayOf("FullBox", "OutlineBox", "NormalBox", "None"), "Box")
 
@@ -53,8 +55,8 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
                 val y = entity.serverPosY.toDouble() / 32.0
                 val z = entity.serverPosZ.toDouble() / 32.0
                 if (!onlyKillAura.get() || killAura.state || needFreeze) {
-                    val afterBB = AxisAlignedBB(x - 0.3F, y, z - 0.3F, x + 0.3F, y + 1.8F, z + 0.3F)
-                    var afterRange = afterBB.getLookingTargetVec(mc.thePlayer!!)
+                    val afterBB = AxisAlignedBB(x - 0.4F, y, z - 0.4F, x + 0.4F, y + 1.4F, z + 0.4F)
+                    var afterRange = afterBB.getLookingTargetRange(mc.thePlayer!!)
                     var beforeRange = entity.getLookDistanceToEntityBox()
                     if (afterRange == Double.MAX_VALUE) {
                         val eyes = mc.thePlayer!!.getPositionEyes(1F)
@@ -95,7 +97,7 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
                 event.cancelEvent()
 //                storageEntities.add(entity)
             } else {
-                if (packet is S12PacketEntityVelocity && resetOnVelocity.get()) {
+                if ((packet is S12PacketEntityVelocity && resetOnVelocity.get()) || (packet is S08PacketPlayerPosLook && resetOnLagging.get())) {
                     storagePackets.add(packet as Packet<INetHandlerPlayClient>)
                     event.cancelEvent()
                     releasePackets()

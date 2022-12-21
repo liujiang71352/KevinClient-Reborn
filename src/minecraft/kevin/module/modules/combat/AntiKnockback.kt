@@ -3,7 +3,6 @@ package kevin.module.modules.combat
 import kevin.event.*
 import kevin.main.KevinClient
 import kevin.module.*
-import kevin.module.modules.misc.HideAndSeekHack
 import kevin.module.modules.movement.Speed
 import kevin.utils.*
 import net.minecraft.entity.Entity
@@ -16,8 +15,6 @@ import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.server.S27PacketExplosion
 import net.minecraft.util.MathHelper
 import java.util.*
-import kotlin.math.cos
-import kotlin.math.sin
 
 class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of knockback you take.", category = ModuleCategory.COMBAT) {
     private val horizontalValue = FloatValue("Horizontal", 0F, -1F, 1F)
@@ -314,15 +311,15 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
 
     fun attackRayTrace(attack: Int, range: Double, doAttack: Boolean=true): Boolean {
         if (mc.thePlayer == null) return false
-        val raycastedEntity = RaycastUtils.raycastEntity(range, object : RaycastUtils.EntityFilter {
+        val raycastedEntity = RaycastUtils.raycastEntity(range + 1, object : RaycastUtils.EntityFilter {
             override fun canRaycast(entity: Entity?): Boolean {
-                return entity != null && entity is EntityLivingBase && mc.theWorld!!.getEntitiesWithinAABBExcludingEntity(entity, entity.entityBoundingBox).isNotEmpty()
+                return entity != null && entity is EntityLivingBase
             }
         })
 
         raycastedEntity?.let {
             if (it !is EntityPlayer) return true
-            if (mc.thePlayer.getLookDistanceToEntityBox(it, RotationUtils.serverRotation) >= range) return false
+            if (it.entityBoundingBox.expands(it.collisionBorderSize.toDouble()).getLookingTargetRange(mc.thePlayer) > range) return false
             if (doAttack) {
                 KevinClient.eventManager.callEvent(AttackEvent(it))
                 repeat(attack) { _ ->

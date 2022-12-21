@@ -20,7 +20,6 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemSword
-import net.minecraft.network.Packet
 import net.minecraft.network.play.client.*
 import net.minecraft.potion.Potion
 import net.minecraft.util.BlockPos
@@ -112,6 +111,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     private val raycastValue = BooleanValue("RayCast", true)
     private val raycastIgnoredValue = BooleanValue("RayCastIgnored", false)
     private val livingRaycastValue = BooleanValue("LivingRayCast", true)
+    private val anythingsRayCast = BooleanValue("AnythingsRayCast", false)
 
     // Bypass
     private val aacValue = BooleanValue("AAC", false)
@@ -178,6 +178,10 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     private val noInventoryDelayValue = IntegerValue("NoInvDelay", 200, 0, 500)
     private val limitedMultiTargetsValue = IntegerValue("LimitedMultiTargets", 0, 0, 50)
 
+    // Advanced
+    private val hitBoxMode = ListValue("HitBoxMode", arrayOf("1.8", "HigherVersion"), "1.8")
+    private val reachCalculateMode = ListValue("ReachCalculateMode", arrayOf("Look", "DirectionDistance"), "Look")
+
     // Visuals
     private val markValue = ListValue("Mark", arrayOf("Off", "LiquidBounce", "Box", "Jello"), "LiquidBounce")
     private val fakeSharpValue = BooleanValue("FakeSharp", true)
@@ -204,6 +208,12 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
 
     // Fake block status
     var blockingStatus = false
+
+    private val expandHitBox: Boolean
+    get() = hitBoxMode equal "1.8"
+
+    private val vectorReach: Boolean
+    get() = reachCalculateMode equal "Look"
 
     /**
      * Enable kill aura module
@@ -814,11 +824,12 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
 
         val reach = min(maxRange.toDouble(), mc.thePlayer!!.getDistanceToEntityBox(target!!)) + 1
 
+
         if (raycastValue.get()) {
             val raycastedEntity = RaycastUtils.raycastEntity(reach, object : RaycastUtils.EntityFilter {
                 override fun canRaycast(entity: Entity?): Boolean {
                     return (!livingRaycastValue.get() || (((entity) is EntityLivingBase || HideAndSeekHack.isHider(entity)) && (entity) !is EntityArmorStand)) &&
-                            (isEnemy(entity) || raycastIgnoredValue.get() || aacValue.get() && mc.theWorld!!.getEntitiesWithinAABBExcludingEntity(entity, entity!!.entityBoundingBox).isNotEmpty())
+                            (isEnemy(entity) || raycastIgnoredValue.get() || aacValue.get() && (anythingsRayCast.get() || mc.theWorld!!.getEntitiesWithinAABBExcludingEntity(entity, entity!!.entityBoundingBox).isNotEmpty()))
                 }
 
             })
@@ -830,6 +841,12 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
             hitable = if (yawMaxTurnSpeed.get() > 0F) currentTarget == raycastedEntity else true
         } else
             hitable = RotationUtils.isFaced(currentTarget, reach)
+
+        // Why? because DiscoverRange can make Range greater
+        if (hitable && currentTarget != null && mc.thePlayer != null) {
+            val bb = currentTarget!!.entityBoundingBox.expands(if (expandHitBox) currentTarget!!.collisionBorderSize.toDouble() else 0.0)
+            hitable = hitable && bb.getLookingTargetRange(mc.thePlayer) <= maxRange
+        }
     }
 
     /**

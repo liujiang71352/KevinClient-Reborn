@@ -34,7 +34,7 @@ class CommandManager {
 
         commands[arrayOf("skin")] = SkinCommand()
 
-        commands[arrayOf("config")] = ConfigCommand()
+        commands[arrayOf("cfg", "config")] = ConfigCommand()
 
         commands[arrayOf("hide")] = HideCommand()
 

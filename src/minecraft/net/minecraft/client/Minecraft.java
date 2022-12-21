@@ -12,6 +12,7 @@ import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import kevin.event.*;
 import kevin.main.KevinClient;
 import kevin.module.modules.combat.AutoClicker;
+import kevin.module.modules.combat.TimerRange;
 import kevin.module.modules.exploit.AbortBreaking;
 import kevin.module.modules.exploit.MultiActions;
 import kevin.module.modules.world.FastPlace;
@@ -1083,6 +1084,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
         for (int j = 0; j < this.timer.elapsedTicks; ++j)
         {
+            if (TimerRange.handleTick()) continue;
             this.runTick();
         }
 

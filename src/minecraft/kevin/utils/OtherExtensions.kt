@@ -8,9 +8,10 @@ fun Vec3.multiply(value: Double): Vec3 {
     return Vec3(this.xCoord * value, this.yCoord * value, this.zCoord * value)
 }
 
-fun AxisAlignedBB.getLookingTargetVec(thePlayer: EntityPlayerSP, rotation: Rotation?= null, range: Double=6.0): Double {
+fun AxisAlignedBB.getLookingTargetRange(thePlayer: EntityPlayerSP, rotation: Rotation?= null, range: Double=6.0): Double {
     val eyes = thePlayer.getPositionEyes(1F)
-    return this.calculateIntercept(eyes, (rotation ?: RotationUtils.bestServerRotation()).toDirection().multiply(range))?.hitVec?.distanceTo(eyes) ?: Double.MAX_VALUE
+    val movingObj = this.calculateIntercept(eyes, (rotation ?: RotationUtils.bestServerRotation()).toDirection().multiply(range).add(eyes)) ?: return Double.MAX_VALUE
+    return movingObj.hitVec.distanceTo(eyes)
 }
 
 fun AxisAlignedBB.expands(v: Double, modifyYDown: Boolean=true, modifyYUp: Boolean=true): AxisAlignedBB {
