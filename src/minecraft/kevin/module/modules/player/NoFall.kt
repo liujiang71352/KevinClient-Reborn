@@ -36,6 +36,7 @@ class NoFall : Module("NoFall","Prevents you from taking fall damage.", category
         C03C04NoFall,
         AACNoFall,
         LAACNoFall,
+        LegitNoFall,
         AAC3311NoFall,
         AAC3315NoFall,
         AACV4NoFall,

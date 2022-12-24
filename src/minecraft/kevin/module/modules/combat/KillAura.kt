@@ -146,7 +146,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
         }
     }
 
-    private val rotationModeValue = ListValue("RotationMode", arrayOf("LiquidBounce", "LiquidSense"), "LiquidSense")
+    private val rotationModeValue = ListValue("RotationMode", arrayOf("LiquidBounce", "LiquidSense", "NearestPoint"), "LiquidBounce")
     private val silentRotationValue = ListValue("SilentRotation", arrayOf("Always", "OnlyNoMove", "Off"), "Always")
     private val rotationStrafeValue = ListValue("Strafe", arrayOf("Off", "Vanilla", "Strict", "Silent"), "Off")
     private val randomCenterValue = BooleanValue("RandomCenter", true)
@@ -201,7 +201,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     // Attack delay
     private val attackTimer = MSTimer()
     private var attackDelay = 0L
-    private var clicks = 0
+    var clicks = 0
 
     // Container Delay
     private var containerOpen = -1L
@@ -786,6 +786,19 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                     (Math.random() * (yawMaxTurnSpeed.get() - yawMinTurnSpeed.get()) + yawMinTurnSpeed.get()).toFloat(),
                     (Math.random() * (pitchMaxTurnSpeed.get() - pitchMinTurnSpeed.get()) + pitchMinTurnSpeed.get()).toFloat()
                 )
+        } else if (rotationModeValue.get().contains("NearestPoint", true)) {
+            RotationUtils.limitAngleChange(
+                RotationUtils.serverRotation,
+                RotationUtils.getOtherRotation(
+                    boundingBox,
+                    getNearestPointBB(mc.thePlayer.getPositionEyes(1f), entity.entityBoundingBox),
+                    predictValue.get(),
+                    mc.thePlayer!!.getDistanceToEntityBox(entity) < throughWallsRangeValue.get(),
+                    discoverRangeValue.get()
+                ) ?: return false,
+                (Math.random() * (yawMaxTurnSpeed.get() - yawMinTurnSpeed.get()) + yawMinTurnSpeed.get()).toFloat(),
+                (Math.random() * (pitchMaxTurnSpeed.get() - pitchMinTurnSpeed.get()) + pitchMinTurnSpeed.get()).toFloat()
+            )
         } else {
             RotationUtils.limitAngleChange(
                 RotationUtils.serverRotation,

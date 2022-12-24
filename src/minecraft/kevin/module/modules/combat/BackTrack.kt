@@ -60,9 +60,9 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
                     var beforeRange = entity.getLookDistanceToEntityBox()
                     if (afterRange == Double.MAX_VALUE) {
                         val eyes = mc.thePlayer!!.getPositionEyes(1F)
-                        afterRange = getNearestPointBB(eyes, afterBB).distanceTo(eyes) + 0.1
+                        afterRange = getNearestPointBB(eyes, afterBB).distanceTo(eyes) + 0.075
                     }
-                    if (beforeRange == Double.MAX_VALUE) beforeRange = mc.thePlayer!!.getDistanceToEntityBox(entity) + 0.1
+                    if (beforeRange == Double.MAX_VALUE) beforeRange = mc.thePlayer!!.getDistanceToEntityBox(entity) + 0.075
 
                     if (beforeRange < minDistance.get()) {
                         if (afterRange in minDistance.get()..maxDistance.get() && (!smartPacket.get() || afterRange >= beforeRange)) {

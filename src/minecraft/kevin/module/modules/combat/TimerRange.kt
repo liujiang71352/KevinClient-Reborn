@@ -19,6 +19,7 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
     private val maxTimeValue = IntegerValue("MaxTime", 3, 1, 20)
     private val delayValue = IntegerValue("Delay", 5, 0, 20)
     private val onlyKillAura = BooleanValue("OnlyKillAura", true)
+    private val auraClick = BooleanValue("AuraClick", true)
     private val onlyPlayer = BooleanValue("OnlyPlayer", true)
     private val killAura: KillAura by lazy { KevinClient.moduleManager.getModule(KillAura::class.java) }
 
@@ -26,7 +27,7 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
     private var working = false
     private var cooldown = 0
     private var freezeTicks = 0
-    private var needStop = false
+    private var stopWorking = false
 
     @EventTarget fun onMotion(event: MotionEvent) {
         if (event.eventState == EventState.PRE) return
@@ -51,29 +52,31 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
                 }
             }
             if (targetInRange) {
-                needStop = true
+                stopWorking = true
             } else if (targetFound) {
-                haveTarget()
+                stopWorking = false
+                foundTarget()
             }
         }
     }
 
-    fun haveTarget() {
+    fun foundTarget() {
         if (cooldown > 0 || freezeTicks > 0) return
         cooldown = delayValue.get()
         working = true
         freezeTicks = 0
-        while (freezeTicks <= maxTimeValue.get() && !needStop) {
+        while (freezeTicks <= maxTimeValue.get() && !stopWorking) {
             ++freezeTicks
             mc.runTick()
         }
-        needStop = false
+        if (auraClick.get() && killAura.clicks < 1) killAura.clicks++
+        stopWorking = false
         working = false
     }
 
     @JvmStatic
     fun handleTick(): Boolean {
-        if (working) return true
+        if (working || freezeTicks < 0) return true
         if (state && freezeTicks > 0) {
             --freezeTicks
             return true
@@ -83,5 +86,5 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
     }
 
     @JvmStatic
-    fun freezeAnimation(): Boolean = freezeTicks > 0
+    fun freezeAnimation(): Boolean = freezeTicks != 0
 }
