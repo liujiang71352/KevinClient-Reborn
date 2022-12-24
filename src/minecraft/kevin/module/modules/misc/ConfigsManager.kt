@@ -14,10 +14,11 @@ import kevin.module.Module
 import kevin.utils.ChatUtils
 import kevin.utils.ServerUtils
 import kevin.utils.proxy.ProxyManager
+import java.net.Proxy
 
-object Config : Module("Config", "Manage configs") {
-    private val localConfigs: ListValue
-    private lateinit var cloudConfigs: ListValue
+object ConfigsManager : Module("ConfigsManager", "Manage configs") { // good code? lol
+    private var localConfigs: ListValue = ListValue("LocalConfigs", emptyArray(), "")
+    private var cloudConfigs: ListValue = ListValue("CloudConfigs", emptyArray(), "")
 
     private val loadLocal: BooleanValue = object : BooleanValue("LoadLocalConfig", false) {
         override fun onChanged(oldValue: Boolean, newValue: Boolean) {
@@ -32,23 +33,24 @@ object Config : Module("Config", "Manage configs") {
         }
     }
     private val loadWithProxy = BooleanValue("WithProxy", false)
-    init {
-        val configFileList = ConfigManager.configList
-        val arrayList = ArrayList<String>()
-        for (file in configFileList) {
-            arrayList.add(file.name)
+    private val PreferredAPI = ListValue("PreferredAPI", arrayOf("https://raw.githubusercontent.com/", "https://raw.fastgit.org/"), "https://raw.fastgit.org/")
+    private val refresh: BooleanValue = object : BooleanValue("Refresh", false) {
+        override fun onChanged(oldValue: Boolean, newValue: Boolean) {
+            set(false)
+            updateValue()
         }
-        @Suppress("UNCHECKED_CAST")
-        localConfigs = ListValue("LocalConfigs", arrayList.toArray() as Array<String>, arrayList[0])
-        Thread {
-            val resStrArray: Array<String>
-            var res = ServerUtils.sendGet("https://raw.githubusercontent.com/siuank/KevinClient-Reborn/master/cfg/configs.bb", if (loadWithProxy.get()) ProxyManager.proxyInstance else null)
-            if (res.second > 0) {
-                res = ServerUtils.sendGet("https://raw.fastgit.org/siuank/KevinClient-Reborn/master/cfg/configs.bb")
-            }
-            resStrArray = res.first.split("^").toTypedArray()
-            cloudConfigs = ListValue("CloudConfigs", resStrArray, resStrArray[0])
-        }.start()
+    }
+
+    private val apiFirst: String
+    get() = PreferredAPI.get()
+
+    private val apiSecond: String
+    get() = "https://raw.githubusercontent.com/https://raw.fastgit.org/".replace(PreferredAPI.get(), "")
+
+    private val proxy: Proxy?
+        get() = if (loadWithProxy.get()) ProxyManager.proxyInstance else null
+    init {
+        updateValue()
     }
 
     fun loadLocal() {
@@ -71,12 +73,12 @@ object Config : Module("Config", "Manage configs") {
     }
 
     fun loadCloud(name: String) {
-        var res = ServerUtils.sendGet("https://raw.githubusercontent.com/siuank/KevinClient-Reborn/master/cfg/$name.json", if (loadWithProxy.get()) ProxyManager.proxyInstance else null)
+        var res = ServerUtils.sendGet("${apiFirst}siuank/KevinClient-Reborn/master/cfg/$name.json", proxy)
         if (res.second > 0) {
-            res = ServerUtils.sendGet("https://raw.fastgit.org/siuank/KevinClient-Reborn/master/cfg/$name.json")
+            res = ServerUtils.sendGet("${apiSecond}siuank/KevinClient-Reborn/master/cfg/$name.json", proxy)
         }
         if (res.second > 0) {
-            ChatUtils.messageWithStart("§cFailed to load config §b${Config.name}.§cFile not found.")
+            ChatUtils.messageWithStart("§cFailed to load config §b${ConfigsManager.name}.§cFile not found.")
             return
         }
         val jsonElement = JsonParser().parse(res.first)
@@ -129,6 +131,24 @@ object Config : Module("Config", "Manage configs") {
                 }
             }
         }
+    }
+
+    fun updateValue() {
+        val configFileList = ConfigManager.configList
+        val arrayList = ArrayList<String>()
+        for (file in configFileList) {
+            arrayList.add(file.name)
+        }
+        localConfigs = ListValue("LocalConfigs", arrayList.toTypedArray(), arrayList[0])
+        Thread {
+            val resStrArray: Array<String>
+            var res = ServerUtils.sendGet("${apiFirst}siuank/KevinClient-Reborn/master/cfg/configs.bb", proxy)
+            if (res.second > 0) {
+                res = ServerUtils.sendGet("${apiSecond}siuank/KevinClient-Reborn/master/cfg/configs.bb", proxy)
+            }
+            resStrArray = res.first.split("\n").toTypedArray()
+            cloudConfigs = ListValue("CloudConfigs", resStrArray, resStrArray[0])
+        }.start()
     }
 
     override fun onEnable() {

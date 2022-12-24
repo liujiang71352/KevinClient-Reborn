@@ -575,6 +575,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
         val multi = targetModeValue.get().equals("Multi", ignoreCase = true)
         val openInventory = aacValue.get() && (mc.currentScreen) is GuiContainer
         val failHit = failRate > 0 && Random().nextInt(100) <= failRate
+        val range = currentTarget!!.entityBoundingBox.expands(if (expandHitBox) currentTarget!!.collisionBorderSize.toDouble() else 0.0).getLookingTargetRange(mc.thePlayer)
 
         // Close inventory when open
         if (openInventory)
@@ -582,7 +583,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
 
         // Check is not hitable or check failrate
 
-        if (!hitable || failHit) {
+        if (!hitable || failHit || range > maxRange) {
             if (swing && (fakeSwingValue.get() || failHit))
                 doSwing()
         } else {
@@ -841,12 +842,6 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
             hitable = if (yawMaxTurnSpeed.get() > 0F) currentTarget == raycastedEntity else true
         } else
             hitable = RotationUtils.isFaced(currentTarget, reach)
-
-        // Why? because DiscoverRange can make Range greater
-        if (hitable && currentTarget != null && mc.thePlayer != null) {
-            val bb = currentTarget!!.entityBoundingBox.expands(if (expandHitBox) currentTarget!!.collisionBorderSize.toDouble() else 0.0)
-            hitable = hitable && bb.getLookingTargetRange(mc.thePlayer) <= maxRange
-        }
     }
 
     /**

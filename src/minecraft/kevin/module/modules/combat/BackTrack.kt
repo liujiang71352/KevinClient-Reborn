@@ -189,8 +189,7 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
                 try {
                     val packetEvent = PacketEvent(it)
                     if (!packetList.contains(it)) KevinClient.eventManager.callEvent(packetEvent)
-                    if (packetEvent.isCancelled) return@let
-                    it.processPacket(netHandler)
+                    if (!packetEvent.isCancelled) it.processPacket(netHandler)
                 } catch (_: ThreadQuickExitException) { }
             }
         }
