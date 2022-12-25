@@ -17,8 +17,8 @@ import kevin.utils.proxy.ProxyManager
 import java.net.Proxy
 
 object ConfigsManager : Module("ConfigsManager", "Manage configs") { // good code? lol
-    private var localConfigs: ListValue = ListValue("LocalConfigs", emptyArray(), "")
-    private var cloudConfigs: ListValue = ListValue("CloudConfigs", emptyArray(), "")
+    private var localConfigs: ListValue = ListValue("LocalConfigs", arrayOf(""), "")
+    private var cloudConfigs: ListValue = ListValue("CloudConfigs", arrayOf(""), "")
 
     private val loadLocal: BooleanValue = object : BooleanValue("LoadLocalConfig", false) {
         override fun onChanged(oldValue: Boolean, newValue: Boolean) {

@@ -107,7 +107,11 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
             ++freezeTicks
             mc.runTick()
         }
-        if (auraClick.get() && killAura.clicks < 1) killAura.clicks++
+        if (auraClick.get()) {
+            killAura.clicks++
+            ++freezeTicks
+            mc.runTick()
+        }
         stopWorking = false
         working = false
     }
