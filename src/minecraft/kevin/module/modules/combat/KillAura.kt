@@ -376,6 +376,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     }
     @EventTarget fun onJump(event: JumpEvent) {
         if (rotationStrafeValue equal "Vanilla") {
+            if (event.isCancelled) return
             val thePlayer = mc.thePlayer ?: return
             val (yaw) = RotationUtils.targetRotation ?: return
             thePlayer.motionY = event.motion.toDouble()

@@ -13,6 +13,7 @@ import net.minecraft.network.NetworkManager
 import net.minecraft.network.Packet
 import net.minecraft.network.ThreadQuickExitException
 import net.minecraft.network.play.INetHandlerPlayClient
+import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.server.S14PacketEntity
@@ -112,8 +113,30 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
     }
 
     @EventTarget fun onMotion(event: MotionEvent) {
-        if (needFreeze && timer.hasTimePassed(maxTime.get().toLong())) {
-            releasePackets()
+        if (needFreeze) {
+            if (timer.hasTimePassed(maxTime.get().toLong())) {
+                releasePackets()
+                return
+            }
+            if (storageEntities.isNotEmpty()) {
+                var release = false // for-each
+                for (entity in storageEntities) {
+                    val x = entity.serverPosX.toDouble() / 32.0
+                    val y = entity.serverPosY.toDouble() / 32.0
+                    val z = entity.serverPosZ.toDouble() / 32.0
+                    val entityBB = AxisAlignedBB(x - 0.4F, y, z - 0.4F, x + 0.4F, y + 1.4F, z + 0.4F)
+                    var range = entityBB.getLookingTargetRange(mc.thePlayer!!)
+                    if (range == Double.MAX_VALUE) {
+                        val eyes = mc.thePlayer!!.getPositionEyes(1F)
+                        range = getNearestPointBB(eyes, entityBB).distanceTo(eyes) + 0.075
+                    }
+                    if (range <= minDistance.get()) {
+                        release = true
+                        break
+                    }
+                }
+                if (release) releasePackets()
+            }
         }
     }
 
@@ -205,6 +228,8 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
         }
         needFreeze = false
     }
+
+    fun update() {}
 
     init {
         NetworkManager.backTrack = this
