@@ -1,5 +1,6 @@
 # ~ coding: UTF-8 ~
 '''
+- This file is copy from Updated-NoCheatPlus: https://github.com/Updated-NoCheatPlus/NoCheatPlus/
 - Find files that don't start with the GPLv3 header.
 - As a secondary product, count files and size and lines.
 - Add a GPLv3 header to each .java file where it may be missing.
@@ -27,7 +28,7 @@ import os
 
 class ResultCollector:
 
-    def __init__(self, lc_exts = (".java",), ignore_startswith = ()):
+    def __init__(self, lc_exts = (".java", ".kt"), ignore_startswith = ()):
         self.lc_exts = tuple(map(lambda x: x.lower(), lc_exts))
         self.max_len_inspect = max(map(len, ignore_startswith)) + 50 if ignore_startswith else 0
         self.ignore_startswith = tuple(map(self.transform_special, ignore_startswith))
@@ -94,11 +95,11 @@ def main():
     print("Working on path: " + path)
 
     items = os.listdir(path)
-    license = unicode(LICENSE)
-    files_java = ResultCollector(lc_exts = (".java",), ignore_startswith = (license,))
+    license = LICENSE
+    files_java = ResultCollector(lc_exts = (".java", ".kt"), ignore_startswith = (license,))
     for item in items:
         fp = os.path.join(path, item)
-        if os.path.isdir(fp) and not os.path.islink(path) and item.startswith("NCP") or item == "NoCheatPlus":
+        if os.path.isdir(fp) and not os.path.islink(path) and item == "kevin":
             files_java.collect_filenames(fp)
             # TODO: Also collect other contained file types (pom.xml, ...).
     print(".java: " + files_java.stats_str())
@@ -110,7 +111,7 @@ def main():
         f.close()
         c = license + "\n" + c
         f = open(fp, "wb")
-        f.write(c)
+        f.write(c.encode("UTF-8"))
         f.close()
         print(rp)
 
