@@ -101,8 +101,7 @@ def main():
         fp = os.path.join(path, item)
         if os.path.isdir(fp) and not os.path.islink(path) and item == "kevin":
             files_java.collect_filenames(fp)
-            # TODO: Also collect other contained file types (pom.xml, ...).
-    print(".java: " + files_java.stats_str())
+    print(".java | .kt: " + files_java.stats_str())
     print("Update license:")
     for fp in files_java.collected_files:
         rp = os.path.relpath(fp, path)
