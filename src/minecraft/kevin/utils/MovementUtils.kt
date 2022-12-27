@@ -117,7 +117,7 @@ object MovementUtils : MinecraftInstance() {
     }
     fun getMoveSpeed(baseSpeed: Double): Double {
         return if (mc.thePlayer.isPotionActive(Potion.moveSpeed))
-            baseSpeed * 1.0 + 0.2 * (mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).amplifier + 1)
+            baseSpeed * (1.0 + 0.2 * (mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).amplifier + 1))
         else
             baseSpeed
     }

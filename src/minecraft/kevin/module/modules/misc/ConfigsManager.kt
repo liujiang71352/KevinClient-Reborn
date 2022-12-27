@@ -21,6 +21,7 @@ import com.google.gson.JsonParser
 import kevin.command.bind.BindCommand
 import kevin.command.bind.BindCommandManager
 import kevin.file.ConfigManager
+import kevin.hud.element.elements.Notification
 import kevin.main.KevinClient
 import kevin.module.BooleanValue
 import kevin.module.ListValue
@@ -28,6 +29,7 @@ import kevin.module.Module
 import kevin.utils.ChatUtils
 import kevin.utils.ServerUtils
 import kevin.utils.proxy.ProxyManager
+import net.minecraft.client.Minecraft
 import java.net.Proxy
 
 object ConfigsManager : Module("ConfigsManager", "Manage configs") { // good code? lol
@@ -63,9 +65,6 @@ object ConfigsManager : Module("ConfigsManager", "Manage configs") { // good cod
 
     private val proxy: Proxy?
         get() = if (loadWithProxy.get()) ProxyManager.proxyInstance else null
-    init {
-        updateValue()
-    }
 
     fun loadLocal() {
         try {
@@ -148,24 +147,41 @@ object ConfigsManager : Module("ConfigsManager", "Manage configs") { // good cod
     }
 
     fun updateValue() {
-        val configFileList = ConfigManager.configList
-        val arrayList = ArrayList<String>()
-        for (file in configFileList) {
-            arrayList.add(file.name)
-        }
-        localConfigs = ListValue("LocalConfigs", arrayList.toTypedArray(), arrayList[0])
-        Thread {
-            val resStrArray: Array<String>
-            var res = ServerUtils.sendGet("${apiFirst}siuank/KevinClient-Reborn/master/cfg/configs.bb", proxy)
-            if (res.second > 0) {
-                res = ServerUtils.sendGet("${apiSecond}siuank/KevinClient-Reborn/master/cfg/configs.bb", proxy)
+        try {
+            val configFileList = ConfigManager.configList
+            val arrayList = ArrayList<String>()
+            for (file in configFileList) {
+                arrayList.add(file.name.removeSuffix(".json"))
             }
-            resStrArray = res.first.split("\n").toTypedArray()
-            cloudConfigs = ListValue("CloudConfigs", resStrArray, resStrArray[0])
+            if (arrayList.isNotEmpty())
+                localConfigs = ListValue("LocalConfigs", arrayList.toTypedArray(), arrayList[0])
+        } catch (e: Exception) {
+            logError(e)
+        }
+        Thread {
+            try {
+                val resStrArray: Array<String>
+                var res = ServerUtils.sendGet("${apiFirst}siuank/KevinClient-Reborn/master/cfg/configs.bb", proxy)
+                if (res.second > 0) {
+                    res = ServerUtils.sendGet("${apiSecond}siuank/KevinClient-Reborn/master/cfg/configs.bb", proxy)
+                }
+                if (res.second == 0) {
+                    resStrArray = res.first.split("\n").toTypedArray()
+                    cloudConfigs = ListValue("CloudConfigs", resStrArray, resStrArray[0])
+                } else {
+                    KevinClient.hud.addNotification(Notification("Cannot load ConfigList from cloud: Exception found when ${if (res.second == 1) "Connect" else "Close"}"))
+                }
+            } catch (e: Exception) {
+                logError(e)
+            }
         }.start()
     }
 
     override fun onEnable() {
         state = false
+    }
+
+    fun logError(e: Throwable) {
+        Minecraft.logger.warn("Error caught in ConfigsManager: ${e.stackTraceToString()}")
     }
 }

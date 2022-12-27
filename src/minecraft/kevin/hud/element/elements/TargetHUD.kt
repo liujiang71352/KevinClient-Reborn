@@ -46,7 +46,7 @@ class TargetHUD : Element() {
 
     private val decimalFormat = DecimalFormat("##0.00", DecimalFormatSymbols(Locale.ENGLISH))
     private val fadeSpeed = FloatValue("FadeSpeed", 2F, 1F, 9F)
-    private val mode = ListValue("Mode", arrayOf("Liquid", "AnotherLiquid","Kevin", "Exhibition"),"Kevin")
+    private val mode = ListValue("Mode", arrayOf("Liquid", "AnotherLiquid","Kevin"/*, "Exhibition"*/),"Kevin")
 
     private var easingHealth: Float = 0F
     private var healthDiff: Float = 0F
@@ -261,7 +261,7 @@ class TargetHUD : Element() {
                 return Border(-8.5F,-12.5F,14.75F+(18*5F),54.5F)
             }
             "Exhibition" -> { // skid from Rise (lol)
-                if (target != null && target is EntityPlayer) {
+                if (target is EntityPlayer) try {
                     GlStateManager.pushMatrix()
                     // Width and height
                     val width = mc.displayWidth / (mc.gameSettings.guiScale * 2).toFloat() + 680
@@ -336,7 +336,7 @@ class TargetHUD : Element() {
                     GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
                     RenderUtils.drawModel(target.rotationYaw, target.rotationPitch, target as EntityLivingBase?)
                     GlStateManager.popMatrix()
-                }
+                } catch (_: Exception) {}
                 lastTarget = target
                 return Border(0.0f, 0.0f, 124f, 38f)
             }

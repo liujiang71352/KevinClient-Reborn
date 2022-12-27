@@ -64,7 +64,9 @@ class EventManager {
                                 ConnectNotificationType.Error
                             )
                         )
-                        Minecraft.logger.warn("Exception caught when calling ${event.javaClass.simpleName} in listener ${invokableEventTarget.eventClass.javaClass.simpleName}: ${throwable.targetException.stackTraceToString()}")
+                        Minecraft.logger.warn("Exception caught when calling ${event.javaClass.simpleName} in listener ${invokableEventTarget.eventClass.javaClass.simpleName}:\n" +
+                                throwable.targetException.stackTraceToString()
+                        )
                     }
                 }
             }

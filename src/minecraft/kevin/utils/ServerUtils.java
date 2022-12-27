@@ -71,7 +71,7 @@ public final class ServerUtils extends MinecraftInstance {
             in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String line;
             while ((line = in.readLine()) != null) {
-                result.append(line);
+                result.append(line).append('\n');
             }
         } catch (Exception e) {
             conResult = 1;

@@ -34,13 +34,14 @@ import kevin.script.ScriptManager
 import kevin.skin.SkinManager
 import kevin.utils.CombatManager
 import kevin.font.FontManager
+import kevin.module.modules.misc.ConfigsManager
 import kevin.utils.RotationUtils
 import kevin.via.ViaVersion
 import org.lwjgl.opengl.Display
 
 object KevinClient {
     var name = "Kevin"
-    var version = "u2.3.5-pre3" // u - updated
+    var version = "u2.3.5-pre4" // u - updated
 
     var isStarting = true
 
@@ -87,6 +88,7 @@ object KevinClient {
         ImageManager.load()
         ResourceManager.init()
         ConfigManager.load()
+        ConfigsManager.updateValue()
         combatManager = CombatManager()
         ViaVersion.start()
         isStarting = false
