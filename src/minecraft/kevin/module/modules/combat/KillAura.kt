@@ -110,7 +110,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     private val afterTickTimingValue = ListValue("AfterTickBlockTiming", arrayOf("Pre", "Post", "Both"), "Post")
 
     // AutoBlock
-    private val autoBlockValue = ListValue("AutoBlock", arrayOf("Off", "Packet", "AfterTick", "Keep"), "Packet")
+    private val autoBlockValue = ListValue("AutoBlock", arrayOf("Off", "Packet", "AfterTick", "Keep", "Vulcan"), "Packet")
     private val interactAutoBlockValue = BooleanValue("InteractAutoBlock", true)
     private val blockStatusCheck = BooleanValue("BlockStatusCheck", true)
     private val blockRate = IntegerValue("BlockRate", 100, 1, 100)
@@ -222,6 +222,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
 
     // Fake block status
     var blockingStatus = false
+    var lastBlocking = false
 
     private val expandHitBox: Boolean
     get() = hitBoxMode equal "1.8"
@@ -241,7 +242,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
 
     //Keep AutoBlock
     private val keepAutoBlock: Boolean
-    get() = autoBlockValue equal "Keep"
+    get() = autoBlockValue equal "Keep" || autoBlockValue equal "Vulcan"
 
     /**
      * Disable kill aura module
@@ -464,6 +465,22 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
             runAttackLoop()
         if (!afterTick&&(extraBlockTimingValue equal "Update&Pre&Post" || extraBlockTimingValue equal "Update&Pre" || extraBlockTimingValue equal "Update&Post" || extraBlockTimingValue equal "Update"))
             runBlock()
+
+        lastBlocking = if (mc.thePlayer.isBlocking || blockingStatus) {
+            true
+        } else {
+            if (lastBlocking && autoBlockValue equal "Vulcan") {
+                PacketUtils.sendPacketNoEvent(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+            }
+            false
+        }
+    }
+
+    @EventTarget
+    fun onPacket(event: PacketEvent) {
+        val packet = event.packet
+        if (autoBlockValue equal "Vulcan" && ((packet is C07PacketPlayerDigging && packet.status == C07PacketPlayerDigging.Action.RELEASE_USE_ITEM) || packet is C08PacketPlayerBlockPlacement) && lastBlocking)
+            event.cancelEvent()
     }
 
     private fun runAttackLoop() {

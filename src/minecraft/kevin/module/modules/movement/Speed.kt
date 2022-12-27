@@ -32,6 +32,7 @@ class Speed : Module("Speed","Allows you to move faster.", category = ModuleCate
         AAC5Fast,
         YPort,
         LegacyNCP, // from Rise
+        NCPStable, // from FDP
         AutoJump,
         VerusYPort,
         VerusHop,

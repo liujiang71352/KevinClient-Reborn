@@ -14,6 +14,7 @@ import java.util.Random;
 
 import kevin.event.TextEvent;
 import kevin.main.KevinClient;
+import kevin.utils.ColorUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -1171,5 +1172,13 @@ public class FontRenderer implements IResourceManagerReloadListener
     protected InputStream getResourceInputStream(ResourceLocation p_getResourceInputStream_1_) throws IOException
     {
         return Minecraft.getMinecraft().getResourceManager().getResource(p_getResourceInputStream_1_).getInputStream();
+    }
+
+    public static void drawOutlinedStringCock(FontRenderer fr, String s, float x, float y, int color, int outlineColor) {
+        fr.drawString(ColorUtils.stripColor(s), x - 1.0f, y, outlineColor, false);
+        fr.drawString(ColorUtils.stripColor(s), x, y - 1.0f, outlineColor, false);
+        fr.drawString(ColorUtils.stripColor(s), x + 1.0f, y, outlineColor, false);
+        fr.drawString(ColorUtils.stripColor(s), x, y + 1.0f, outlineColor, false);
+        fr.drawString(s, x, y, color, false);
     }
 }

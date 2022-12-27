@@ -14,6 +14,8 @@
  */
 package kevin.utils
 
+import java.math.BigDecimal
+import java.math.RoundingMode
 import kotlin.math.pow
 
 object MathUtils {
@@ -80,5 +82,12 @@ object MathUtils {
         }
 
         return outPoints.toTypedArray()
+    }
+    @JvmStatic
+    fun round(value: Double, places: Int): Double {
+        require(places >= 0)
+        var bd = BigDecimal(java.lang.Double.toString(value))
+        bd = bd.setScale(places, RoundingMode.HALF_UP)
+        return bd.toDouble()
     }
 }

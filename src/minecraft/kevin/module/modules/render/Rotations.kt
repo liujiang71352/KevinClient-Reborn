@@ -40,7 +40,7 @@ class Rotations : Module("Rotations", description = "Allows you to see server-si
     fun onPacket(event: PacketEvent) {
         val thePlayer = mc.thePlayer
 
-        if (!bodyValue.get() || !shouldRotate() || thePlayer == null)
+        if (!bodyValue.get()/* || !shouldRotate()*/ || thePlayer == null)
             return
 
         val packet = event.packet

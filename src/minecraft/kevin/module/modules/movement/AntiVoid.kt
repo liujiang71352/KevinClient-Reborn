@@ -39,7 +39,7 @@ import kotlin.math.floor
 import kotlin.math.max
 
 class AntiVoid : Module("AntiVoid","Automatically setbacks you after falling a certain distance.", category = ModuleCategory.MOVEMENT) {
-    private val modeValue = ListValue("Mode", arrayOf("TeleportBack", "FlyFlag", "OnGroundSpoof", "MotionTeleport-Flag", "MineMora-Blink"), "FlyFlag")
+    private val modeValue = ListValue("Mode", arrayOf("TeleportBack", "FlyFlag", "OnGroundSpoof", "Freeze", "MotionTeleport-Flag", "MineMora-Blink"), "FlyFlag")
     private val maxFallDistance = IntegerValue("MaxFallDistance", 10, 2, 255)
     private val maxDistanceWithoutGround = FloatValue("MaxDistanceToSetback", 2.5f, 1f, 30f)
     private val yBoost = FloatValue("BlinkYBoost",1f,0f,5f)
@@ -115,6 +115,7 @@ class AntiVoid : Module("AntiVoid","Automatically setbacks you after falling a c
                         thePlayer.fallDistance = 0F
                     }
                     "ongroundspoof" -> mc.netHandler.addToSendQueue(C03PacketPlayer(true))
+                    "freeze" -> KevinClient.moduleManager.getModule(Freeze::class.java).state = true
 
                     "motionteleport-flag" -> {
                         thePlayer.setPositionAndUpdate(thePlayer.posX, thePlayer.posY + 1f, thePlayer.posZ)

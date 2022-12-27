@@ -101,7 +101,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
     private val placeModeValue = ListValue("PlaceTiming", arrayOf("Pre", "Post"), "Post")
 
     // Eagle
-    private val eagleValue = ListValue("Eagle", arrayOf("Normal", "Silent", "Off"), "Normal")
+    private val eagleValue = ListValue("Eagle", arrayOf("Normal", "Smart", "Silent", "Off"), "Normal")
     private val blocksToEagleValue = IntegerValue("BlocksToEagle", 0, 0, 10)
     private val edgeDistanceValue = FloatValue("EagleEdgeDistance", 0f, 0f, 0.5f)
 
@@ -141,13 +141,13 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
 
     // Search Accuracy
     private val searchAccuracyValue: IntegerValue = object : IntegerValue("SearchAccuracy", 8, 1, 16) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            if (maximum < newValue) {
-                set(maximum)
-            } else if (minimum > newValue) {
-                set(minimum)
-            }
-        }
+//        override fun onChanged(oldValue: Int, newValue: Int) {
+//            if (maximum < newValue) {
+//                set(maximum)
+//            } else if (minimum > newValue) {
+//                set(minimum)
+//            }
+//        }
     }
 
     //Tower XZ/Y range
@@ -158,13 +158,13 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
 
     // Tower Search Accuracy
     private val towerSearchAccuracyValue: IntegerValue = object : IntegerValue("Tower-SearchAccuracy", 8, 1, 16) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            if (maximum < newValue) {
-                set(maximum)
-            } else if (minimum > newValue) {
-                set(minimum)
-            }
-        }
+//        override fun onChanged(oldValue: Int, newValue: Int) {
+//            if (maximum < newValue) {
+//                set(maximum)
+//            } else if (minimum > newValue) {
+//                set(minimum)
+//            }
+//        }
     }
 
     // Turn Speed
@@ -462,8 +462,18 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
                     }
                     eagleSneaking = shouldEagle
                 } else {
-                    mc.gameSettings.keyBindSneak.pressed = shouldEagle
-                    placedBlocksWithoutEagle = 0
+                    if (eagleValue equal "Smart") {
+                        val roundY = mc.thePlayer.posY.toInt()
+                        var shouldSneak = shouldEagle
+                        for (y in (roundY-1)..(roundY-3)) {
+                            shouldSneak = shouldSneak && mc.theWorld.getBlockState(BlockPos(mc.thePlayer.posX, y.toDouble(), mc.thePlayer.posZ)).block == Blocks.air
+                            if (!shouldSneak) break
+                        }
+                        mc.gameSettings.keyBindSneak.pressed = shouldSneak
+                    } else {
+                        mc.gameSettings.keyBindSneak.pressed = shouldEagle
+                        placedBlocksWithoutEagle = 0
+                    }
                 }
             } else {
                 placedBlocksWithoutEagle++

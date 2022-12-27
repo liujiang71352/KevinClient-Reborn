@@ -21,9 +21,8 @@ import kevin.main.KevinClient
 import kevin.module.FloatValue
 import kevin.module.ListValue
 import kevin.module.modules.combat.KillAura
-import kevin.utils.RenderUtils
-import kevin.utils.getDistanceToEntityBox
-import kevin.utils.getPing
+import kevin.utils.*
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Gui.drawScaledCustomSizeModalRect
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.OpenGlHelper
@@ -31,6 +30,7 @@ import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 import java.awt.Color
@@ -46,7 +46,7 @@ class TargetHUD : Element() {
 
     private val decimalFormat = DecimalFormat("##0.00", DecimalFormatSymbols(Locale.ENGLISH))
     private val fadeSpeed = FloatValue("FadeSpeed", 2F, 1F, 9F)
-    private val mode = ListValue("Mode", arrayOf("Liquid", "AnotherLiquid","Kevin"),"Kevin")
+    private val mode = ListValue("Mode", arrayOf("Liquid", "AnotherLiquid","Kevin", "Exhibition"),"Kevin")
 
     private var easingHealth: Float = 0F
     private var healthDiff: Float = 0F
@@ -124,7 +124,7 @@ class TargetHUD : Element() {
                             36f, 24f, 0xffffff)
                         // Draw head
                         val locationSkin = playerInfo.locationSkin
-                        drawHead(locationSkin, 30 + mc.thePlayer.hurtTime, 30 + mc.thePlayer.hurtTime)
+                        drawHead(locationSkin, 30, 30)
                     }
                 }
                 lastTarget = target
@@ -260,6 +260,86 @@ class TargetHUD : Element() {
                 lastTarget = target
                 return Border(-8.5F,-12.5F,14.75F+(18*5F),54.5F)
             }
+            "Exhibition" -> { // skid from Rise (lol)
+                if (target != null && target is EntityPlayer) {
+                    GlStateManager.pushMatrix()
+                    // Width and height
+                    val width = mc.displayWidth / (mc.gameSettings.guiScale * 2).toFloat() + 680
+                    val height = mc.displayHeight / (mc.gameSettings.guiScale * 2).toFloat() + 280
+                    GlStateManager.translate(width - 660, height - 160.0f - 90.0f, 0.0f)
+                    // Draws the skeet rectangles.
+                    RenderUtils.skeetRect(
+                        0.0,
+                        -2.0,
+                        if (KevinClient.fontManager.font40.getStringWidth(target.name) > 70.0f) (124.0 + KevinClient.fontManager.font40.getStringWidth(target.name) - 70.0) else 124.0,
+                        38.0,
+                        1.0
+                    )
+                    RenderUtils.skeetRectSmall(0.0, -2.0, 124.0, 38.0, 1.0)
+                    // Draws name.
+                    KevinClient.fontManager.font40.drawStringWithShadow(target.name, 42.3f, 0.3f, -1)
+                    // Gets health.
+                    val health = target.health
+                    // Gets health and absorption
+                    val healthWithAbsorption = target.health + target.absorptionAmount
+                    // Color stuff for the healthBar.
+                    val fractions = floatArrayOf(0.0f, 0.5f, 1.0f)
+                    val colors = arrayOf(Color.RED, Color.YELLOW, Color.GREEN)
+                    // Max health.
+                    val progress = health / target.maxHealth
+                    // Color.
+                    val healthColor =
+                        if (health >= 0.0f) ColorUtils.blendColors(fractions, colors, progress)?.brighter()?: Color.RED else Color.RED
+                    // Round.
+                    var cockWidth = 0.0
+                    cockWidth = MathUtils.round(cockWidth, 5.0.toInt())
+                    if (cockWidth < 50.0) {
+                        cockWidth = 50.0
+                    }
+                    // Healthbar + absorption
+                    val healthBarPos = cockWidth * progress.toDouble()
+                    RenderUtils.rectangle(42.5, 10.3, 103.0, 13.5, healthColor.darker().darker().darker().darker().rgb)
+                    RenderUtils.rectangle(42.5, 10.3, 53.0 + healthBarPos + 0.5, 13.5, healthColor.rgb)
+                    if (target.absorptionAmount > 0.0f) {
+                        RenderUtils.rectangle(
+                            97.5 - target.absorptionAmount.toDouble(),
+                            10.3,
+                            103.5,
+                            13.5,
+                            Color(137, 112, 9).rgb
+                        )
+                    }
+                    // Draws rect around health bar.
+                    RenderUtils.rectangleBordered(42.0, 9.8, 54.0 + cockWidth, 14.0, 0.5, 0, Color.BLACK.rgb)
+                    // Draws the lines between the healthbar to make it look like boxes.
+                    for (dist in 1..9) {
+                        val cock = cockWidth / 8.5 * dist.toDouble()
+                        RenderUtils.rectangle(43.5 + cock, 9.8, 43.5 + cock + 0.5, 14.0, Color.BLACK.rgb)
+                    }
+                    // Draw targets hp number and distance number.
+                    GlStateManager.scale(0.5, 0.5, 0.5)
+                    val distance = mc.thePlayer.getDistanceToEntity(target).toInt()
+                    val nice = "HP: " + healthWithAbsorption.toInt() + " | Dist: " + distance
+                    mc.fontRendererObj.drawString(nice, 85.3f, 32.3f, -1, true)
+                    GlStateManager.scale(2.0, 2.0, 2.0)
+                    GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
+                    GlStateManager.enableAlpha()
+                    GlStateManager.enableBlend()
+                    GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
+                    // Draw targets armor and tools and weapons and shows the enchants.
+                    drawEquippedShit(28, 20)
+                    GlStateManager.disableAlpha()
+                    GlStateManager.disableBlend()
+                    // Draws targets model.
+                    GlStateManager.scale(0.31, 0.31, 0.31)
+                    GlStateManager.translate(73.0f, 102.0f, 40.0f)
+                    GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
+                    RenderUtils.drawModel(target.rotationYaw, target.rotationPitch, target as EntityLivingBase?)
+                    GlStateManager.popMatrix()
+                }
+                lastTarget = target
+                return Border(0.0f, 0.0f, 124f, 38f)
+            }
             else -> return null
         }
     }
@@ -328,5 +408,50 @@ class TargetHUD : Element() {
         GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit)
         GlStateManager.disableTexture2D()
         GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit)
+    }
+
+    private fun drawEquippedShit(x: Int, y: Int) {
+        val target = (KevinClient.moduleManager.getModule(KillAura::class.java)).target ?: (KevinClient.moduleManager.getModule(KillAura::class.java)).sTarget
+        if (target == null || target !is EntityPlayer) return
+        GL11.glPushMatrix()
+        val stuff: MutableList<ItemStack> = ArrayList()
+        var cock = -2
+        for (geraltOfNigeria in 3 downTo 0) {
+            val armor = (target as EntityPlayer).getCurrentArmor(geraltOfNigeria)
+            if (armor != null) {
+                stuff.add(armor)
+            }
+        }
+        if ((target as EntityPlayer).heldItem != null) {
+            stuff.add((target as EntityPlayer).heldItem)
+        }
+        for (yes in stuff) {
+            if (Minecraft.getMinecraft().theWorld != null) {
+                RenderHelper.enableGUIStandardItemLighting()
+                cock += 16
+            }
+            GlStateManager.pushMatrix()
+            GlStateManager.disableAlpha()
+            GlStateManager.clear(256)
+            GlStateManager.enableBlend()
+            Minecraft.getMinecraft().renderItem.renderItemIntoGUI(yes, cock + x, y)
+            Minecraft.getMinecraft().renderItem.renderItemOverlays(
+                Minecraft.getMinecraft().fontRendererObj,
+                yes,
+                cock + x,
+                y
+            )
+            RenderUtils.renderEnchantText(yes, cock + x, y + 0.5f)
+            GlStateManager.disableBlend()
+            GlStateManager.scale(0.5, 0.5, 0.5)
+            GlStateManager.disableDepth()
+            GlStateManager.disableLighting()
+            GlStateManager.enableDepth()
+            GlStateManager.scale(2.0f, 2.0f, 2.0f)
+            GlStateManager.enableAlpha()
+            GlStateManager.popMatrix()
+            yes.enchantmentTagList
+        }
+        GL11.glPopMatrix()
     }
 }

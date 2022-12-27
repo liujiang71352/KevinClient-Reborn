@@ -25,6 +25,7 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.play.client.C02PacketUseEntity
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C0APacketAnimation
+import net.minecraft.network.play.client.C0FPacketConfirmTransaction
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.server.S27PacketExplosion
 import net.minecraft.util.MathHelper
@@ -34,7 +35,8 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
     private val horizontalValue = FloatValue("Horizontal", 0F, -1F, 1F)
     private val verticalValue = FloatValue("Vertical", 0F, -1F, 1F)
     private val modeValue = ListValue("Mode", arrayOf("Simple", "AAC", "AACPush", "AACZero", "AACv4",
-        "Reverse", "SmoothReverse", "Jump", "Glitch", "AAC5Packet", "MatrixReduce", "MatrixSimple", "MatrixReverse", "Click", "TestIntave"), "Simple")
+        "Reverse", "SmoothReverse", "Jump", "Glitch", "AAC5Packet", "MatrixReduce", "MatrixSimple", "MatrixReverse",
+        "Vulcan", "AllowFirst", "Click", "TestIntave"), "Simple")
 
     // Reverse
     private val reverseStrengthValue = FloatValue("ReverseStrength", 1F, 0.1F, 1F)
@@ -197,6 +199,10 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                     }
                 }
             }
+            "allowfirst" -> if (velocityInput) {
+                velocityInput = false
+                mc.thePlayer.setVelocity(0.0, 0.0, 0.0)
+            }
             "click" -> if (velocityInput && thePlayer.hurtTime >= clickTime.get()) {
                 if (!attackRayTrace(clickCount.get(), clickRange.get().toDouble(), thePlayer.isSprinting)) {
                     if (clickFakeSwing.get()) mc.netHandler.addToSendQueue(C0APacketAnimation())
@@ -248,7 +254,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                     packet.motionZ = (packet.motionZ * horizontal).toInt()
                 }
 
-                "aac", "reverse", "smoothreverse", "aaczero", "testintave" -> velocityInput = true
+                "aac", "reverse", "smoothreverse", "aaczero", "allowfirst", "testintave" -> velocityInput = true
 
                 "aac5packet" -> {
                     if (mc.isIntegratedServerRunning) return
@@ -285,6 +291,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                     packet.motionX = (packet.motionX * -0.3).toInt()
                     packet.motionZ = (packet.motionZ * -0.3).toInt()
                 }
+                "vulcan" -> event.cancelEvent()
                 "click" -> {
                     if (packet.motionX == 0 && packet.motionZ == 0) return
                     if (attackRayTrace(
@@ -301,6 +308,8 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                 packet.func_149144_d() != 0F ||
                 packet.func_149147_e() != 0F) explosion = true
             if (cancelExplosionPacket.get()) event.cancelEvent()
+        } else if (packet is C0FPacketConfirmTransaction && modeValue equal "vulcan") {
+            if (mc.thePlayer.hurtTime > 0) event.cancelEvent()
         }
     }
 
