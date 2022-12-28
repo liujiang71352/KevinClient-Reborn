@@ -21,10 +21,7 @@ import kevin.event.UpdateEvent
 import kevin.main.KevinClient
 import kevin.module.*
 import kevin.module.modules.world.Scaffold
-import kevin.utils.BlockUtils
-import kevin.utils.FallingPlayer
-import kevin.utils.MovementUtils
-import kevin.utils.RenderUtils
+import kevin.utils.*
 import net.minecraft.block.BlockAir
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.network.play.client.C03PacketPlayer
@@ -39,7 +36,7 @@ import kotlin.math.floor
 import kotlin.math.max
 
 class AntiVoid : Module("AntiVoid","Automatically setbacks you after falling a certain distance.", category = ModuleCategory.MOVEMENT) {
-    private val modeValue = ListValue("Mode", arrayOf("TeleportBack", "FlyFlag", "OnGroundSpoof", "Freeze", "MotionTeleport-Flag", "MineMora-Blink"), "FlyFlag")
+    private val modeValue = ListValue("Mode", arrayOf("TeleportBack", "FlyFlag", "OnGroundSpoof", "Freeze", "OldHypixel-Flag", "MotionTeleport-Flag", "MineMora-Blink"), "FlyFlag")
     private val maxFallDistance = IntegerValue("MaxFallDistance", 10, 2, 255)
     private val maxDistanceWithoutGround = FloatValue("MaxDistanceToSetback", 2.5f, 1f, 30f)
     private val yBoost = FloatValue("BlinkYBoost",1f,0f,5f)
@@ -51,6 +48,7 @@ class AntiVoid : Module("AntiVoid","Automatically setbacks you after falling a c
     private var prevX = 0.0
     private var prevY = 0.0
     private var prevZ = 0.0
+    private var sent = false
 
     private val packetCache=ArrayList<C03PacketPlayer>()
     private var blink=false
@@ -67,6 +65,10 @@ class AntiVoid : Module("AntiVoid","Automatically setbacks you after falling a c
         prevX = 0.0
         prevY = 0.0
         prevZ = 0.0
+    }
+
+    override fun onEnable() {
+        sent = false
     }
 
     @EventTarget
@@ -231,9 +233,13 @@ class AntiVoid : Module("AntiVoid","Automatically setbacks you after falling a c
     @EventTarget
     fun onPacket(event: PacketEvent){
         val packet=event.packet
-        if(modeValue.get().lowercase(Locale.getDefault()) == "minemora-blink" && (packet) is C03PacketPlayer && blink){
-            packetCache.add(packet)
-            event.cancelEvent()
+        if (packet is C03PacketPlayer) {
+            if (modeValue.get().lowercase() == "minemora-blink" && blink) {
+                packetCache.add(packet)
+                event.cancelEvent()
+            } else if (modeValue equal "OldHypixel-Flag") {
+                packet.y += RandomUtils.nextDouble(10.0, 12.0)
+            }
         }
     }
     override val tag: String

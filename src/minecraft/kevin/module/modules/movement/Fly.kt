@@ -24,6 +24,7 @@ import kevin.module.modules.movement.flys.matrix.Matrix
 import kevin.module.modules.movement.flys.matrix.NewMatrix
 import kevin.module.modules.movement.flys.matrix.NewMatrixClip
 import kevin.module.modules.movement.flys.ncp.NCPPacket
+import kevin.module.modules.movement.flys.other.Buzz
 import kevin.module.modules.movement.flys.other.Teleport
 import kevin.module.modules.movement.flys.vanilla.Creative
 import kevin.module.modules.movement.flys.vanilla.Vanilla
@@ -38,6 +39,7 @@ class Fly : Module("Fly","Allow you fly", Keyboard.KEY_F,ModuleCategory.MOVEMENT
         Vanilla,
         Creative,
         AAC5,
+        Buzz,
         Teleport,
         VerusAuto,
         NCPPacket,
