@@ -29,7 +29,7 @@ import java.awt.Color
 @ElementInfo(name = "Notifications", single = true)
 class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)) : Element(x, y, scale, side) {
 
-    private val notificationMode = ListValue("NotificationMode", arrayOf("Connect","LiquidBounce-Kevin","Kevin", "Normal", "Simple"),"Connect")
+    private val notificationMode = ListValue("NotificationMode", arrayOf("Connect","MilkNew","LiquidBounce-Kevin","Kevin", "Normal", "Simple"),"Connect")
     private val exampleNotification = Notification("Example Notification", "Example title")
     override fun drawElement(): Border? {
         var animationY = 30F
@@ -43,6 +43,7 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
                     "LiquidBounce-Kevin" -> i.drawNotification(animationY).also { animationY += 20 }
                     "Kevin" -> i.drawNotificationKevinNew(animationY).also { animationY += 40 }
                     "Connect" -> i.drawConnectNotification(animationY).also { animationY += 24 }
+                    "MilkNew" -> i.drawMilkNewNotification(animationY).also { animationY += 24 }
                     "Normal" -> i.drawNormalNotification(animationY).also { animationY += 24 }
                     "Simple" -> i.drawSimpleNotification(animationY).also { animationY += 24 }
                 }
@@ -51,6 +52,7 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
                     "LiquidBounce-Kevin" -> exampleNotification.drawNotification(animationY)
                     "Kevin" -> exampleNotification.drawNotificationKevinNew(animationY)
                     "Connect" -> exampleNotification.drawConnectNotification(animationY)
+                    "MilkNew" -> i.drawMilkNewNotification(animationY)
                     "Normal" -> i.drawNormalNotification(animationY)
                     "Simple" -> i.drawSimpleNotification(animationY)
                 }
@@ -71,7 +73,8 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
             when (notificationMode.get()) {
                 "LiquidBounce-Kevin" -> return Border(-118.114514191981F, -50F, 0F, -30F)
                 "Kevin" -> return Border(-114.5F, -70F, 0F, -30F)
-                "Connect" -> return Border(-220F, -50F, 0F, -30F) //
+                "Connect" -> return Border(-220F, -50F, 0F, -30F)
+                "MilkNew" -> return Border(-220F, -50F, 0F, -30F)
                 "Normal" -> return Border(-150F, -50F, 0F, -30F)
                 "Simple" -> return Border(-110F, -50F, 0F, -30F)
             }
@@ -448,6 +451,55 @@ class Notification(private val message: String, val title: String = "", val type
             Info -> RenderUtils.drawIcon(4 - x, -20F - y, 16F, 16F, "Info")
             Error -> RenderUtils.drawIcon(4 - x, -20F - y, 16F, 16F, "Error")
         }
+        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
+        // Animation
+        val delta = RenderUtils.deltaTime - 4
+        val width = long + 8F
+        when (fadeState) {
+            IN -> {
+                if (x < width) {
+                    x = AnimationUtils.easeOut(fadeStep, width) * width
+                    fadeStep += delta / 4F
+                }
+                if (x >= width) {
+                    fadeState = STAY
+                    timer = System.currentTimeMillis()
+                    x = width
+                    fadeStep = width
+                }
+            }
+            STAY -> {
+                if (System.currentTimeMillis() - timer >= 3000)
+                    fadeState = OUT
+            }
+            OUT -> if (x > 0) {
+                x = AnimationUtils.easeOut(fadeStep, width) * width
+                fadeStep -= delta / 4F
+            } else fadeState = END
+            END -> KevinClient.hud.removeNotification(this)
+        }
+    }
+
+    fun drawMilkNewNotification(animationY: Float) {
+        var y = animationY
+        if (firstY == 1919.0F)
+            firstY = y
+        if (firstY > y) {
+            val cacheY = firstY - (firstY - y) * ((System.currentTimeMillis() - animeTime).toFloat() / 300.0f)
+            if (cacheY <= y)
+                firstY = cacheY
+            y = cacheY
+        } else {
+            firstY = y
+            animeTime = System.currentTimeMillis()
+        }
+        val c = 16.0 / 48.0
+        val long = textLength
+        // Draw notification
+        RenderUtils.drawRect(8 + long - x + 20, -y + 7, -x - 20, -19F - y - 7, Color(0, 0, 0, 50).rgb)
+        KevinClient.fontManager.font35.drawString(message, 4 - x, -10F-y, Color(255, 255, 255, 150).rgb)
+        KevinClient.fontManager.font35.drawString("Module Message", 4 - x - 15, -18F-y, Color(255, 255, 255, 150).rgb)
+
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
         // Animation
         val delta = RenderUtils.deltaTime - 4

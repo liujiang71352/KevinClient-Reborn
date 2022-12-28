@@ -28,21 +28,30 @@ import kevin.utils.render.shader.shaders.RainbowShader
 import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.opengl.GL11
 import java.awt.Color
+import kotlin.math.ceil
+import kotlin.math.sin
 
 @ElementInfo(name = "Arraylist", single = true)
 class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
                 side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.UP)) : Element(x, y, scale, side) {
 
+    fun SkyRainbow(var2: Int, st: Float, bright: Float): Int {
+        var v1 = ceil((System.currentTimeMillis() + (var2 * 109).toLong()).toDouble()) / 5
+        return Color.getHSBColor(if ((360.0.also { v1 %= it } / 360.0).toFloat()
+                .toDouble() < 0.5) -(v1 / 360.0).toFloat() else (v1 / 360.0).toFloat(), st, bright).rgb
+    }
     private val fontValue = KevinClient.fontManager.font40!!
     private var modules = emptyList<Module>()
 
     private val tagMode = ListValue("ArrayList-TagMode", arrayOf("<>","[]","None"),"<>")
     private val arrayListRainbowX = FloatValue("ArrayList-Rainbow-X",-1000F, -2000F, 2000F)
     private val arrayListRainbowY = FloatValue("ArrayList-Rainbow-Y",-1000F, -2000F, 2000F)
-    private val arrayListTextColorMode = ListValue("ArrayList-TextColor-Mode", arrayOf("Custom","Random","Rainbow"),"Rainbow")
+    private val arrayListTextColorMode = ListValue("ArrayList-TextColor-Mode", arrayOf("Custom","Random","SkyRainbow","Rainbow","LDColor"),"Rainbow")
     private val arraylistTextCustomRed = IntegerValue("ArrayList-TextColor-CustomRed",0,0,255)
     private val arraylistTextCustomGreen = IntegerValue("ArrayList-TextColor-CustomGreen",0,0,255)
     private val arraylistTextCustomBlue = IntegerValue("ArrayList-TextColor-CustomBlue",0,0,255)
+    private val arraylistTextSaturation = IntegerValue("ArrayList-TextColor-SkyRainbow-Saturation",0,0,100)
+    private val arraylistTextBrightness = IntegerValue("ArrayList-TextColor-SkyRainbow-Brightness",0,0,100)
     private val arrayListTags = BooleanValue("ArrayList-Tags", true)
     private val arrayListTagsShadow = BooleanValue("ArrayList-ShadowText", true)
     private val arrayListBackgroundColorModeValue = ListValue("ArrayList-Background-ColorMode", arrayOf("Custom", "Random", "Rainbow"), "Custom")
@@ -65,6 +74,8 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
     private val hideRenderModuleValue = BooleanValue("HideRenderModule", false)
     private val arrayListRectValue = ListValue("ArrayList-Rect", arrayOf("None", "Left", "Right", "All"), "All")
     private val arrayListRectWidth = FloatValue("ArrayList-RectWidth",2F,1F,3F)
+
+    private var rainbowTick = 0
 
     override fun drawElement(): Border? {
         val fontRenderer = fontValue
@@ -161,12 +172,28 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
 
             val rainbow = colorMode.equals("Rainbow", ignoreCase = true)
 
+            val tmp = Color(Color.HSBtoRGB(
+                (mc.thePlayer.ticksExisted.toDouble() / 50.0 + sin((rainbowTick + (yPos - 4) / 12).toDouble() / 50.0 * 1.6)).toFloat() % 1.0f,
+                0.5f,
+                1f
+            ))
+            val LDColor = Color(
+                arraylistTextCustomRed.get(),
+                arraylistTextCustomGreen.get(),
+                arraylistTextCustomRed.get(),
+                tmp.red
+            ).rgb
             GlStateManager.resetColor()
             RainbowFontShader.begin(rainbow, if (rainbowX.get() == 0.0F) 0.0F else 1.0F / rainbowX.get(), if (rainbowY.get() == 0.0F) 0.0F else 1.0F / rainbowY.get(), System.currentTimeMillis() % 10000 / 10000F).use {
                 fontRenderer.drawString(displayString, xPos - if (rectMode.equals("right", true)||rectMode.equals("all",true)) rectWidth.get() else 0F, yPos + textY, when {
                     rainbow -> 0
                     colorMode.equals("Random", ignoreCase = true) -> moduleColor
-                    else -> customColor }, textShadow)
+                    colorMode.equals("SkyRainbow", ignoreCase = true) -> SkyRainbow((yPos * 0.1F).toInt(),
+                        arraylistTextSaturation.get() / 100f,
+                        arraylistTextBrightness.get() / 100f)
+                    colorMode.equals("LDColor", ignoreCase = true) -> LDColor
+                    else -> customColor
+                                                                                                                                                                           }, textShadow)
             }
 
             if (!rectMode.equals("none", true)) {
@@ -234,6 +261,9 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
 
         //AWTFontRenderer.assumeNonVolatile = false
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
+        if (rainbowTick++ > 50) {
+            rainbowTick = 0
+        }
         return null
     }
 

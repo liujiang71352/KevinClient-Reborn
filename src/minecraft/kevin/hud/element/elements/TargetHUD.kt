@@ -102,25 +102,27 @@ class TargetHUD : Element() {
                         .coerceAtLeast(118)
                         .toFloat()
                     // Draw rect box
-                    RenderUtils.drawBorderedRect(0F, 0F, width, 36F, 3F, Color(0, 0, 0, 100).rgb, Color(0, 0, 0, 100).rgb)
+                    RenderUtils.drawRect(0F, 0F, width, 36F, Color(0, 0, 0, 100).rgb)
                     // Damage animation
                     healthDiff = abs(easingHealth - target.health)
                     if (easingHealth > target.health && target.hurtTime > 0)
                         RenderUtils.drawRect(0F, 34F, ((target.health + healthDiff * (0.1F * target.hurtTime)) / target.maxHealth) * width,
-                            36F, Color(252, 185, 65).rgb)
+                            36F, Color(252, 65, 65 , 100).rgb)
                     // Health bar
-                    RenderUtils.drawRect(0F, 34F, (target.health / target.maxHealth) * width,
-                        36F, Color(196, 20, 4).rgb)
+                    RenderUtils.drawGradientSideways(0.0, 34.0, ((target.health / target.maxHealth) * width).toDouble(),
+                        36.0, Color(196, 10, 196,200).rgb,
+                        Color(196, 100, 100).rgb)
                     // Heal animation
                     if (easingHealth < target.health)
                         RenderUtils.drawRect((easingHealth / target.maxHealth) * width, 34F,
                             (target.health / target.maxHealth) * width, 36F, Color(44, 201, 144).rgb)
                     target.name?.let { KevinClient.fontManager.font40.drawString(it, 36f, 3f, 0xffffff) }
-                    KevinClient.fontManager.font35.drawString("Distance: ${decimalFormat.format(mc.thePlayer!!.getDistanceToEntityBox(target))}", 36f, 15f, 0xffffff)
+                    KevinClient.fontManager.font35.drawString("HurtTime: ${decimalFormat.format(target.hurtTime)}", 36f, 15f, 0xffffff)
                     // Draw info
                     val playerInfo = mc.netHandler.getPlayerInfo(target.uniqueID)
                     if (playerInfo != null) {
-                        KevinClient.fontManager.font35.drawString("Ping: ${playerInfo.responseTime.coerceAtLeast(0)}",
+                        KevinClient.fontManager.font35.drawString(
+                            if(mc.thePlayer!!.health > target.health) "You win" else "You lose",
                             36f, 24f, 0xffffff)
                         // Draw head
                         val locationSkin = playerInfo.locationSkin

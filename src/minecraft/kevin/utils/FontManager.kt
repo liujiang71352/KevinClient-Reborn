@@ -40,12 +40,19 @@ class FontManager : MinecraftInstance(){
     @FontDetails(fontName = "JetBrainsMono Medium", fontSize = 40)
     var font40: GameFontRenderer? = null
 
+    @FontDetails(fontName = "Novo 35", fontSize = 35)
+    var novoFont35: GameFontRenderer? = null
+    @FontDetails(fontName = "Novo 40", fontSize = 40)
+    var novoFont40: GameFontRenderer? = null
+
     @FontDetails(fontName = "JetBrainsMono Bold", fontSize = 180)
     var fontBold180: GameFontRenderer? = null
 
     fun loadFonts(){
         font35 = GameFontRenderer(getFont("JetBrainsMono-Medium.ttf",35))
         font40 = GameFontRenderer(getFont("JetBrainsMono-Medium.ttf",40))
+        novoFont35 = GameFontRenderer(getFont("Novo.ttf",35))
+        novoFont40 = GameFontRenderer(getFont("Novo.ttf",40))
         fontBold180 = GameFontRenderer(getFont("JetBrainsMono-Bold.ttf",180))
         try {
             CUSTOM_FONT_RENDERERS.clear()

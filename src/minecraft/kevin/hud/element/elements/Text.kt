@@ -73,6 +73,12 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
     private val rainbowX = FloatValue("Rainbow-X", -1000F, -2000F, 2000F)
     private val rainbowY = FloatValue("Rainbow-Y", -1000F, -2000F, 2000F)
     private val shadow = BooleanValue("Shadow", true)
+    private val bigFont = BooleanValue("BigFont", true)
+    private val rect = BooleanValue("Rect", true)
+    private val rRedValue = IntegerValue("rRed", 0, 0, 255)
+    private val rGreenValue = IntegerValue("rGreen", 0, 0, 255)
+    private val rBlueValue = IntegerValue("rBlue", 0, 0, 255)
+    private val rAlphaValue = IntegerValue("rAlpha", 100, 0, 255)
     private var fontValue = KevinClient.fontManager.font35!!
 
     private var editMode = false
@@ -97,13 +103,13 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
 
         if (thePlayer != null) {
             when (str.lowercase(Locale.getDefault())) {
-                "x" -> return DECIMAL_FORMAT.format(thePlayer.posX)
-                "y" -> return DECIMAL_FORMAT.format(thePlayer.posY)
-                "z" -> return DECIMAL_FORMAT.format(thePlayer.posZ)
+                "x" -> return DECIMAL_FORMAT.format(thePlayer.posX.toInt())
+                "y" -> return DECIMAL_FORMAT.format(thePlayer.posY.toInt())
+                "z" -> return DECIMAL_FORMAT.format(thePlayer.posZ.toInt())
                 "xdp" -> return thePlayer.posX.toString()
                 "ydp" -> return thePlayer.posY.toString()
                 "zdp" -> return thePlayer.posZ.toString()
-                "velocity" -> return DECIMAL_FORMAT.format(sqrt(thePlayer.motionX * thePlayer.motionX + thePlayer.motionZ * thePlayer.motionZ))
+                "velocity" -> return DECIMAL_FORMAT.format(sqrt(thePlayer.motionX * thePlayer.motionX + thePlayer.motionZ * thePlayer.motionZ) * 20F)
                 "ping" -> return thePlayer.getPing().toString()
                 "health" -> return DECIMAL_FORMAT.format(thePlayer.health)
                 "maxhealth" -> return DECIMAL_FORMAT.format(thePlayer.maxHealth)
@@ -130,6 +136,11 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
         var lastPercent = -1
         val result = StringBuilder()
         for (i in str.indices) {
+            if (str[i] == '&') {
+                if (lastPercent == -1) {
+                    result.append("\u00a7")
+                }
+            }else
             if (str[i] == '%') {
                 if (lastPercent != -1) {
                     if (lastPercent + 1 != i) {
@@ -162,17 +173,29 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
     override fun drawElement(): Border? {
         val color = Color(redValue.get(), greenValue.get(), blueValue.get()).rgb
 
-        val fontRenderer = fontValue
+        var fontRenderer = fontValue
+
+        if(bigFont.get())
+            fontRenderer = KevinClient.fontManager.font60;
+        else
+            fontRenderer = KevinClient.fontManager.font35;
 
         val rainbow = rainbow.get()
-
+        if(rect.get()){
+        RenderUtils.drawRect(-2F , -2F ,
+            fontRenderer.getStringWidth(displayText) + 2F,
+            fontRenderer.fontHeight.toFloat(),
+            Color(rRedValue.get(),rGreenValue.get(),rBlueValue.get(),rAlphaValue.get())
+        )
+        }
         RainbowFontShader.begin(rainbow, if (rainbowX.get() == 0.0F) 0.0F else 1.0F / rainbowX.get(), if (rainbowY.get() == 0.0F) 0.0F else 1.0F / rainbowY.get(), System.currentTimeMillis() % 10000 / 10000F).use {
             fontRenderer.drawString(displayText, 0F, 0F, if (rainbow)
                 0 else color, shadow.get())
 
-            if (editMode && (mc.currentScreen) is GuiHudDesigner && editTicks <= 40)
-                fontRenderer.drawString("_", fontRenderer.getStringWidth(displayText) + 2F,
-                    0F, if (rainbow) ColorUtils.rainbow(400000000L).rgb else color, shadow.get())
+            if (editMode && (mc.currentScreen) is GuiHudDesigner && editTicks <= 40){
+                    fontRenderer.drawString("_", fontRenderer.getStringWidth(displayText) + 2F,
+                        0F, if (rainbow) ColorUtils.rainbow(400000000L).rgb else color, shadow.get())
+            }
         }
 
         if (editMode && (mc.currentScreen) !is GuiHudDesigner) {

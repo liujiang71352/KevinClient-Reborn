@@ -28,14 +28,17 @@ class FontManager : MinecraftInstance(){
     @FontDetails(fontName = "Minecraft Font")
     val minecraftFont: FontRenderer = mc.fontRendererObj
 
-    @FontDetails(fontName = "JetBrainsMono Medium", fontSize = 35)
+    @FontDetails(fontName = "Novo Medium", fontSize = 35)
     lateinit var font35: GameFontRenderer
 
-    @FontDetails(fontName = "JetBrainsMono Medium", fontSize = 40)
+    @FontDetails(fontName = "Novo Medium", fontSize = 40)
     lateinit var font40: GameFontRenderer
 
-    @FontDetails(fontName = "JetBrainsMono Bold", fontSize = 180)
+    @FontDetails(fontName = "Novo Bold", fontSize = 180)
     lateinit var fontBold180: GameFontRenderer
+
+    @FontDetails(fontName = "Novo Super", fontSize = 60)
+    lateinit var font60: GameFontRenderer
 
     @FontDetails(fontName = "Misans", fontSize = 32)
     lateinit var fontMisans32: GameFontRenderer
@@ -44,10 +47,11 @@ class FontManager : MinecraftInstance(){
     lateinit var fontUniFont32: GameFontRenderer
 
     fun loadFonts(){
-        font35 = GameFontRenderer(getFont("JetBrainsMono-Medium.ttf",35))
-        font40 = GameFontRenderer(getFont("JetBrainsMono-Medium.ttf",40))
-        fontBold180 = GameFontRenderer(getFont("JetBrainsMono-Bold.ttf",180))
+        font35 = GameFontRenderer(getFont("Novo.ttf",35))
+        font40 = GameFontRenderer(getFont("Novo.ttf",40))
+        fontBold180 = GameFontRenderer(getFont("Novo.ttf",180))
         fontMisans32 = GameFontRenderer(getFont("misans.ttf",32))
+        font60 = GameFontRenderer(getFont("Novo.ttf",60))
         fontUniFont32  = GameFontRenderer(getFont("unifont-14.0.04.ttf",32))
         loadCustomFonts()
     }

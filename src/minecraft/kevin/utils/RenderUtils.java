@@ -58,6 +58,35 @@ public final class RenderUtils extends MinecraftInstance{
     private static final Map<String, Map<Integer, Boolean>> glCapMap = new HashMap<>();
     private static final int[] DISPLAY_LISTS_2D = new int[4];
 
+    public static void drawGradientSideways(final double left, final double top, final double right, final double bottom, final int col1, final int col2) {
+        final float f = (col1 >> 24 & 0xFF) / 255.0f;
+        final float f2 = (col1 >> 16 & 0xFF) / 255.0f;
+        final float f3 = (col1 >> 8 & 0xFF) / 255.0f;
+        final float f4 = (col1 & 0xFF) / 255.0f;
+        final float f5 = (col2 >> 24 & 0xFF) / 255.0f;
+        final float f6 = (col2 >> 16 & 0xFF) / 255.0f;
+        final float f7 = (col2 >> 8 & 0xFF) / 255.0f;
+        final float f8 = (col2 & 0xFF) / 255.0f;
+        glEnable(3042);
+        glDisable(3553);
+        glBlendFunc(770, 771);
+        glEnable(2848);
+        glShadeModel(7425);
+        glPushMatrix();
+        glBegin(7);
+        glColor4f(f2, f3, f4, f);
+        glVertex2d(left, top);
+        glVertex2d(left, bottom);
+        glColor4f(f6, f7, f8, f5);
+        glVertex2d(right, bottom);
+        glVertex2d(right, top);
+        glEnd();
+        glPopMatrix();
+        glEnable(3553);
+        glDisable(3042);
+        glDisable(2848);
+        glShadeModel(7424);
+    }
     static {
         for (int i = 0; i < DISPLAY_LISTS_2D.length; i++) {
             DISPLAY_LISTS_2D[i] = glGenLists(1);

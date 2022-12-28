@@ -152,8 +152,8 @@ class ClickGui : Module("ClickGui","Opens the ClickGUI.", category = ModuleCateg
                 val noHead = isClick(mc.currentScreen.width/4F,y-high,mc.currentScreen.width/8F*3,y,mouseX.toFloat(),mouseY.toFloat())
                 RenderUtils.drawRect(mc.currentScreen.width/4F,y,mc.currentScreen.width/8F*3,y+high,Color(60,60,60).rgb)
                 RainbowShader.begin(borderRainbow,-0.001F,-0.001F,System.currentTimeMillis() % 10000 / 10000F).use {
-                    if (c != category.first() && noHead) drawNoHeadBorder(mc.currentScreen.width/4F,y,mc.currentScreen.width/8F*3,y+high,2F,Color(255,255,255,150))
-                    else RenderUtils.drawBorder(mc.currentScreen.width/4F,y,mc.currentScreen.width/8F*3,y+high,2F,Color(255,255,255,150).rgb)
+//                    if (c != category.first() && noHead) drawNoHeadBorder(mc.currentScreen.width/4F,y,mc.currentScreen.width/8F*3,y+high,2F,Color(255,255,255,150))
+//                    else RenderUtils.drawBorder(mc.currentScreen.width/4F,y,mc.currentScreen.width/8F*3,y+high,2F,Color(255,255,255,150).rgb)
                 }
                 if (c != category.first() && noHead) RainbowShader.begin(true,-0.001F,-0.001F,System.currentTimeMillis() % 10000 / 10000F).use {
                     glEnable(GL_BLEND)
@@ -720,7 +720,7 @@ class ClickGui : Module("ClickGui","Opens the ClickGUI.", category = ModuleCateg
         }
         override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
             //DrawBackGround
-            RenderUtils.drawRectRoundedCorners(x1.toDouble(),y1.toDouble(),x2.toDouble(),y2.toDouble(),radius,if(mode==1)Color(210,210,210,225)else Color(80,80,80,225))
+            RenderUtils.drawRect(x1.toDouble(),y1.toDouble(),x2.toDouble(),y2.toDouble(),Color(49,49,49,225).rgb)
             //DrawCloseButton
             val closeButtonLight = isClick(mouseX.toFloat(),mouseY.toFloat(),x2-radius.toFloat()/4F*3F-(x2-x1)/128F,y1+radius.toFloat()/4F*3F-(x2-x1)/128F,x2-radius.toFloat()/4F*3F+(x2-x1)/128F,y1+radius.toFloat()/4F*3F+(x2-x1)/128F)
             RenderUtils.drawSector(x2-radius/4*3,y1+radius/4*3,0,360,(x2-x1)/128.0,if(closeButtonLight)Color(255,0,0,250)else Color(225,0,0))
@@ -729,15 +729,15 @@ class ClickGui : Module("ClickGui","Opens the ClickGUI.", category = ModuleCateg
             KevinClient.fontManager.font35.drawString("x",(x2-radius.toFloat()/16F*13.75F)/0.5F,(y1+radius.toFloat()/4F*1.9F)/0.5F,Color.white.rgb)
             glPopMatrix()
             //DrawLine
-            RenderUtils.drawLineStart(if(mode==1)Color(255,255,255)else Color(20,20,20,225),5F)
+//            RenderUtils.drawLineStart(if(mode==1)Color(255,255,255)else Color(20,20,20,225),5F)
             val lx2 = (x2 - x1) * lineAnim["Line1"]!! / 100.0
-            RenderUtils.drawLine(x1.toDouble(),y1+radius*2.25,lx2+x1,y1+radius*2.25)
-            RenderUtils.drawLineEnd()
-            RenderUtils.drawLineStart(if(mode==1)Color(255,255,255)else Color(20,20,20,225),3F)
+//            RenderUtils.drawLine(x1.toDouble(),y1+radius*2.25,lx2+x1,y1+radius*2.25)
+//            RenderUtils.drawLineEnd()
+//            RenderUtils.drawLineStart(if(mode==1)Color(255,255,255)else Color(20,20,20,225),3F)
             val l2y2 = (y2-(y1+radius*2.25)) * lineAnim["Line2"]!! / 100.0
-            RenderUtils.drawLine(x1+(x2-x1)/16*3.0,y1+radius*2.25,x1+(x2-x1)/16*3.0,y1+radius*2.25+l2y2)
-            RenderUtils.drawLineEnd()
-            //lineAnim
+//            RenderUtils.drawLine(x1+(x2-x1)/16*3.0,y1+radius*2.25,x1+(x2-x1)/16*3.0,y1+radius*2.25+l2y2)
+//            RenderUtils.drawLineEnd()
+//            //lineAnim
             animLine("Line1",1.5F,false)
             if (lineAnim["Line1"]!!>18.75F) animLine("Line2",1.5F,false)
             if (lineAnim["Line1"]!!>18.75F&&clickButton==Target) animLine("LineTarget",1.5F,false) else if (lineAnim["LineTarget"]!!>80) lineAnim["LineTarget"] = 80F else animLine("LineTarget",1.5F,true)
@@ -749,11 +749,12 @@ class ClickGui : Module("ClickGui","Opens the ClickGUI.", category = ModuleCateg
             val modeButtonLight = isClick(mouseX.toFloat(),mouseY.toFloat(),x2-32F,y1+9.5F,x2-20F,y1+7.25F+ KevinClient.fontManager.font35.fontHeight*0.6F)
             glPushMatrix()
             glScaled(.6,.6,.6)
-            KevinClient.fontManager.font35.drawString("D",(x2-35F)/.6F,(y1+9.5F)/.6F,if(mode==1)Color(255,255,255).rgb else Color(20,20,20,225).rgb)
-            KevinClient.fontManager.font35.drawString("L",(x2-19F)/.6F,(y1+9.5F)/.6F,if(mode==1)Color(255,255,255).rgb else Color(20,20,20,225).rgb)
+//            KevinClient.fontManager.font35.drawString("D",(x2-35F)/.6F,(y1+9.5F)/.6F,if(mode==1)Color(255,255,255).rgb else Color(20,20,20,225).rgb)
+//            KevinClient.fontManager.font35.drawString("L",(x2-19F)/.6F,(y1+9.5F)/.6F,if(mode==1)Color(255,255,255).rgb else Color(20,20,20,225).rgb)
             glPopMatrix()
             animButton("ModeButton",10F,mode==1)
-            drawButton1(x2-32F,y1+9.5F,x2-20F,y1+7.25F+ KevinClient.fontManager.font35.fontHeight*0.6F,if (mode==1) if(modeButtonLight) Color(170,170,170) else Color.white else if(modeButtonLight) Color.darkGray else Color.black,Color(0,111,255),buttonsAnim["ModeButton"]!!)
+            mode=0;
+//            drawButton1(x2-32F,y1+9.5F,x2-20F,y1+7.25F+ KevinClient.fontManager.font35.fontHeight*0.6F,if (mode==1) if(modeButtonLight) Color(170,170,170) else Color.white else if(modeButtonLight) Color.darkGray else Color.black,Color(0,111,255),buttonsAnim["ModeButton"]!!)
             //DrawCategoryButtons
             val mouseButtonDown = Mouse.isButtonDown(0) || Mouse.isButtonDown(1)
             categoryButtons.forEach {
@@ -771,13 +772,13 @@ class ClickGui : Module("ClickGui","Opens the ClickGUI.", category = ModuleCateg
                 val black = Color(0,0,0,alpha)
                 val lightGray = Color(192,192,192,alpha)
                 val darkGray = Color(64,64,64,alpha)
-                val blue = Color(0,111,255,150)
+                val blue = Color(0,0,0,50)
                 val isClick = it.isClick(mouseX,mouseY)
-                it.color = if (clickButton?.name==it.name) blue else if(isLight())
-                    if(isClick) Color(170,170,170,alpha) else white
+                it.color = if (clickButton?.name==it.name) blue else
+                    if(isClick) Color(170,170,170,0)
                 else
                     if(isClick) lightGray else darkGray
-                it.fontColor = if(isLight()) black else white
+                it.fontColor = if(clickButton?.name==it.name) white else black
                 val xa1 = it.initX1+(it.initX2-it.initX1)/16
                 val xsp = (it.initX2-it.initX1)/48
                 val ysp = (it.initY2-it.initY1)/48
@@ -800,10 +801,10 @@ class ClickGui : Module("ClickGui","Opens the ClickGUI.", category = ModuleCateg
                 if (alpha!=0) it.drawButton()
             }
             //DrawModulesLine
-            RenderUtils.drawLineStart(if(isLight())Color(255,255,255)else Color(20,20,20,225),3F)
-            val l3y2 = (y2-(y1+radius*2.25)) * lineAnim["Line3"]!! / 100.0
-            RenderUtils.drawLine(x1+(x2-x1)/2.0,y1+radius*2.25,x1+(x2-x1)/2.0,y1+radius*2.25+l3y2)
-            RenderUtils.drawLineEnd()
+//            RenderUtils.drawLineStart(if(isLight())Color(255,255,255)else Color(20,20,20,225),3F)
+//            val l3y2 = (y2-(y1+radius*2.25)) * lineAnim["Line3"]!! / 100.0
+//            RenderUtils.drawLine(x1+(x2-x1)/2.0,y1+radius*2.25,x1+(x2-x1)/2.0,y1+radius*2.25+l3y2)
+//            RenderUtils.drawLineEnd()
             if (lineAnim["Line1"]!!>=50F) if (clickButton!=null&&clickButton!=Target) animLine("Line3",1.6F,false)
             else if ((clickButton==null||clickButton==Target)&&lineAnim["Line3"]!!!=0F) animLine("Line3",1.6F,true)
             //CanRoll
@@ -853,7 +854,7 @@ class ClickGui : Module("ClickGui","Opens the ClickGUI.", category = ModuleCateg
             //CloseButton
             if (isClick(mouseX.toFloat(),mouseY.toFloat(),x2-radius.toFloat()/4F*3F-(x2-x1)/128F,y1+radius.toFloat()/4F*3F-(x2-x1)/128F,x2-radius.toFloat()/4F*3F+(x2-x1)/128F,y1+radius.toFloat()/4F*3F+(x2-x1)/128F)) mc.displayGuiScreen(null)
             //ModeButton
-            if (isClick(mouseX.toFloat(),mouseY.toFloat(),x2-32F,y1+9.5F,x2-20F,y1+7.25F+ KevinClient.fontManager.font35.fontHeight*0.6F)) mode = if (mode==1) 2 else 1
+//            if (isClick(mouseX.toFloat(),mouseY.toFloat(),x2-32F,y1+9.5F,x2-20F,y1+7.25F+ KevinClient.fontManager.font35.fontHeight*0.6F)) mode = if (mode==1) 2 else 1
             //CategoryButtons
             categoryButtons.forEach {
                 if (it.isClick(mouseX,mouseY)) {
@@ -907,7 +908,7 @@ class ClickGui : Module("ClickGui","Opens the ClickGUI.", category = ModuleCateg
             val initY2 = y2
             fun isClick(mouseX: Int,mouseY: Int):Boolean = mouseX.toFloat() in initX1..initX2 && mouseY.toFloat() in initY1..initY2
             fun drawButtonNoText(){
-                RenderUtils.drawRectRoundedCorners(x1.toDouble(),y1.toDouble(),x2.toDouble(),y2.toDouble(),(y2-y1)/3.5,color)
+                RenderUtils.drawRect(x1.toDouble(),y1.toDouble(),x2.toDouble(),y2.toDouble(),color.rgb)
             }
             fun drawButton(){
                 drawButtonNoText()
