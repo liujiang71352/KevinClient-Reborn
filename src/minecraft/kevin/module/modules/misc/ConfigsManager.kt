@@ -38,22 +38,28 @@ object ConfigsManager : Module("ConfigsManager", "Manage configs") { // good cod
 
     private val loadLocal: BooleanValue = object : BooleanValue("LoadLocalConfig", false) {
         override fun onChanged(oldValue: Boolean, newValue: Boolean) {
-            set(false)
-            loadLocal()
+            if (newValue) {
+                set(false)
+                loadLocal()
+            }
         }
     }
     private val loadCloud: BooleanValue = object : BooleanValue("LoadCloudConfig", false) {
         override fun onChanged(oldValue: Boolean, newValue: Boolean) {
-            set(false)
-            loadCloud(cloudConfigs.get())
+            if (newValue) {
+                set(false)
+                loadCloud(cloudConfigs.get())
+            }
         }
     }
     private val loadWithProxy = BooleanValue("WithProxy", false)
     private val PreferredAPI = ListValue("PreferredAPI", arrayOf("https://raw.githubusercontent.com/", "https://raw.fastgit.org/"), "https://raw.fastgit.org/")
     private val refresh: BooleanValue = object : BooleanValue("Refresh", false) {
         override fun onChanged(oldValue: Boolean, newValue: Boolean) {
-            set(false)
-            updateValue()
+            if (newValue) {
+                set(false)
+                updateValue()
+            }
         }
     }
 
@@ -80,7 +86,7 @@ object ConfigsManager : Module("ConfigsManager", "Manage configs") { // good cod
                 ChatUtils.messageWithStart("§eWarning: §eThe §eHUD §econfig §efile §eis §emissing.§eSuccessfully §eloaded §eModules §econfig §b$name.")
             }
             else -> {
-                ChatUtils.messageWithStart("§cFailed to load config §b$name.§cFile not found.")
+                ChatUtils.messageWithStart("§cFailed to load config §b$name. §cFile not found.")
             }
         }
         } catch (_: Exception) { }
