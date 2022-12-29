@@ -68,6 +68,7 @@ object ConfigsManager : Module("ConfigsManager", "Manage configs") { // good cod
 
     fun loadLocal() {
         try {
+            KevinClient.moduleManager.getModules().forEach { it.state = false }
             when (ConfigManager.loadConfig(localConfigs.get())) {
             0 -> {
                 ChatUtils.messageWithStart("§aSuccessfully loaded config §b$name.")
@@ -98,6 +99,7 @@ object ConfigsManager : Module("ConfigsManager", "Manage configs") { // good cod
         val setModules = arrayListOf<Module>()
         val warns = mutableMapOf<String,String>()
         if (jsonElement !is JsonNull) {
+            KevinClient.moduleManager.getModules().forEach { it.state = false }
             val entryIterator: Iterator<Map.Entry<String, JsonElement>> =
                 jsonElement.asJsonObject.entrySet().iterator()
             while (entryIterator.hasNext()) {

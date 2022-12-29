@@ -135,7 +135,7 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
                         }
                     }
                     "buzz" -> {
-                        if (mc.thePlayer.hurtTime > 8) {
+                        if (mc.thePlayer.hurtTime == 9) {
                             MovementUtils.strafe(ncpBoostValue.get())
                             mc.thePlayer.motionY += 0.42
                         }

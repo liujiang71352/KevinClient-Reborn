@@ -89,7 +89,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
 
         when (modeValue.get().lowercase()) {
             "jump" -> if (thePlayer.hurtTime > 0 && thePlayer.onGround) {
-                thePlayer.motionY = 0.42
+                thePlayer.motionY = 0.42F.toDouble()
 
                 val yaw = thePlayer.rotationYaw * 0.017453292F
 
@@ -199,7 +199,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                     }
                 }
             }
-            "allowfirst" -> if (velocityInput) {
+            "allowfirst" -> if (velocityInput && mc.thePlayer.hurtTime == 8) {
                 velocityInput = false
                 mc.thePlayer.setVelocity(0.0, 0.0, 0.0)
             }

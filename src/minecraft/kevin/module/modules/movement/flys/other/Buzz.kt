@@ -52,7 +52,7 @@ object Buzz : FlyMode("Buzz") {
             }
             "test3" -> {
                 if (boost) {
-                    MovementUtils.strafe(MovementUtils.speed * 1.025F)
+                    MovementUtils.strafe(MovementUtils.speed * 1.08F)
                 } else {
                     MovementUtils.setMotion(0.0)
                     thePlayer.setPosition(thePlayer.posX, thePlayer.posY, thePlayer.posZ)
@@ -64,12 +64,13 @@ object Buzz : FlyMode("Buzz") {
             }
             "test4" -> {
                 if (thePlayer.hurtTime > 8) {
-                    thePlayer.motionY = 0.42
+                    thePlayer.motionY = 0.0
                     thePlayer.motionX = 0.0
                     thePlayer.motionZ = 0.0
                     val yaw = Math.toRadians(thePlayer.rotationYaw.toDouble())
-                    thePlayer.setPosition(thePlayer.posX + -sin(yaw) * fly.speed.get(), fly.launchY + 3.5, thePlayer.posZ + cos(yaw) * fly.speed.get())
+                    thePlayer.setPosition(thePlayer.posX + -sin(yaw) * fly.speed.get(), fly.launchY + 3.8, thePlayer.posZ + cos(yaw) * fly.speed.get())
                 }
+                if (thePlayer.onGround) thePlayer.jump()
             }
         }
     }

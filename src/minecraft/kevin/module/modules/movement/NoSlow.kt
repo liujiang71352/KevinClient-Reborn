@@ -14,6 +14,7 @@
  */
 package kevin.module.modules.movement
 
+import de.gerrygames.viarewind.utils.PacketUtil
 import kevin.event.*
 import kevin.main.KevinClient
 import kevin.module.*
@@ -29,6 +30,7 @@ import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import java.util.*
 
+
 @Suppress("unused_parameter", "unchecked_cast")
 class NoSlow : Module("NoSlow", "Cancels slowness effects caused by soulsand and using items.", category = ModuleCategory.MOVEMENT) {
 
@@ -41,7 +43,7 @@ class NoSlow : Module("NoSlow", "Cancels slowness effects caused by soulsand and
     private val bowForwardMultiplier = FloatValue("BowForwardMultiplier", 1.0F, 0.2F, 1.0F)
     private val bowStrafeMultiplier = FloatValue("BowStrafeMultiplier", 1.0F, 0.2F, 1.0F)
 
-    private val packetMode = ListValue("PacketMode", arrayOf("None","AntiCheat","AntiCheat2", "ReverseNCP","AAC","AAC5","Matrix","Vulcan", "Intave"),"None")
+    private val packetMode = ListValue("PacketMode", arrayOf("None","AntiCheat","AntiCheat2", "ReverseNCP","AAC","AAC5","Delay","Matrix","Vulcan", "Intave"),"None")
 
     val soulsandValue = BooleanValue("Soulsand", true)
     val liquidPushValue = BooleanValue("LiquidPush", true)
@@ -49,7 +51,7 @@ class NoSlow : Module("NoSlow", "Cancels slowness effects caused by soulsand and
     private var lastBlockingStat = false
     private var nextTemp = false
     private var waitC03 = false
-    private var intave = false
+    private var funnyBoolean = false
     private var delay = 100L
     private val msTimer = MSTimer()
     private var packetBuf = LinkedList<Packet<INetHandlerPlayServer>>()
@@ -79,12 +81,10 @@ class NoSlow : Module("NoSlow", "Cancels slowness effects caused by soulsand and
             "AntiCheat" -> {
                 when (event.eventState) {
                     EventState.PRE -> {
-                        val digging = C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos(0, 0, 0), EnumFacing.DOWN)
-                        mc.netHandler.addToSendQueue(digging)
+                        mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos(0, 0, 0), EnumFacing.DOWN))
                     }
                     EventState.POST -> {
-                        val blockPlace = C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 255, mc.thePlayer!!.inventory.getCurrentItem(), 0.0F, 0.0F, 0.0F)
-                        mc.netHandler.addToSendQueue(blockPlace)
+                        mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 255, mc.thePlayer!!.inventory.getCurrentItem(), 0.0F, 0.0F, 0.0F))
                     }
                 }
             }
@@ -98,12 +98,10 @@ class NoSlow : Module("NoSlow", "Cancels slowness effects caused by soulsand and
             "ReverseNCP" -> { // from Rise
                 when (event.eventState) {
                     EventState.PRE -> {
-                        val blockPlace = C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 255, mc.thePlayer!!.inventory.getCurrentItem(), 0.0F, 0.0F, 0.0F)
-                        mc.netHandler.addToSendQueue(blockPlace)
+                        mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 255, mc.thePlayer!!.inventory.getCurrentItem(), 0.0F, 0.0F, 0.0F))
                     }
                     EventState.POST -> {
-                        val digging = C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos(0, 0, 0), EnumFacing.DOWN)
-                        mc.netHandler.addToSendQueue(digging)
+                        mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
                     }
                 }
             }
@@ -119,6 +117,20 @@ class NoSlow : Module("NoSlow", "Cancels slowness effects caused by soulsand and
                     mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 255, mc.thePlayer.inventory.getCurrentItem(), 0f, 0f, 0f))
                 }
             }
+            "Delay" -> {
+                if (event.eventState == EventState.POST) return
+                if (!mc.thePlayer.isBlocking) funnyBoolean = false
+
+                if (mc.thePlayer.isBlocking && mc.thePlayer.ticksExisted % 5 == 0 && funnyBoolean) {
+                    mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+                    funnyBoolean = false
+                }
+
+                if (mc.thePlayer.isBlocking && mc.thePlayer.ticksExisted % 5 == 1 && !funnyBoolean) {
+                    mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.currentEquippedItem))
+                    funnyBoolean = true
+                }
+            }
             "Intave" -> { // from Rise
                 if ((mc.thePlayer.isBlocking || aura.blockingStatus) && msTimer.hasTimePassed(delay)) {
                     when (event.eventState) {
@@ -128,12 +140,12 @@ class NoSlow : Module("NoSlow", "Cancels slowness effects caused by soulsand and
                         }
                         EventState.POST -> {
                             mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
-                            delay = if (intave) {
+                            delay = if (funnyBoolean) {
                                 100L
                             } else {
                                 200L
                             }
-                            intave = !intave
+                            funnyBoolean = !funnyBoolean
                             msTimer.reset()
                         }
                     }
