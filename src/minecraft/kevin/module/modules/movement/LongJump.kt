@@ -24,7 +24,7 @@ import net.minecraft.util.EnumFacing
 
 @Suppress("unused_parameter")
 class LongJump : Module("LongJump", "Allows you to jump further.", category = ModuleCategory.MOVEMENT) {
-    private val modeValue = ListValue("Mode", arrayOf("NCP", "AACv1", "AACv2", "AACv3", "Mineplex", "Mineplex2", "Mineplex3", "Redesky", "BlocksMCBlockOver", "Buzz", "ExplosionBoost"), "NCP")
+    private val modeValue = ListValue("Mode", arrayOf("NCP", "AACv1", "AACv2","Buzz","AACv3", "Mineplex", "Mineplex2", "Mineplex3", "Redesky", "BlocksMCBlockOver", "ExplosionBoost"), "NCP")
     private val ncpBoostValue = FloatValue("NCPBoost", 4.25f, 1f, 10f)
     private val autoJumpValue = BooleanValue("AutoJump", false)
     private val explosionBoostHigh = FloatValue("ExplosionBoostHigh",0.00F,0.01F,1F)
@@ -36,12 +36,7 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
     private var explosion = false
 
     override fun onEnable() {
-        if (modeValue equal "Buzz") {
-            mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 3.42, mc.thePlayer.posZ, false))
-            mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 1E-12, mc.thePlayer.posZ, false))
-            mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true))
-            mc.thePlayer.jump()
-        }
+        canBoost = false
     }
     override fun onDisable() {
 
@@ -51,6 +46,10 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
     fun onUpdate(event: UpdateEvent?) {
         val thePlayer = mc.thePlayer ?: return
 
+        if(modeValue.get() == "Buzz" && thePlayer.onGround && canBoost){
+            this.state = false
+            canBoost = false
+        }
         if (jumped) {
             val mode = modeValue.get()
 
@@ -69,6 +68,10 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
                     "ncp" -> {
                         MovementUtils.strafe(MovementUtils.speed * if (canBoost) ncpBoostValue.get() else 1f)
                         canBoost = false
+                    }
+                    "buzz" -> {
+                        canBoost = true
+                        MovementUtils.strafe(MovementUtils.speed * 1.00f)
                     }
                     "aacv1" -> {
                         thePlayer.motionY += 0.05999
@@ -134,18 +137,22 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
                             return
                         }
                     }
-                    "buzz" -> {
-                        if (mc.thePlayer.hurtTime == 9) {
-                            MovementUtils.strafe(ncpBoostValue.get())
-                            mc.thePlayer.motionY += 0.42
-                        }
-                    }
                 }
             }
         }
         if (autoJumpValue.get() && thePlayer.onGround && MovementUtils.isMoving) {
             jumped = true
             thePlayer.jump()
+            if(modeValue.get() == "Buzz"){
+                mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(
+                    thePlayer.posX,
+                    thePlayer.posY + 0.23F,
+                    thePlayer.posZ,
+                    false
+                ))
+                thePlayer.handleStatusUpdate(2)
+                thePlayer.motionY = 0.49551110024
+            }
         }
         if (modeValue.get().equals("ExplosionBoost",true)){
             if (explosion){
