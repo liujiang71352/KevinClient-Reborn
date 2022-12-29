@@ -38,28 +38,22 @@ object ConfigsManager : Module("ConfigsManager", "Manage configs") { // good cod
 
     private val loadLocal: BooleanValue = object : BooleanValue("LoadLocalConfig", false) {
         override fun onChanged(oldValue: Boolean, newValue: Boolean) {
-            if (newValue) {
-                set(false)
-                loadLocal()
-            }
+            set(false)
+            loadLocal()
         }
     }
     private val loadCloud: BooleanValue = object : BooleanValue("LoadCloudConfig", false) {
         override fun onChanged(oldValue: Boolean, newValue: Boolean) {
-            if (newValue) {
-                loadCloud(cloudConfigs.get())
-                set(false)
-            }
+            set(false)
+            loadCloud(cloudConfigs.get())
         }
     }
     private val loadWithProxy = BooleanValue("WithProxy", false)
     private val PreferredAPI = ListValue("PreferredAPI", arrayOf("https://raw.githubusercontent.com/", "https://raw.fastgit.org/"), "https://raw.fastgit.org/")
     private val refresh: BooleanValue = object : BooleanValue("Refresh", false) {
         override fun onChanged(oldValue: Boolean, newValue: Boolean) {
-            if (newValue) {
-                set(false)
-                updateValue()
-            }
+            set(false)
+            updateValue()
         }
     }
 
@@ -97,7 +91,7 @@ object ConfigsManager : Module("ConfigsManager", "Manage configs") { // good cod
             res = ServerUtils.sendGet("${apiSecond}siuank/KevinClient-Reborn/master/cfg/$name.json", proxy)
         }
         if (res.second > 0) {
-            ChatUtils.messageWithStart("§cFailed to load config §b${ConfigsManager.name}. §cFile not found.")
+            ChatUtils.messageWithStart("§cFailed to load config §b${ConfigsManager.name}.§cFile not found.")
             return
         }
         val jsonElement = JsonParser().parse(res.first)

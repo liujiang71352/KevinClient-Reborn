@@ -557,8 +557,12 @@ public class ItemRenderer
                 }
                 else
                 {
-                    this.doItemUsedTransformations(f1);
-                    this.transformFirstPersonItem(f, f1);
+                    if(animations.getRotationItem().get()){
+                        this.transformFirstPersonItem(f * 0.5F, f1);
+                    }else{
+                        this.doItemUsedTransformations(f1);
+                        this.transformFirstPersonItem(f, f1);
+                    }
                 }
 
                 this.renderItem(abstractclientplayer, this.itemToRender, ItemCameraTransforms.TransformType.FIRST_PERSON);
