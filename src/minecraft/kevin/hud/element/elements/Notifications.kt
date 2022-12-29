@@ -43,7 +43,7 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
                     "LiquidBounce-Kevin" -> i.drawNotification(animationY).also { animationY += 20 }
                     "Kevin" -> i.drawNotificationKevinNew(animationY).also { animationY += 40 }
                     "Connect" -> i.drawConnectNotification(animationY).also { animationY += 24 }
-                    "MilkNew" -> i.drawMilkNewNotification(animationY).also { animationY += 24 }
+                    "MilkNew" -> i.drawMilkNewNotification(animationY).also { animationY += 30 }
                     "Normal" -> i.drawNormalNotification(animationY).also { animationY += 24 }
                     "Simple" -> i.drawSimpleNotification(animationY).also { animationY += 24 }
                 }

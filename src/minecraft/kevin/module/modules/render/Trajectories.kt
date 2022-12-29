@@ -70,7 +70,6 @@ class Trajectories : Module("Trajectories", description = "Shows the trajectory 
                 }
                 is EntityFireball -> {
                     gravity = 0F
-                    size = 0.4F
                     motionSlowdown = 1F
                 }
                 else -> {
@@ -86,6 +85,8 @@ class Trajectories : Module("Trajectories", description = "Shows the trajectory 
             var posX = e.posX
             var posY = e.posY
             var posZ = e.posZ
+
+            var aliveTicks = 0
 
             val tessellator = Tessellator.getInstance()
             val worldRenderer = tessellator.worldRenderer
@@ -168,6 +169,10 @@ class Trajectories : Module("Trajectories", description = "Shows the trajectory 
 
                 worldRenderer.pos(posX - renderManager.renderPosX, posY - renderManager.renderPosY,
                     posZ - renderManager.renderPosZ).endVertex()
+
+                if (e is EntityFireball) { // IT MAKE MY COMPUTER LAG...
+                    if (++aliveTicks > 400) break
+                }
             }
             tessellator.draw()
             GL11.glPushMatrix()
