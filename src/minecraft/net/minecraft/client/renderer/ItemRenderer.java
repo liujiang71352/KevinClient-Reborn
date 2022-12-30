@@ -451,6 +451,12 @@ public class ItemRenderer
                                         doBlockTransformations();
                                         break;
                                     }
+                                    case "Kevin": { // Simple animation
+                                        this.transformFirstPersonItem(f + 0.1F, f1 * 0.8F);
+                                        doBlockTransformations();
+                                        GlStateManager.translate(-0.2F, 0.2F, 0.2F);
+                                        break;
+                                    }
                                     case "Push": {
                                         push(f1);
                                         doBlockTransformations();

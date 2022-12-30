@@ -45,7 +45,7 @@ object KevinClient {
 
     var isStarting = true
 
-    val debug = false
+    const val debug = false
 
     lateinit var moduleManager: ModuleManager
     lateinit var fileManager: FileManager

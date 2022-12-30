@@ -22,6 +22,7 @@ import net.minecraft.client.multiplayer.ServerData;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
@@ -74,7 +75,11 @@ public final class ServerUtils extends MinecraftInstance {
                 result.append(line).append('\n');
             }
         } catch (Exception e) {
-            conResult = 1;
+            if (e instanceof MalformedURLException) {
+                conResult = 3;
+            } else {
+                conResult = 1;
+            }
         }
         finally {
             try {

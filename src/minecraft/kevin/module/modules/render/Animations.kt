@@ -19,7 +19,7 @@ import kevin.module.*
 class Animations : Module("Animations","Changes animations.", category = ModuleCategory.RENDER) {
     val animations = ListValue(
         "Preset", arrayOf(
-            "Akrien", "Avatar", "ETB", "Exhibition", "Push", "Reverse",
+            "Akrien", "Avatar", "ETB", "Exhibition", "Kevin", "Push", "Reverse",
             "Shield", "SigmaNew", "SigmaOld", "Slide", "SlideDown", "HSlide", "Swong", "VisionFX",
             "Swank", "Jello", "LiquidBounce","Rotate"
         ),

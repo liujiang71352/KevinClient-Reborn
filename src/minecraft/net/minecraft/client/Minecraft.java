@@ -108,9 +108,7 @@ import org.lwjgl.util.glu.GLU;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.Proxy;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -374,7 +372,12 @@ public class Minecraft implements IThreadListener, IPlayerUsage
                     }
                     catch (Throwable var10)
                     {
-                    	var10.printStackTrace();
+//                    	var10.printStackTrace();
+                        final StringWriter sw = new StringWriter();
+                        final PrintWriter pw = new PrintWriter(sw);
+                        var10.printStackTrace(pw);
+                        pw.flush();
+                        logger.error("Error in main loop!\n" + sw);
 //                        this.freeMemory();
 //                        this.displayGuiScreen(new GuiMemoryErrorScreen());
 //                        System.gc();
@@ -1243,7 +1246,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         try
         {
             System.gc();
-            this.loadWorld((WorldClient)null);
+            this.loadWorld(null);
         }
         catch (Throwable var2)
         {

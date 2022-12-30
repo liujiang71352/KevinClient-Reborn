@@ -177,7 +177,7 @@ object ConfigsManager : Module("ConfigsManager", "Manage configs") { // good cod
                     resStrArray = res.first.split("\n").toTypedArray()
                     cloudConfigs = ListValue("CloudConfigs", resStrArray, resStrArray[0])
                 } else {
-                    KevinClient.hud.addNotification(Notification("Cannot load ConfigList from cloud: Exception found when ${if (res.second == 1) "Connect" else "Close"}"))
+                    KevinClient.hud.addNotification(Notification("Cannot load ConfigList from cloud: Exception found when ${if (res.second == 1) "Get" else if (res.second == 2) "Close connection" else "Connect"}"))
                 }
             } catch (e: Exception) {
                 logError(e)

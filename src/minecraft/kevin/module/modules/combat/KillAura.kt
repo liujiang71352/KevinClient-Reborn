@@ -36,6 +36,7 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemSword
 import net.minecraft.network.play.client.*
 import net.minecraft.potion.Potion
+import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.MathHelper
@@ -208,6 +209,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     var sTarget: Entity? = null
     var target: Entity? = null
     private var currentTarget: Entity? = null
+    private var lastHitVec = Vec3(0.0, 0.0, 0.0)
     private var hitable = false
     private val prevTargetEntities = mutableListOf<Int>()
     private val discoveredTargets = mutableListOf<Entity>()
@@ -819,11 +821,22 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                     (Math.random() * (pitchMaxTurnSpeed.get() - pitchMinTurnSpeed.get()) + pitchMinTurnSpeed.get()).toFloat()
                 )
         } else if (rotationModeValue.get().contains("NearestPoint", true)) {
+            val bb : AxisAlignedBB = entity.entityBoundingBox
+            val thePlayer = mc.thePlayer
             RotationUtils.limitAngleChange(
                 RotationUtils.serverRotation,
                 RotationUtils.getOtherRotation(
                     boundingBox,
-                    getNearestPointBB(mc.thePlayer.getPositionEyes(1f), entity.entityBoundingBox),
+                    if (randomCenterValue.get()) {
+                        if (RotationUtils.targetRotation == null || RandomUtils.random.nextBoolean()) {
+                            lastHitVec = Vec3(
+                                MathHelper.clamp_double(thePlayer.posX, bb.minX, bb.maxX) + RandomUtils.nextDouble(-0.25, 0.25),
+                                MathHelper.clamp_double(thePlayer.posY + 1.62F, bb.minY, bb.maxY) + RandomUtils.nextDouble(-0.25, 0.25),
+                                MathHelper.clamp_double(thePlayer.posZ, bb.minZ, bb.maxZ) + RandomUtils.nextDouble(-0.25, 0.25)
+                            )
+                        }
+                        lastHitVec
+                    } else getNearestPointBB(mc.thePlayer.getPositionEyes(1f), entity.entityBoundingBox),
                     predictValue.get(),
                     mc.thePlayer!!.getDistanceToEntityBox(entity) < throughWallsRangeValue.get(),
                     discoverRangeValue.get()

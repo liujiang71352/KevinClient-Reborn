@@ -17,10 +17,11 @@ package kevin.utils
 import java.util.*
 
 object RandomUtils {
+    val random = Random()
 
     @JvmStatic
     fun nextInt(startInclusive: Int, endExclusive: Int): Int {
-        return if (endExclusive - startInclusive <= 0) startInclusive else startInclusive + Random().nextInt(endExclusive - startInclusive)
+        return if (endExclusive - startInclusive <= 0) startInclusive else startInclusive + random.nextInt(endExclusive - startInclusive)
     }
 
     fun nextDouble(startInclusive: Double, endInclusive: Double): Double {
@@ -46,7 +47,7 @@ object RandomUtils {
 
     fun random(length: Int, chars: CharArray): String {
         val stringBuilder = StringBuilder()
-        for (i in 0 until length) stringBuilder.append(chars[Random().nextInt(chars.size)])
+        for (i in 0 until length) stringBuilder.append(chars[random.nextInt(chars.size)])
         return stringBuilder.toString()
     }
 }
