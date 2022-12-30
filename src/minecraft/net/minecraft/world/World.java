@@ -2636,9 +2636,7 @@ public abstract class World implements IBlockAccess
             }
             this.theProfiler.startSection("playerCheckLight");
             if (!this.playerEntities.isEmpty()) {
-                EntityPlayer entityPlayer;
-                int n4 = this.rand.nextInt(this.playerEntities.size());
-                entityPlayer = this.playerEntities.get(n4);
+                EntityPlayer entityPlayer = this.playerEntities.get(this.rand.nextInt(this.playerEntities.size()));
                 n3 = MathHelper.floor_double(entityPlayer.posX) + this.rand.nextInt(11) - 5;
                 n2 = MathHelper.floor_double(entityPlayer.posY) + this.rand.nextInt(11) - 5;
                 n = MathHelper.floor_double(entityPlayer.posZ) + this.rand.nextInt(11) - 5;

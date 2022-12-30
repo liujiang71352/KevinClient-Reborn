@@ -17,6 +17,7 @@ package kevin.module.modules.movement.flys.ncp
 import kevin.event.MoveEvent
 import kevin.event.UpdateEvent
 import kevin.main.KevinClient
+import kevin.module.BooleanValue
 import kevin.module.FloatValue
 import kevin.module.modules.movement.Strafe
 import kevin.module.modules.movement.flys.FlyMode
@@ -27,6 +28,7 @@ import kotlin.math.sin
 
 object NCPPacket : FlyMode("NCPPacket") {
     private val timerValue = FloatValue("${valuePrefix}Timer", 1.1f, 1.0f, 1.3f)
+    private val useSpeedEffect = BooleanValue("${valuePrefix}UseSpeedEffect", true)
     override fun onEnable() {
         if (mc.thePlayer.onGround && mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer,mc.thePlayer.entityBoundingBox.offset(.0, .2, .0).expand(.0, .0, .0)).isEmpty()) {
             mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY + .2, mc.thePlayer.posZ)
@@ -41,8 +43,10 @@ object NCPPacket : FlyMode("NCPPacket") {
             return
         }
         val radiansYaw = Math.toRadians(KevinClient.moduleManager.getModule(Strafe::class.java).getMoveYaw().toDouble())
-        val x = -sin(radiansYaw) * 0.2873
-        val z = cos(radiansYaw) * 0.2873
+        val speed = if (useSpeedEffect.get()) MovementUtils.getBaseMoveSpeed() // speed effect base
+                    else 0.2873
+        val x = -sin(radiansYaw) * speed
+        val z = cos(radiansYaw) * speed
         mc.timer.timerSpeed = timerValue.get()
         mc.netHandler.addToSendQueue(
             C03PacketPlayer.C04PacketPlayerPosition(

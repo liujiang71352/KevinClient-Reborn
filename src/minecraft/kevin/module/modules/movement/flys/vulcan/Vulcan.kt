@@ -62,7 +62,7 @@ object Vulcan : FlyMode("Vulcan") { // from FDP
         if (!isSuccess) {
             mc.thePlayer.setPosition(startX, startY, startZ)
             ChatUtils.messageWithStart("§8[§c§lVulcan-Fly§8] §cFly attempt Failed...")
-            ChatUtils.messageWithStart("§8[§c§lVulcan-Fly§8] §cIf it keeps happen, DONT use it again in CURRENT gameplay")
+            ChatUtils.messageWithStart("§8[§c§lVulcan-Fly§8] §cIf it keeps happen, DON'T use it again in CURRENT gameplay")
         }
     }
 

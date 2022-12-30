@@ -1295,17 +1295,17 @@ public abstract class Entity implements ICommandSender
             forward = forward * f;
             float f1 = MathHelper.sin(this.rotationYaw * (float)Math.PI / 180.0F);
             float f2 = MathHelper.cos(this.rotationYaw * (float)Math.PI / 180.0F);
-            this.motionX += (double)(strafe * f2 - forward * f1);
-            this.motionZ += (double)(forward * f2 + strafe * f1);
+            this.motionX += strafe * f2 - forward * f1;
+            this.motionZ += forward * f2 + strafe * f1;
         }
     }
 
     public int getBrightnessForRender(float partialTicks)
     {
         if (PerformanceBooster.INSTANCE.getFastEntityLightning()) {
-            int n, n2, n3 = MathHelper.floor_double(this.posX);
             World world = this.worldObj;
-            return world.isBlockLoaded(new BlockPos(n3, n2 = MathHelper.floor_double(this.posY + (double)this.getEyeHeight()), n = MathHelper.floor_double(this.posZ))) ? world.getCombinedLight(new BlockPos(n3, n2, n), 0) : 0;
+            BlockPos bp = new BlockPos(MathHelper.floor_double(this.posX), MathHelper.floor_double(this.posY + (double)this.getEyeHeight()), MathHelper.floor_double(this.posZ));
+            return world.isBlockLoaded(bp) ? world.getCombinedLight(bp, 0) : 0;
         }
 
         BlockPos blockpos = new BlockPos(this.posX, this.posY + (double)this.getEyeHeight(), this.posZ);
@@ -1318,9 +1318,9 @@ public abstract class Entity implements ICommandSender
     public float getBrightness(float partialTicks)
     {
         if (PerformanceBooster.INSTANCE.getFastEntityLightning()) {
-            int n, n2, n3 = MathHelper.floor_double(this.posX);
             World world = this.worldObj;
-            return world.isBlockLoaded(new BlockPos(n3, n2 = MathHelper.floor_double(this.posY + (double) this.getEyeHeight()), n = MathHelper.floor_double(this.posZ))) ? world.getLightBrightness(new BlockPos(n3, n2, n)) : 0.0f;
+            BlockPos bp = new BlockPos(MathHelper.floor_double(this.posX), MathHelper.floor_double(this.posY + (double) this.getEyeHeight()), MathHelper.floor_double(this.posZ));
+            return world.isBlockLoaded(bp) ? world.getLightBrightness(bp) : 0.0f;
         }
 
         BlockPos blockpos = new BlockPos(this.posX, this.posY + (double)this.getEyeHeight(), this.posZ);
@@ -1345,7 +1345,7 @@ public abstract class Entity implements ICommandSender
         this.prevPosZ = this.posZ = z;
         this.prevRotationYaw = this.rotationYaw = yaw;
         this.prevRotationPitch = this.rotationPitch = pitch;
-        double d0 = (double)(this.prevRotationYaw - yaw);
+        double d0 = this.prevRotationYaw - yaw;
 
         if (d0 < -180.0D)
         {
@@ -1363,7 +1363,7 @@ public abstract class Entity implements ICommandSender
 
     public void moveToBlockPosAndAngles(BlockPos pos, float rotationYawIn, float rotationPitchIn)
     {
-        this.setLocationAndAngles((double)pos.getX() + 0.5D, (double)pos.getY(), (double)pos.getZ() + 0.5D, rotationYawIn, rotationPitchIn);
+        this.setLocationAndAngles((double)pos.getX() + 0.5D, pos.getY(), (double)pos.getZ() + 0.5D, rotationYawIn, rotationPitchIn);
     }
 
     /**

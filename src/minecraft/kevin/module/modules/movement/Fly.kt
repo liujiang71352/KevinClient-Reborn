@@ -18,16 +18,10 @@ import kevin.event.*
 import kevin.module.*
 import kevin.module.modules.movement.flys.FlyMode
 import kevin.module.modules.movement.flys.aac.AAC5
-import kevin.module.modules.movement.flys.ncp.NCPFly
-import kevin.module.modules.movement.flys.ncp.OldNCP
-import kevin.module.modules.movement.flys.matrix.Matrix
-import kevin.module.modules.movement.flys.matrix.NewMatrix
-import kevin.module.modules.movement.flys.matrix.NewMatrixClip
-import kevin.module.modules.movement.flys.ncp.NCPPacket
-import kevin.module.modules.movement.flys.other.Buzz
-import kevin.module.modules.movement.flys.other.Teleport
-import kevin.module.modules.movement.flys.vanilla.Creative
-import kevin.module.modules.movement.flys.vanilla.Vanilla
+import kevin.module.modules.movement.flys.matrix.*
+import kevin.module.modules.movement.flys.ncp.*
+import kevin.module.modules.movement.flys.other.*
+import kevin.module.modules.movement.flys.vanilla.*
 import kevin.module.modules.movement.flys.verus.VerusAuto
 import kevin.module.modules.movement.flys.vulcan.Vulcan
 import kevin.utils.*
@@ -38,6 +32,7 @@ class Fly : Module("Fly","Allow you fly", Keyboard.KEY_F,ModuleCategory.MOVEMENT
     private val flys = arrayListOf(
         Vanilla,
         Creative,
+        FakeGround,
         AAC5,
         Buzz,
         Teleport,

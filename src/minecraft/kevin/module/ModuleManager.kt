@@ -158,6 +158,7 @@ class ModuleManager : Listenable {
             CapeManager(),
             Chams(),
             ClickGui(),
+            ChinaHat(),
             Crosshair,
             DamageParticle(),
             ESP(),
