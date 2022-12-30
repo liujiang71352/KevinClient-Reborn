@@ -452,9 +452,9 @@ public class ItemRenderer
                                         break;
                                     }
                                     case "Kevin": { // Simple animation
-                                        this.transformFirstPersonItem(f + 0.1F, f1 * 0.8F);
+                                        this.transformFirstPersonItem(f + 0.1F, f1 * 0.7F);
                                         doBlockTransformations();
-                                        GlStateManager.translate(-0.2F, 0.2F, 0.2F);
+                                        GlStateManager.translate(-0.2F, 0.4F, -0.1F);
                                         break;
                                     }
                                     case "Push": {

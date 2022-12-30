@@ -156,7 +156,7 @@ class ModuleManager : Listenable {
             BlockOverlay(),
             CameraClip(),
             CapeManager(),
-            Chams(),
+            Chams,
             ClickGui(),
             ChinaHat(),
             Crosshair,

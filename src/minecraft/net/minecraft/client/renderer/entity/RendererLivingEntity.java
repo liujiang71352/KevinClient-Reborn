@@ -125,7 +125,7 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
      */
     public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
-        final Chams chams = KevinClient.moduleManager.getModule(Chams.class);
+        final Chams chams = Chams.INSTANCE;
 
         if (chams.getState() && chams.getTargetsValue().get() && EntityUtils.isSelected(entity, false)) {
             GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);

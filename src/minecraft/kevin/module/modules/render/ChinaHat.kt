@@ -109,4 +109,6 @@ class ChinaHat : Module("ChinaHat", "Gives you a chinese hat", category = Module
 
         glColor3f(255f, 255f, 255f)
     }
+
+    override val tag: String = quality.get()
 }

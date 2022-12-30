@@ -94,7 +94,7 @@ public class RenderEntityItem extends Render<EntityItem>
      */
     public void doRender(EntityItem entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
-        final Chams chams = KevinClient.moduleManager.getModule(Chams.class);
+        final Chams chams = Chams.INSTANCE;
 
         if (chams.getState() && chams.getItemsValue().get()) {
             GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);

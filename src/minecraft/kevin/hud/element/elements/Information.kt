@@ -72,17 +72,18 @@ class Information(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,side: Sid
 
         GL11.glPushMatrix()
         GL11.glScaled(0.6,0.6,0.6)
-        KevinClient.fontManager.font40.drawString("TPS: $tps",20/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,if(tps >= 19.0) Color(255,255,255,255).rgb else Color(255,255,255,150).rgb)
-        KevinClient.fontManager.font40.drawString("Ping: $ping",65/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,if(ping <= 150) Color(255,255,255,200).rgb else Color(255,255,255,150).rgb)
+        KevinClient.fontManager.font40.drawString("TPS: $tps",20/0.6f,(y +2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,if(tps >= 19.0) Color(255,255,255,255).rgb else Color(255,255,255,150).rgb)
+        KevinClient.fontManager.font40.drawString("Ping: $ping",60/0.6f,(y +2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,if(ping <= 150) Color(255,255,255,200).rgb else Color(255,255,255,150).rgb)
         y +=  KevinClient.fontManager.font40.fontHeight
-        KevinClient.fontManager.font40.drawString("HurtTime: ${mc.thePlayer.hurtTime}",20/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,if (mc.thePlayer.hurtTime>0) Color(255,255,255,200).rgb else Color(255,255,255,200).rgb)
+        KevinClient.fontManager.font40.drawString("HurtTime: ${mc.thePlayer.hurtTime}",20/0.6f,(y +2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,if (mc.thePlayer.hurtTime>0) Color(255,255,255,200).rgb else Color(255,255,255,200).rgb)
         y +=  KevinClient.fontManager.font40.fontHeight
-        KevinClient.fontManager.font40.drawString("Kills: $kills         CPS: ${cps.size()}",20/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,Color(255,255,255,200).rgb)
+        KevinClient.fontManager.font40.drawString("Kills: $kills",20/0.6f,(y +2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,Color(255,255,255,200).rgb)
+        KevinClient.fontManager.font40.drawString("CPS: ${cps.size()}",60/0.6f,(y +2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,Color(255,255,255,200).rgb)
         y +=  KevinClient.fontManager.font40.fontHeight
-        KevinClient.fontManager.font40.drawString("Speed: ${bps}/bps",20/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,Color(255,255,255,200).rgb)
+        KevinClient.fontManager.font40.drawString("Speed: ${bps}/bps",20/0.6f,(y +2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,Color(255,255,255,200).rgb)
         y +=  KevinClient.fontManager.font40.fontHeight
         KevinClient.fontManager.font40.drawString("Time: ${getTime(System.currentTimeMillis()-startTime)}",
-            20/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,Color(170,200,200,200).rgb)
+            20/0.6f,(y +2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,Color(170,200,200,200).rgb)
         GL11.glPopMatrix()
         return Border(10F,10F,100F,70F)
     }

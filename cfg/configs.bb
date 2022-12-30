@@ -3,3 +3,4 @@ blockdrop
 blocksmc
 luckynetwork
 minelandBedwars
+pika
