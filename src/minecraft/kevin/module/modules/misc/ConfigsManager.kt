@@ -130,14 +130,14 @@ object ConfigsManager : Module("ConfigsManager", "Manage configs") { // good cod
                     if (jsonModule["Hide"] != null)
                         module.array = !jsonModule["Hide"].asBoolean
                     else
-                        warns["$key-HideValue"] = "The hide attribute of the module is not saved in the config file(OldConfig?)."
+                        warns["$key-HideValue"] = "The hide attribute of the module is not saved in the config file(old config?)."
                     if (jsonModule["AutoDisable"] != null)
                         module.autoDisable = Pair(
                             jsonModule["AutoDisable"].asString != "Disable",
                             if (jsonModule["AutoDisable"].asString == "Disable") "" else jsonModule["AutoDisable"].asString
                         )
                     else
-                        warns["$key-AutoDisableValue"] = "The AutoDisable attribute of the module is not saved in the config file(OldConfig?)."
+                        warns["$key-AutoDisableValue"] = "The AutoDisable attribute of the module is not saved in the config file(old config?)."
                     for (moduleValue in module.values) {
                         val element = jsonModule[moduleValue.name]
                         if (element != null) moduleValue.fromJson(element) else warns["$key-${moduleValue.name}"] = "The config file does not have a value for this option."

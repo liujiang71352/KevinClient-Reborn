@@ -55,6 +55,15 @@ import static java.lang.Math.sin;
 import static org.lwjgl.opengl.GL11.*;
 
 public final class RenderUtils extends MinecraftInstance{
+    public static final ResourceLocation
+            shadowPanelTopLeft = getShadowImage("PanelTopLeft"),
+            shadowPanelBottomLeft = getShadowImage("PanelBottomLeft"),
+            shadowPanelBottomRight = getShadowImage("PanelBottomRight"),
+            shadowPanelTopRight = getShadowImage("PanelTopRight"),
+            shadowPanelLeft = getShadowImage("PanelLeft"),
+            shadowPanelRight = getShadowImage("PanelRight"),
+            shadowPanelTop = getShadowImage("PanelTop"),
+            shadowPanelBottom = getShadowImage("PanelBottom");
     private static final Map<String, Map<Integer, Boolean>> glCapMap = new HashMap<>();
     private static final int[] DISPLAY_LISTS_2D = new int[4];
 
@@ -509,23 +518,23 @@ public final class RenderUtils extends MinecraftInstance{
     }
 
     public static void drawShadow(float x, float y, float width, float height) {
-        drawTexturedRect(x - 9, y - 9, 9, 9, "PanelTopLeft");
-        drawTexturedRect(x - 9, y + height, 9, 9, "PanelBottomLeft");
-        drawTexturedRect(x + width, y + height, 9, 9, "PanelBottomRight");
-        drawTexturedRect(x + width, y - 9, 9, 9, "PanelTopRight");
-        drawTexturedRect(x - 9, y, 9, height, "PanelLeft");
-        drawTexturedRect(x + width, y, 9, height, "PanelRight");
-        drawTexturedRect(x, y - 9, width, 9, "PanelTop");
-        drawTexturedRect(x, y + height, width, 9, "PanelBottom");
+        drawTexturedRect(x - 9, y - 9, 9, 9, shadowPanelTopLeft);
+        drawTexturedRect(x - 9, y + height, 9, 9, shadowPanelBottomLeft);
+        drawTexturedRect(x + width, y + height, 9, 9, shadowPanelBottomRight);
+        drawTexturedRect(x + width, y - 9, 9, 9, shadowPanelTopRight);
+        drawTexturedRect(x - 9, y, 9, height, shadowPanelLeft);
+        drawTexturedRect(x + width, y, 9, height, shadowPanelRight);
+        drawTexturedRect(x, y - 9, width, 9, shadowPanelTop);
+        drawTexturedRect(x, y + height, width, 9, shadowPanelBottom);
     }
 
-    public static void drawTexturedRect(float x, float y, float width, float height, String image) {
+    public static void drawTexturedRect(float x, float y, float width, float height, ResourceLocation image) {
         glPushMatrix();
         final boolean enableBlend = glIsEnabled(GL_BLEND);
         final boolean disableAlpha = !glIsEnabled(GL_ALPHA_TEST);
         if (!enableBlend) glEnable(GL_BLEND);
         if (!disableAlpha) glDisable(GL_ALPHA_TEST);
-        mc.getTextureManager().bindTexture(new ResourceLocation("kevin/shadows/" + image + ".png"));
+        mc.getTextureManager().bindTexture(image);
         GlStateManager.color(1F, 1F, 1F, 1F);
         RenderUtils.drawModalRectWithCustomSizedTexture(x, y, 0, 0, width, height, width, height);
         if (!enableBlend) glDisable(GL_BLEND);
@@ -1135,6 +1144,10 @@ public final class RenderUtils extends MinecraftInstance{
             GlStateManager.enableDepth();
             GlStateManager.popMatrix();
         }
+    }
+
+    public static ResourceLocation getShadowImage(String image) {
+        return new ResourceLocation("kevin/shadows/" + image + ".png");
     }
 
     private static void drawEnchantTag(String text, int x, float y) {

@@ -69,12 +69,13 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
     private val redValue = IntegerValue("Red", 255, 0, 255)
     private val greenValue = IntegerValue("Green", 255, 0, 255)
     private val blueValue = IntegerValue("Blue", 255, 0, 255)
+    private val alphaValue = IntegerValue("Alpha", 255, 0, 255)
     private val rainbow = BooleanValue("Rainbow", false)
     private val rainbowX = FloatValue("Rainbow-X", -1000F, -2000F, 2000F)
     private val rainbowY = FloatValue("Rainbow-Y", -1000F, -2000F, 2000F)
     private val shadow = BooleanValue("Shadow", true)
-    private val bigFont = BooleanValue("BigFont", true)
-    private val rect = BooleanValue("Rect", true)
+    private val bigFont = BooleanValue("BigFont", false)
+    private val rect = BooleanValue("Rect", false)
     private val rRedValue = IntegerValue("rRed", 0, 0, 255)
     private val rGreenValue = IntegerValue("rGreen", 0, 0, 255)
     private val rBlueValue = IntegerValue("rBlue", 0, 0, 255)
@@ -171,7 +172,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
      * Draw element
      */
     override fun drawElement(): Border? {
-        val color = Color(redValue.get(), greenValue.get(), blueValue.get()).rgb
+        val color = Color(redValue.get(), greenValue.get(), blueValue.get(), alphaValue.get()).rgb
 
         var fontRenderer = fontValue
 
@@ -250,6 +251,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
         redValue.set(c.red)
         greenValue.set(c.green)
         blueValue.set(c.blue)
+        alphaValue.set(c.alpha)
         return this
     }
 

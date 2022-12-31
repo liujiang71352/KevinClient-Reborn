@@ -861,7 +861,7 @@ public class ModelBakery
 
     public static <T extends ResourceLocation> void registerItemVariants(Item p_registerItemVariants_0_, T... p_registerItemVariants_1_)
     {
-        RegistryDelegate registrydelegate = (RegistryDelegate)null;
+        RegistryDelegate registrydelegate = null;
 
         if (!customVariantNames.containsKey(registrydelegate))
         {
