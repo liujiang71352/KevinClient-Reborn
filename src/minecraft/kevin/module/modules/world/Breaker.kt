@@ -32,6 +32,7 @@ import kevin.utils.BlockUtils.isFullBlock
 import kevin.utils.MSTimer
 import kevin.utils.RenderUtils
 import kevin.utils.RotationUtils
+import kevin.utils.multiply
 import net.minecraft.block.Block
 import net.minecraft.block.BlockAir
 import net.minecraft.init.Blocks
@@ -153,6 +154,11 @@ class Breaker : Module("Breaker",description = "Destroys selected blocks around 
         if (rotationsValue.get())
             RotationUtils.setTargetRotation(rotations.rotation)
 
+        // facing
+        val eyesVec = mc.thePlayer.getPositionEyes(1f)
+        val facing: EnumFacing = mc.theWorld!!.getBlockState(currentPos).block.getSelectedBoundingBox(mc.theWorld!!, currentPos).calculateIntercept(eyesVec, rotations.rotation.toDirection().multiply(10.0).add(eyesVec))?.sideHit ?: EnumFacing.DOWN
+        // blockBox
+
         when {
             // Destory block
             actionValue.get().equals("destroy", true) || surroundings || !isRealBlock -> {
@@ -165,13 +171,13 @@ class Breaker : Module("Breaker",description = "Destroys selected blocks around 
                 if (instantValue.get()) {
                     // CivBreak style block breaking
                     mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.START_DESTROY_BLOCK,
-                        currentPos, EnumFacing.DOWN))
+                        currentPos, facing))
 
                     if (swingValue.get())
                         thePlayer.swingItem()
 
                     mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK,
-                        currentPos, EnumFacing.DOWN))
+                        currentPos, facing))
                     currentDamage = 0F
                     return
                 }
@@ -181,13 +187,13 @@ class Breaker : Module("Breaker",description = "Destroys selected blocks around 
 
                 if (currentDamage == 0F) {
                     mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.START_DESTROY_BLOCK,
-                        currentPos, EnumFacing.DOWN))
+                        currentPos, facing))
 
                     if (thePlayer.capabilities.isCreativeMode ||
                         block.getPlayerRelativeBlockHardness(thePlayer, mc.theWorld!!, pos!!) >= 1.0F) {
                         if (swingValue.get())
                             thePlayer.swingItem()
-                        mc.playerController.onPlayerDestroyBlock(pos!!, EnumFacing.DOWN)
+                        mc.playerController.onPlayerDestroyBlock(pos!!, facing)
 
                         currentDamage = 0F
                         pos = null
@@ -203,8 +209,8 @@ class Breaker : Module("Breaker",description = "Destroys selected blocks around 
 
                 if (currentDamage >= 1F) {
                     mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK,
-                        currentPos, EnumFacing.DOWN))
-                    mc.playerController.onPlayerDestroyBlock(currentPos, EnumFacing.DOWN)
+                        currentPos, facing))
+                    mc.playerController.onPlayerDestroyBlock(currentPos, facing)
                     blockHitDelay = 4
                     currentDamage = 0F
                     pos = null
@@ -213,7 +219,7 @@ class Breaker : Module("Breaker",description = "Destroys selected blocks around 
 
             // Use block
             actionValue.get().equals("use", true) -> if (mc.playerController.onPlayerRightClick(
-                    thePlayer, mc.theWorld!!, thePlayer.heldItem!!, pos!!, EnumFacing.DOWN,
+                    thePlayer, mc.theWorld!!, thePlayer.heldItem!!, pos!!, facing,
                     Vec3(currentPos.x.toDouble(), currentPos.y.toDouble(), currentPos.z.toDouble()))) {
                 if (swingValue.get())
                     thePlayer.swingItem()
