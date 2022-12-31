@@ -1,5 +1,5 @@
 # KevinClient
-A Minecraft hacked client.
+A Minecraft hacked client. You can get non-release build [here](http://124.221.251.65/private/priv_ckevin/latest/).
 
 ## License
 This project is subject to the [GNU General Public License v3.0](LICENSE). This does only apply for source code located directly in this clean repository. During the development and compilation process, additional source code may be used to which we have obtained no rights. Such code is not covered by the GPL license.

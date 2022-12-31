@@ -24,11 +24,12 @@ import net.minecraft.util.EnumFacing
 
 @Suppress("unused_parameter")
 class LongJump : Module("LongJump", "Allows you to jump further.", category = ModuleCategory.MOVEMENT) {
-    private val modeValue = ListValue("Mode", arrayOf("NCP", "AACv1", "AACv2","Buzz","AACv3", "Mineplex", "Mineplex2", "Mineplex3", "Redesky", "BlocksMCBlockOver", "ExplosionBoost"), "NCP")
+    private val modeValue = ListValue("Mode", arrayOf("NCP", "AACv1", "AACv2", "Buzz", "BuzzBoost", "AACv3", "Mineplex", "Mineplex2", "Mineplex3", "Redesky", "BlocksMCBlockOver", "ExplosionBoost"), "NCP")
     private val ncpBoostValue = FloatValue("NCPBoost", 4.25f, 1f, 10f)
     private val autoJumpValue = BooleanValue("AutoJump", false)
     private val explosionBoostHigh = FloatValue("ExplosionBoostHigh",0.00F,0.01F,1F)
     private val explosionBoostLong = FloatValue("ExplosionBoostLong",0.25F,0.01F,1F)
+    private val visualSpoofY = BooleanValue("visualSpoofY", false)
     private var jumped = false
     private var canBoost = false
     private var teleported = false
@@ -72,6 +73,12 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
                     "buzz" -> {
                         canBoost = true
                         MovementUtils.strafe(MovementUtils.speed * 1.00f)
+                    }
+                    "buzzboost" -> {
+                        if (thePlayer.hurtTime > 8) {
+                            MovementUtils.move(0.7578698f)
+                            thePlayer.motionY = 0.4679942989799998
+                        }
                     }
                     "aacv1" -> {
                         thePlayer.motionY += 0.05999
@@ -195,6 +202,12 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
                         mc.thePlayer!!.onGround = false
                     }
                 }
+                "buzzboost" -> {
+                    // lowVL self damage
+                    mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 3.42, mc.thePlayer.posZ, false))
+                    mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 1E-10, mc.thePlayer.posZ, false))
+                    mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true))
+                }
             }
         }
     }
@@ -205,6 +218,10 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
             if (event.packet.func_149149_c() != 0F ||
                 event.packet.func_149144_d() != 0F ||
                 event.packet.func_149147_e() != 0F) explosion = true
+    }
+
+    @EventTarget fun onMotion(event: MotionEvent) {
+        if (visualSpoofY.get()) mc.thePlayer.posY = minOf(mc.thePlayer.lastTickPosY, mc.thePlayer.posY)
     }
 
     override val tag: String
