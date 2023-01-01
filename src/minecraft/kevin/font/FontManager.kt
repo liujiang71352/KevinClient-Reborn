@@ -34,6 +34,9 @@ class FontManager : MinecraftInstance(){
     @FontDetails(fontName = "Novo Medium", fontSize = 40)
     lateinit var font40: GameFontRenderer
 
+    @FontDetails(fontName = "Novo Bold2", fontSize = 40)
+    lateinit var fontNovo40: GameFontRenderer
+
     @FontDetails(fontName = "Novo Bold", fontSize = 180)
     lateinit var fontBold180: GameFontRenderer
 
@@ -43,15 +46,24 @@ class FontManager : MinecraftInstance(){
     @FontDetails(fontName = "Misans", fontSize = 32)
     lateinit var fontMisans32: GameFontRenderer
 
+    @FontDetails(fontName = "Misans2", fontSize = 40)
+    lateinit var fontMisans50: GameFontRenderer
+
     @FontDetails(fontName = "UniFont-14.0.04", fontSize = 32)
     lateinit var fontUniFont32: GameFontRenderer
 
+
+    @FontDetails(fontName = "NotiFont", fontSize = 80)
+    lateinit var notiFont: GameFontRenderer
     fun loadFonts(){
         font35 = GameFontRenderer(getFont("Novo.ttf",35))
         font40 = GameFontRenderer(getFont("Novo.ttf",40))
         fontBold180 = GameFontRenderer(getFont("Novo.ttf",180))
+        notiFont = GameFontRenderer(getFont("NOTIFICATIONS.ttf",80))
         fontMisans32 = GameFontRenderer(getFont("misans.ttf",32))
+        fontMisans50 = GameFontRenderer(getFont("misans.ttf",40))
         font60 = GameFontRenderer(getFont("Novo.ttf",60))
+        fontNovo40 = GameFontRenderer(getFont("Novo2.ttf",40))
         fontUniFont32  = GameFontRenderer(getFont("unifont-14.0.04.ttf",32))
         loadCustomFonts()
     }
