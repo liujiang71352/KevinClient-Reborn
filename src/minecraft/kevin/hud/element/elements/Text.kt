@@ -69,13 +69,14 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
     private val redValue = IntegerValue("Red", 255, 0, 255)
     private val greenValue = IntegerValue("Green", 255, 0, 255)
     private val blueValue = IntegerValue("Blue", 255, 0, 255)
-    private val alphaValue = IntegerValue("Alpha", 255, 0, 255)
     private val rainbow = BooleanValue("Rainbow", false)
     private val rainbowX = FloatValue("Rainbow-X", -1000F, -2000F, 2000F)
     private val rainbowY = FloatValue("Rainbow-Y", -1000F, -2000F, 2000F)
     private val shadow = BooleanValue("Shadow", true)
-    private val bigFont = BooleanValue("BigFont", false)
-    private val rect = BooleanValue("Rect", false)
+    private val bigFont = BooleanValue("BigFont", true)
+    private val boldFont = BooleanValue("BoldFont", true)
+    private val rect = BooleanValue("Rect", true)
+    private val rRect = BooleanValue("RoundRect", true)
     private val rRedValue = IntegerValue("rRed", 0, 0, 255)
     private val rGreenValue = IntegerValue("rGreen", 0, 0, 255)
     private val rBlueValue = IntegerValue("rBlue", 0, 0, 255)
@@ -172,22 +173,32 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
      * Draw element
      */
     override fun drawElement(): Border? {
-        val color = Color(redValue.get(), greenValue.get(), blueValue.get(), alphaValue.get()).rgb
+        val color = Color(redValue.get(), greenValue.get(), blueValue.get()).rgb
 
         var fontRenderer = fontValue
 
         if(bigFont.get())
             fontRenderer = KevinClient.fontManager.font60;
         else
-            fontRenderer = KevinClient.fontManager.font35;
-
+            fontRenderer = KevinClient.fontManager.font40;
+        if(boldFont.get())
+            fontRenderer = KevinClient.fontManager.fontNovo40;
         val rainbow = rainbow.get()
         if(rect.get()){
-        RenderUtils.drawRect(-2F , -2F ,
+            if(!rRect.get())
+                RenderUtils.drawRect(-2F , -2F ,
             fontRenderer.getStringWidth(displayText) + 2F,
-            fontRenderer.fontHeight.toFloat(),
-            Color(rRedValue.get(),rGreenValue.get(),rBlueValue.get(),rAlphaValue.get())
-        )
+                fontRenderer.fontHeight.toFloat(),
+                Color(rRedValue.get(),rGreenValue.get(),rBlueValue.get(),rAlphaValue.get())
+                )
+            else{
+                RenderUtils.drawRectRoundedCorners(-2.0 , -2.0 ,
+                    fontRenderer.getStringWidth(displayText) + 2.0,
+                    fontRenderer.fontHeight.toDouble(),1.0,
+                    Color(rRedValue.get(),rGreenValue.get(),rBlueValue.get(),rAlphaValue.get())
+                )
+                RenderUtils.drawShadow(-2F , -2F , fontRenderer.getStringWidth(displayText).toFloat() , fontRenderer.fontHeight.toFloat());
+            }
         }
         RainbowFontShader.begin(rainbow, if (rainbowX.get() == 0.0F) 0.0F else 1.0F / rainbowX.get(), if (rainbowY.get() == 0.0F) 0.0F else 1.0F / rainbowY.get(), System.currentTimeMillis() % 10000 / 10000F).use {
             fontRenderer.drawString(displayText, 0F, 0F, if (rainbow)
@@ -251,7 +262,6 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
         redValue.set(c.red)
         greenValue.set(c.green)
         blueValue.set(c.blue)
-        alphaValue.set(c.alpha)
         return this
     }
 

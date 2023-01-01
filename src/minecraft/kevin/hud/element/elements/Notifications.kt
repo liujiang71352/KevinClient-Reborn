@@ -43,7 +43,7 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
                     "LiquidBounce-Kevin" -> i.drawNotification(animationY).also { animationY += 20 }
                     "Kevin" -> i.drawNotificationKevinNew(animationY).also { animationY += 40 }
                     "Connect" -> i.drawConnectNotification(animationY).also { animationY += 24 }
-                    "MilkNew" -> i.drawMilkNewNotification(animationY).also { animationY += 30 }
+                    "MilkNew" -> i.drawMilkNewNotification(animationY).also { animationY += 35 }
                     "Normal" -> i.drawNormalNotification(animationY).also { animationY += 24 }
                     "Simple" -> i.drawSimpleNotification(animationY).also { animationY += 24 }
                 }
@@ -74,7 +74,7 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
                 "LiquidBounce-Kevin" -> return Border(-118.114514191981F, -50F, 0F, -30F)
                 "Kevin" -> return Border(-114.5F, -70F, 0F, -30F)
                 "Connect" -> return Border(-220F, -50F, 0F, -30F)
-                "MilkNew" -> return Border(-220F, -50F, 0F, -30F)
+                "MilkNew" -> return Border(-125F, -55F, 0F, -0F)
                 "Normal" -> return Border(-150F, -50F, 0F, -30F)
                 "Simple" -> return Border(-110F, -50F, 0F, -30F)
             }
@@ -496,9 +496,12 @@ class Notification(private val message: String, val title: String = "", val type
         val c = 16.0 / 48.0
         val long = textLength
         // Draw notification
-        RenderUtils.drawRect(8 + long - x + 20, -y + 7, -x - 20, -19F - y - 7, Color(0, 0, 0, 50).rgb)
-        KevinClient.fontManager.font35.drawString(message, 4 - x, -10F-y, Color(255, 255, 255, 150).rgb)
-        KevinClient.fontManager.font35.drawString("Module Message", 4 - x - 15, -18F-y, Color(255, 255, 255, 150).rgb)
+
+        RenderUtils.drawRect(8 + long - x + 10 + 5, -y + 7, -x - 30, -19F - y - 7, Color(0, 0, 0, 150).rgb)
+        KevinClient.fontManager.notiFont.drawString("b", -x - 20 + 3, -19F - y - 15 + 17,
+            Color(255, 255, 255, 255).rgb)
+        KevinClient.fontManager.font35.drawString(message, 4 - x, -5F-y, Color(220, 255,255, 200).rgb)
+        KevinClient.fontManager.fontNovo40.drawString("Module", 4 - x, -18F-y, Color(220, 160, 70, 255).rgb)
 
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
         // Animation

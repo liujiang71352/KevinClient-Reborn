@@ -23,6 +23,7 @@ import kevin.hud.element.Side
 import kevin.main.KevinClient
 import kevin.module.*
 import kevin.utils.AnimationUtils
+import kevin.utils.MilkUtils
 import kevin.utils.RenderUtils
 import kevin.utils.render.shader.shaders.RainbowShader
 import net.minecraft.client.renderer.GlStateManager
@@ -35,22 +36,23 @@ import kotlin.math.sin
 class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
                 side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.UP)) : Element(x, y, scale, side) {
 
-    fun skyRainbow(var2: Int, st: Float, bright: Float): Int {
+    fun SkyRainbow(var2: Int, st: Float, bright: Float): Int {
         var v1 = ceil((System.currentTimeMillis() + (var2 * 109).toLong()).toDouble()) / 5
         return Color.getHSBColor(if ((360.0.also { v1 %= it } / 360.0).toFloat()
                 .toDouble() < 0.5) -(v1 / 360.0).toFloat() else (v1 / 360.0).toFloat(), st, bright).rgb
     }
-    private val fontValue = KevinClient.fontManager.font40!!
+    private var fontValue = KevinClient.fontManager.font40
     private var modules = emptyList<Module>()
 
     private val tagMode = ListValue("ArrayList-TagMode", arrayOf("<>","[]","None"),"<>")
+    private val arrayListBigFont = BooleanValue("ArrayList-BigFont", true)
     private val arrayListRainbowX = FloatValue("ArrayList-Rainbow-X",-1000F, -2000F, 2000F)
     private val arrayListRainbowY = FloatValue("ArrayList-Rainbow-Y",-1000F, -2000F, 2000F)
-    private val arrayListTextColorMode = ListValue("ArrayList-TextColor-Mode", arrayOf("Custom","Random","SkyRainbow","Rainbow","LDColor"),"Rainbow")
+    private val arrayListTextColorMode = ListValue("ArrayList-TextColor-Mode", arrayOf("Custom","Random","SkyRainbow",
+        "Rainbow","LDColor","Test"),"Rainbow")
     private val arraylistTextCustomRed = IntegerValue("ArrayList-TextColor-CustomRed",0,0,255)
     private val arraylistTextCustomGreen = IntegerValue("ArrayList-TextColor-CustomGreen",0,0,255)
     private val arraylistTextCustomBlue = IntegerValue("ArrayList-TextColor-CustomBlue",0,0,255)
-    private val arraylistTextCustomAlpha = IntegerValue("ArrayList-TextColor-CustomAlpha",0,0,255)
     private val arraylistTextSaturation = IntegerValue("ArrayList-TextColor-SkyRainbow-Saturation",0,0,100)
     private val arraylistTextBrightness = IntegerValue("ArrayList-TextColor-SkyRainbow-Brightness",0,0,100)
     private val arrayListTags = BooleanValue("ArrayList-Tags", true)
@@ -67,7 +69,7 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
     private val arrayListTagsArrayColor = BooleanValue("ArrayList-TagsArrayColor", false)
     private val arrayListSaturationValue = FloatValue("ArrayList-Random-Saturation", 0.9f, 0f, 1f)
     private val arrayListBrightnessValue = FloatValue("ArrayList-Random-Brightness", 1f, 0f, 1f)
-    private val arrayListRectColorModeValue = ListValue("ArrayList-Rect-Color", arrayOf("Custom", "Random", "Rainbow"), "Rainbow")
+    private val arrayListRectColorModeValue = ListValue("ArrayList-Rect-Color", arrayOf("Custom", "Random", "Rainbow","Test","SkyRainbow"), "Rainbow")
     private val arrayListRectColorRedValue = IntegerValue("ArrayList-Rect-R", 255, 0, 255)
     private val arrayListRectColorGreenValue = IntegerValue("ArrayList-Rect-G", 255, 0, 255)
     private val arrayListRectColorBlueValue = IntegerValue("ArrayList-Rect-B", 255, 0, 255)
@@ -79,6 +81,8 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
     private var rainbowTick = 0
 
     override fun drawElement(): Border? {
+        if(arrayListBigFont.get()) fontValue = KevinClient.fontManager.fontMisans50
+        else fontValue = KevinClient.fontManager.font40
         val fontRenderer = fontValue
         val tagMode = tagMode.get()
         val tagLeft = if (tagMode == "<>") "<" else if (tagMode == "[]") "[" else ""
@@ -127,7 +131,7 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
         val colorMode = arrayListTextColorMode.get()
         val rectColorMode = arrayListRectColorModeValue.get()
         val backgroundColorMode = arrayListBackgroundColorModeValue.get()
-        val customColor = Color(arraylistTextCustomRed.get(), arraylistTextCustomGreen.get(), arraylistTextCustomBlue.get(), arraylistTextCustomAlpha.get()).rgb
+        val customColor = Color(arraylistTextCustomRed.get(), arraylistTextCustomGreen.get(), arraylistTextCustomBlue.get(), 1).rgb
         val rectCustomColor = Color(arrayListRectColorRedValue.get(), arrayListRectColorGreenValue.get(), arrayListRectColorBlueValue.get(),
             arrayListRectColorBlueAlpha.get()).rgb
         val space = arrayListSpaceValue.get()
@@ -181,35 +185,35 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
             val LDColor = Color(
                 arraylistTextCustomRed.get(),
                 arraylistTextCustomGreen.get(),
-                arraylistTextCustomRed.get(),
+                arraylistTextCustomBlue.get(),
                 tmp.red
             ).rgb
             GlStateManager.resetColor()
             RainbowFontShader.begin(rainbow, if (rainbowX.get() == 0.0F) 0.0F else 1.0F / rainbowX.get(), if (rainbowY.get() == 0.0F) 0.0F else 1.0F / rainbowY.get(), System.currentTimeMillis() % 10000 / 10000F).use {
-                fontRenderer.drawString(
-                    displayString,
-                    xPos - if (rectMode.equals("right", true)||rectMode.equals("all",true)) rectWidth.get() else 0F,
-                    yPos + textY,
-                    when {
-                        rainbow -> 0
-                        colorMode.equals("Random", ignoreCase = true) -> moduleColor
-                        colorMode.equals("SkyRainbow", ignoreCase = true) -> skyRainbow((yPos * 0.1F).toInt(),
-                            arraylistTextSaturation.get() / 100f,
-                            arraylistTextBrightness.get() / 100f)
-                        colorMode.equals("LDColor", ignoreCase = true) -> LDColor
-                        else -> customColor
-                    },
-                    textShadow
-                )
+                fontRenderer.drawString(displayString, xPos - if (rectMode.equals("right", true)||rectMode.equals("all",true)) rectWidth.get() else 0F, yPos + textY, when {
+                    rainbow -> 0
+                    colorMode.equals("Random", ignoreCase = true) -> moduleColor
+                    colorMode.equals("SkyRainbow", ignoreCase = true) -> SkyRainbow((yPos * 0.1F).toInt(),
+                        arraylistTextSaturation.get() / 100f,
+                        arraylistTextBrightness.get() / 100f)
+                    colorMode.equals("LDColor", ignoreCase = true) -> LDColor
+                    colorMode.equals("Test", ignoreCase = true) -> MilkUtils.getMixedColor(yPos.toInt() * 30 ,10).rgb
+                    else -> customColor
+                                                                                                                                                                           }, textShadow)
             }
 
             if (!rectMode.equals("none", true)) {
                 val rectRainbow = rectColorMode.equals("Rainbow", ignoreCase = true)
 
+
                 RainbowShader.begin(rectRainbow, if (rainbowX.get() == 0.0F) 0.0F else 1.0F / rainbowX.get(), if (rainbowY.get() == 0.0F) 0.0F else 1.0F / rainbowY.get(), System.currentTimeMillis() % 10000 / 10000F).use {
                     val rectColor = when {
                         rectRainbow -> 0
                         rectColorMode.equals("Random", ignoreCase = true) -> moduleColor
+                        rectColorMode.equals("Test", ignoreCase = true) -> MilkUtils.getMixedColor(yPos.toInt() * 30 ,10).rgb
+                        rectColorMode.equals("SkyRainbow", ignoreCase = true) -> SkyRainbow((yPos * 0.1F).toInt(),
+                            arraylistTextSaturation.get() / 100f,
+                            arraylistTextBrightness.get() / 100f)
                         else -> rectCustomColor
                     }
 
@@ -268,14 +272,14 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
 
         //AWTFontRenderer.assumeNonVolatile = false
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
-        if (rainbowTick++ > 50) {
-            rainbowTick = 0
-        }
         return null
     }
 
     override fun updateElement() {
         val tagMode = tagMode.get()
+        if (rainbowTick++ > 50) {
+            rainbowTick = 0
+        }
         val tagLeft = if (tagMode == "<>") "<" else if (tagMode == "[]") "[" else ""
         val tagRight = if (tagMode == "<>") ">" else if (tagMode == "[]") "]" else ""
         val tags = arrayListTags

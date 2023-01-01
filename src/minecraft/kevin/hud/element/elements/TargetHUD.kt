@@ -24,6 +24,7 @@ import kevin.module.modules.combat.KillAura
 import kevin.utils.*
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Gui.drawScaledCustomSizeModalRect
+import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.OpenGlHelper
 import net.minecraft.client.renderer.RenderHelper
@@ -46,14 +47,18 @@ class TargetHUD : Element() {
 
     private val decimalFormat = DecimalFormat("##0.00", DecimalFormatSymbols(Locale.ENGLISH))
     private val fadeSpeed = FloatValue("FadeSpeed", 2F, 1F, 9F)
-    private val mode = ListValue("Mode", arrayOf("Liquid", "AnotherLiquid","Kevin"/*, "Exhibition"*/),"Kevin")
+    private val mode = ListValue("Mode", arrayOf("Liquid", "AnotherLiquid","Kevin"/*, "Exhibition"*/,"Milks"),"Milks")
 
     private var easingHealth: Float = 0F
     private var healthDiff: Float = 0F
     private var lastTarget: Entity? = null
 
     override fun drawElement(): Border? {
-        val target = (KevinClient.moduleManager.getModule(KillAura::class.java)).target ?: (KevinClient.moduleManager.getModule(KillAura::class.java)).sTarget
+        var target =
+            (KevinClient.moduleManager.getModule(KillAura::class.java)).target ?:
+            (KevinClient.moduleManager.getModule(KillAura::class.java)).sTarget
+        if(mc.currentScreen is GuiChat)
+            target = mc.thePlayer
         when(mode.get()){
             "Liquid" -> {
                 if ((target) is EntityPlayer) {
@@ -86,6 +91,46 @@ class TargetHUD : Element() {
                         KevinClient.fontManager.font35.drawString("Ping: ${playerInfo.responseTime.coerceAtLeast(0)}",
                             36f, 24f, 0xffffff)
                     // Draw head
+                        val locationSkin = playerInfo.locationSkin
+                        drawHead(locationSkin, 30, 30)
+                    }
+                }
+                lastTarget = target
+                return Border(0F, 0F, 120F, 36F)
+            }
+            "Milks" -> {
+                if ((target) is EntityPlayer) {
+                    if (target != lastTarget || easingHealth < 0 || easingHealth > target.maxHealth || target.hurtTime <= 0) {
+                        easingHealth = target.health
+                    }
+                    val width = (38 + (target.name?.let(KevinClient.fontManager.font40::getStringWidth) ?: 0))
+                        .coerceAtLeast(118)
+                        .toFloat()
+                    // Draw rect box
+                    RenderUtils.drawRectRoundedCorners(0.0 - 3, 0.0 - 3, width.toDouble() + 3, 36.0 + 3, 3.0,
+                        Color(59, 59, 59, 255))
+                    // Damage animation
+                    healthDiff = abs(easingHealth - target.health)
+                    if (easingHealth > target.health && target.hurtTime > 0)
+                        RenderUtils.drawRect(0F, 34F, ((target.health + healthDiff * (0.1F * target.hurtTime)) / target.maxHealth) * width,
+                            36F, Color(255, 200, 200 , 255).rgb)
+                    // Health bar
+                    RenderUtils.drawGradientSideways(0.0, 34.0, ((target.health / target.maxHealth) * width).toDouble(),
+                        36.0, Color(44, 230, 144,255).rgb,
+                        Color(255, 255, 255).rgb)
+                    // Heal animation
+                    if (easingHealth < target.health)
+                        RenderUtils.drawRect((easingHealth / target.maxHealth) * width, 34F,
+                            (target.health / target.maxHealth) * width, 36F, Color(44, 201, 144).rgb)
+                    target.name?.let { KevinClient.fontManager.font40.drawString(it, 36f, 3f, 0xffffff) }
+                    KevinClient.fontManager.font35.drawString("HurtTime: ${decimalFormat.format(target.hurtTime)}", 36f, 15f, 0xffffff)
+                    // Draw info
+                    val playerInfo = mc.netHandler.getPlayerInfo(target.uniqueID)
+                    if (playerInfo != null) {
+                        KevinClient.fontManager.font35.drawString(
+                            if(mc.thePlayer!!.health > target.health) "Win" else "Lose",
+                            36f, 24f, 0xffffff)
+                        // Draw head
                         val locationSkin = playerInfo.locationSkin
                         drawHead(locationSkin, 30, 30)
                     }
