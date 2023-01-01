@@ -41,11 +41,11 @@ import org.lwjgl.opengl.Display
 
 object KevinClient {
     var name = "Kevin"
-    var version = "u2.4.0" // u - updated
+    var version = "u2.4.1" // u - updated
 
     var isStarting = true
 
-    const val debug = false
+    val debug = false
 
     lateinit var moduleManager: ModuleManager
     lateinit var fileManager: FileManager
