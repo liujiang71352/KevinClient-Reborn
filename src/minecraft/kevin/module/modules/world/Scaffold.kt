@@ -213,7 +213,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
     private val sameYJumpUp = BooleanValue("SameYJumpUp", false)
     private val safeWalkValue = BooleanValue("SafeWalk", true)
     private val airSafeValue = BooleanValue("AirSafe", false)
-    private val invalidPlaceFacingMode = ListValue("WhenPlaceFacingInvalid", arrayOf("CancelIt", "FixIt", "IgnoreIt"), "IgnoreIt")
+    private val invalidPlaceFacingMode = ListValue("WhenPlaceFacingInvalid", arrayOf("CancelIt", "FixIt", "IgnoreIt"), "FixIt")
 
     // Visuals
     private val counterDisplayValue = BooleanValue("Counter", true)

@@ -14,26 +14,53 @@
  */
 package kevin.module.modules.movement.flys.ncp
 
+import kevin.event.MoveEvent
+import kevin.event.PacketEvent
 import kevin.event.UpdateEvent
 import kevin.module.modules.movement.flys.FlyMode
+import kevin.utils.MovementUtils
+import kevin.utils.PacketUtils
+import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.util.MathHelper
 
 object NCPNew : FlyMode("NCPNew") {
     override fun onEnable() {
-        if (mc.thePlayer.onGround && mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer,mc.thePlayer.entityBoundingBox.offset(.0, .2, .0).expand(.0, .0, .0)).isEmpty()) {
-            mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY + .2, mc.thePlayer.posZ)
-        }
         mc.thePlayer.motionX = .0
         mc.thePlayer.motionY = .0
         mc.thePlayer.motionZ = .0
-        mc.thePlayer.speedInAir = 0F
     }
 
     override fun onDisable() {
         mc.thePlayer.speedInAir = .02F
     }
-    override fun onUpdate(event: UpdateEvent) {
-        mc.thePlayer.motionX = .0
-        mc.thePlayer.motionY = .0
-        mc.thePlayer.motionZ = .0
+
+    override fun onMove(event: MoveEvent) {
+        mc.thePlayer.onGround = true
+        val direction = MovementUtils.direction.toFloat()
+        val x = -MathHelper.sin(direction) * 0.2873
+        val z = MathHelper.cos(direction) * 0.2873
+        PacketUtils.sendPacketNoEvent(
+            C03PacketPlayer.C04PacketPlayerPosition(
+                mc.thePlayer.posX + x,
+                mc.thePlayer.posY,
+                mc.thePlayer.posZ + z,
+                false
+            )
+        )
+        PacketUtils.sendPacketNoEvent(
+            C03PacketPlayer.C04PacketPlayerPosition(
+                mc.thePlayer.posX + x,
+                mc.thePlayer.posY - 999,
+                mc.thePlayer.posZ + z,
+                true
+            )
+        )
+        event.x += x * 0.7f
+        event.z += z * 0.7f
+        event.y = 0.0
+    }
+
+    override fun onPacket(event: PacketEvent) {
+        if (event.packet is C03PacketPlayer) event.cancelEvent()
     }
 }

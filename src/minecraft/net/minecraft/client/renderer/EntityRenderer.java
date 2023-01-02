@@ -2682,6 +2682,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
 
         if (world != null)
         {
+            /*
             if (Config.getNewRelease() != null)
             {
                 String s = "HD_U".replace("HD_U", "HD Ultra").replace("L", "Light");
@@ -2691,6 +2692,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
                 //this.mc.ingameGUI.getChatGUI().printChatMessage(chatcomponenttext);
                 Config.setNewRelease((String)null);
             }
+             */
 
             if (Config.isNotify64BitJava())
             {
@@ -2700,10 +2702,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
             }
         }
 
-        if (this.mc.currentScreen instanceof GuiMainMenu)
-        {
-            this.updateMainMenu((GuiMainMenu)this.mc.currentScreen);
-        }
+//        if (this.mc.currentScreen instanceof GuiMainMenu) {this.updateMainMenu((GuiMainMenu)this.mc.currentScreen);}
 
         if (this.updatedWorld != world)
         {
