@@ -1,7 +1,10 @@
 {
+  "BindCommand-List": {},
   "Targets": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Players": true,
     "Mobs": false,
     "Animals": false,
@@ -11,6 +14,8 @@
   "AntiKnockback": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Horizontal": 0.0,
     "Vertical": 0.0,
     "Mode": "Simple",
@@ -19,6 +24,11 @@
     "AACPushXZReducer": 2.0,
     "AACPushYReducer": true,
     "AACv4MotionReducer": 0.62,
+    "ClickCount": 1,
+    "ClickMinHurtTime": 1,
+    "ClickRange": 3.04,
+    "ClickOnPacket": false,
+    "ClickFakeSwing": true,
     "CancelExplosionPacket": false,
     "ExplosionCheck": true,
     "FireCheck": true
@@ -26,6 +36,8 @@
   "AutoArmor": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "MinDelay": 229,
     "MaxDelay": 229,
     "InvOpen": false,
@@ -34,57 +46,155 @@
     "ItemDelay": 513,
     "Hotbar": true
   },
+  "AutoBow": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "WaitForBowAimbot": true
+  },
   "AutoClicker": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "MaxCPS": 11,
     "MinCPS": 7,
     "Right": false,
     "Left": true,
     "Jitter": false
   },
+  "AntiFireball": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Swing": "Normal",
+    "Rotation": true,
+    "Radius": 3.0
+  },
   "AutoWeapon": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "SpoofItem": false,
     "SpoofTicks": 10,
     "SwordsFirst": true
   },
+  "BackTrack": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "MinDistance": 2.93,
+    "MaxDistance": 4.87,
+    "MaxTime": 200,
+    "OnlyKillAura": true,
+    "OnlyPlayer": true,
+    "Smart": true,
+    "ResetOnVelocity": true,
+    "ResetOnLagging": true,
+    "ESPMode": "OutlineBox"
+  },
+  "BowAimbot": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Silent": true,
+    "Predict": true,
+    "ThroughWalls": false,
+    "PredictSize": 2.0,
+    "Priority": "Direction",
+    "Mark": true
+  },
+  "BowAura": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Silent": true,
+    "Predict": true,
+    "ThroughWalls": false,
+    "PredictSize": 2.0,
+    "Priority": "Direction",
+    "MaxDistance": 100.0,
+    "Mark": true
+  },
   "Criticals": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "LowJump",
     "Delay": 0,
-    "HurtTime": 10
+    "HurtTime": 10,
+    "Debug": true
+  },
+  "FastBow": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Packets": 20
   },
   "HitBox": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Size": 0.1
+  },
+  "KeepDistance": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Mode": "ReleaseKey",
+    "MinDistance": 2.26,
+    "MaxDistance": 5.26,
+    "OnlyForward": true,
+    "KeepTick": 5,
+    "RestTick": 10
   },
   "KillAura": {
     "State": false,
     "KeyBind": 19,
-    "MaxCPS": 6,
-    "MinCPS": 4,
-    "HurtTime": 9,
+    "Hide": false,
+    "AutoDisable": "world",
+    "MaxCPS": 9,
+    "MinCPS": 6,
+    "HurtTime": 10,
     "Range": 5.99,
-    "ThroughWallsRange": 2.08,
+    "ThroughWallsRange": 3.39,
     "RangeSprintReducement": 0.0,
+    "DiscoverRange": 5.99,
     "Priority": "Distance",
     "TargetMode": "Switch",
-    "Swing": true,
+    "SwingMode": "Normal",
     "KeepSprint": true,
-    "AutoBlock": "AfterTick",
+    "ScaffoldCheck": true,
+    "AttackTiming": "Pre",
+    "ExtraBlockTiming": "NoExtra",
+    "AfterTickBlockTiming": "Post",
+    "AutoBlock": "Vulcan",
     "InteractAutoBlock": false,
+    "BlockStatusCheck": true,
     "BlockRate": 100,
+    "BlockRange": 5.99,
     "RayCast": true,
     "RayCastIgnored": false,
     "LivingRayCast": false,
+    "AnythingsRayCast": true,
     "AAC": false,
-    "MaxTurnSpeed": 180.0,
-    "MinTurnSpeed": 180.0,
-    "SilentRotation": true,
+    "KeepRotationTick": 8,
+    "YawMaxTurnSpeed": 180.0,
+    "YawMinTurnSpeed": 180.0,
+    "PitchMaxTurnSpeed": 180.0,
+    "PitchMinTurnSpeed": 180.0,
+    "RotationMode": "NearestPoint",
+    "SilentRotation": "Always",
     "Strafe": "Off",
     "RandomCenter": false,
     "Outborder": false,
@@ -92,22 +202,35 @@
     "Predict": true,
     "MaxPredictSize": 0.95,
     "MinPredictSize": 0.61,
+    "AlwaysHitable": true,
     "FailRate": 0.0,
-    "FakeSwing": false,
+    "FakeSwing": true,
     "NoInvAttack": false,
     "NoInvDelay": 256,
     "LimitedMultiTargets": 0,
-    "Mark": true,
+    "HitBoxMode": "1.8",
+    "ReachCalculateMode": "Look",
+    "Mark": "Box",
     "FakeSharp": false
   },
   "SuperKnockback": {
     "State": false,
     "KeyBind": 0,
-    "HurtTime": 0
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Mode": "Legit",
+    "Legit-MaxDelay": 100,
+    "Legit-MinDelay": 48,
+    "HurtTime": 0,
+    "Delay": 103,
+    "OnlyMove": true,
+    "OnlyGround": true
   },
   "TeleportAttack": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "PacketMode": "C06PacketPlayerPosLook",
     "ColorMode": "Rainbow",
     "R": 255,
@@ -124,31 +247,44 @@
     "AliveTicks": 10,
     "LineWidth": 2.0
   },
+  "TimerRange": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Mode": "RayCast",
+    "MinDistance": 2.96,
+    "MaxDistance": 3.35,
+    "MaxTime": 2,
+    "Delay": 4,
+    "OnlyKillAura": true,
+    "AuraClick": true,
+    "OnlyPlayer": true
+  },
   "AbortBreaking": {
     "State": false,
-    "KeyBind": 0
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
   },
   "AntiHunger": {
     "State": false,
-    "KeyBind": 0
-  },
-  "BoatJump": {
-    "State": true,
     "KeyBind": 0,
-    "Mode": "SetPos",
-    "MotionLong": 5.0,
-    "MotionHigh": 9.91,
-    "Delay": 200,
-    "RenderPos": "None",
-    "ColorMode": "Custom",
-    "R": 255,
-    "G": 255,
-    "B": 255,
-    "LineWidth": 2.0
+    "Hide": false,
+    "AutoDisable": "Disable"
+  },
+  "ClientSpoof": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Mode": "Lunar"
   },
   "Clip": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "Teleport",
     "Horizontal": 0.0,
     "Vertical": 5.0
@@ -156,6 +292,8 @@
   "Disabler": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "OldHypixel",
     "Debug": false,
     "MemetrixWithAAC5": false,
@@ -169,78 +307,187 @@
   "ForceUnicodeChat": {
     "State": true,
     "KeyBind": 0,
-    "Mode": "Prefix-In",
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Mode": "Prefix",
     "Prefix": ",U"
   },
   "Ghost": {
     "State": false,
-    "KeyBind": 0
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
   },
   "GhostHand": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Block": 54
+  },
+  "IllegalItems": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Mode": "Throw",
+    "InventorySpoof": true,
+    "StackSize": 1,
+    "AddUnbreakableNBT": true,
+    "AddLootingNBT": true,
+    "AddThornsNBT": true,
+    "ToolEnchantment": "Off",
+    "Item": "32KBow"
   },
   "KeepContainer": {
     "State": true,
-    "KeyBind": 0
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
   },
   "Kick": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "Quit"
+  },
+  "Log4j2": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
   },
   "MultiActions": {
     "State": true,
-    "KeyBind": 0
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
   },
   "NoPitchLimit": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "ServerSide": true
   },
   "Phase": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "Mineplex"
   },
   "PingSpoof": {
-    "State": true,
+    "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "MinDelay": 2500,
-    "MaxDelay": 5000
+    "MaxDelay": 5000,
+    "C00": true,
+    "C0F": false,
+    "C0B": false,
+    "C13": false,
+    "C16": true,
+    "PacketLoss": 0.0
   },
   "Plugins": {
     "State": false,
-    "KeyBind": 0
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
   },
   "PortalMenu": {
     "State": true,
-    "KeyBind": 0
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
   },
   "ServerCrasher": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "AAC5"
   },
   "TP": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "AAC",
     "FlagKeepTick": 40,
-    "AutoBedFind": true,
-    "BedFindRange": 6,
+    "AutoBlockFind": true,
+    "BlockFindBlock": 26,
+    "BlockFindRange": 6,
     "Speed": 1.4,
-    "AACPathFindMode": "FindPath"
+    "AACPathFindMode": "FindPath",
+    "ShowPath": true,
+    "ColorMode": "Custom",
+    "R": 255,
+    "G": 255,
+    "B": 255,
+    "AliveTicks": 20,
+    "LineWidth": 2.0
   },
   "VehicleOneHit": {
     "State": true,
-    "KeyBind": 0
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
+  },
+  "AdminDetector": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Mode": "Tab",
+    "TabCommand": "/tell",
+    "WaitTick": 100,
+    "NotificationMode": "Chat",
+    "NoNotFindNotification": true
   },
   "AntiBot": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "UnusualArmor",
+    "RemoveFromWord": false,
+    "Debug": true,
+    "Tab": false,
+    "TabMode": "Equals",
+    "EntityID": false,
+    "Color": false,
+    "LivingTime": true,
+    "LivingTimeTicks": 22,
+    "Ground": false,
+    "Air": false,
+    "InvalidGround": false,
+    "Swing": false,
+    "Health": false,
+    "Derp": false,
+    "WasInvisible": false,
+    "ValidName": false,
+    "Armor": false,
+    "Ping": false,
+    "NeedHit": false,
+    "NoClip": false,
+    "CzechMatrix": false,
+    "PingCheck": false,
+    "GamemodeCheck": false,
+    "ReusedEntityId": false,
+    "SpawnInCombat": false,
+    "DuplicateInWorld": false,
+    "DuplicateInTab": false,
+    "DuplicateCompareMode": "OnTime",
+    "FastDamage": true,
+    "FastDamageTicks": 5,
+    "AlwaysInRadius": false,
+    "AlwaysInRadiusBlocks": 13.15,
+    "AlwaysInRadiusRemove": false,
+    "AlwaysInRadiusWithTicksCheck": false,
     "AllowDiamondHelmet": false,
     "AllowGoldenHelmet": false,
     "AllowIronHelmet": false,
@@ -267,11 +514,34 @@
     "AllowNoBoots": true,
     "NoColorLeatherArmor": true
   },
+  "AntiInvalidBlockPlacement": {
+    "State": true,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "VersionCheck": false
+  },
+  "AntiShop": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "NameDetect": true,
+    "NameDetectName": "NPC | SHOP||NPC | UPGRADES",
+    "NoArmorDetect": true
+  },
   "AutoCommand": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "AutoLogin": true,
     "AutoRegister": true,
+    "AutoJoin": true,
+    "AutoJoinDetectMessage": "top",
+    "AutoJoinDelay": 5000,
+    "AutoJoinMessage": "/join",
+    "AutoJoinNotificationMode": "Notification",
     "RegisterAndLoginPassword": "jiegebuyao",
     "AutoLoginAndRegisterDelay": 3084,
     "AutoLoginMode": "/login",
@@ -283,38 +553,157 @@
   "AutoDisable": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Notification": true
   },
   "KillMessage": {
-    "State": true,
+    "State": false,
     "KeyBind": 0,
-    "Mode": "JieGeBuYao",
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Mode": "Single",
+    "Prefix": "None",
+    "CustomPrefix": "",
     "SingleMessage": "L %name"
+  },
+  "ChatControl": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "NoLengthLimit": true,
+    "NoChatClear": true
   },
   "ComponentOnHover": {
     "State": true,
-    "KeyBind": 0
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
+  },
+  "ConfigsManager": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "LocalConfigs": "ariacraft",
+    "CloudConfigs": "ariacraft",
+    "LoadLocalConfig": false,
+    "LoadCloudConfig": false,
+    "WithProxy": false,
+    "PreferredAPI": "https://raw.fastgit.org/",
+    "Refresh": false
+  },
+  "Diastimeter": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Area": true,
+    "Volume": true,
+    "RenderRayTraceBlock": true,
+    "RenderBlock": true,
+    "R": 0,
+    "G": 0,
+    "B": 255,
+    "Rainbow": false
+  },
+  "HideAndSeekHack": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "MaxY": 200,
+    "BlocksShowMode": "Box",
+    "HidersShowMode": "Box",
+    "ShowSearch": true,
+    "SearchMode": "Region",
+    "BlocksR": 255,
+    "BlocksG": 0,
+    "BlocksB": 0,
+    "BlocksRainbow": false,
+    "SearchR": 255,
+    "SearchG": 0,
+    "SearchB": 0,
+    "SearchRainbow": false,
+    "HidersR": 255,
+    "HidersG": 0,
+    "HidersB": 0,
+    "HidersRainbow": false,
+    "Debug": true
+  },
+  "KillerDetector": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "MessageMode": "Notification",
+    "AutoSay": true
+  },
+  "LagBackDetector": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Count": true,
+    "DistanceCheck": true,
+    "Mode": "Notification"
   },
   "NameProtect": {
     "State": true,
     "KeyBind": 0,
-    "FakeName": "ÂäàÊàëÁìúÊòØÂêß"
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "FakeName": "ƒ„À˚¬Ë≈¸Œ“πœ «∞…"
+  },
+  "NoAchievement": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
+  },
+  "NoCommand": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
   },
   "NoRotateSet": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Confirm": true,
     "ConfirmIllegalRotation": true,
     "NoZero": true
   },
+  "NoScoreboard": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
+  },
+  "PerformanceBooster": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "StaticParticleColor": true,
+    "FastEntityLightning": true,
+    "FastBlockLightning": true
+  },
   "ResourcePackSpoof": {
     "State": false,
-    "KeyBind": 0
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
   },
   "SuperSpammer": {
     "State": false,
     "KeyBind": 21,
-    "Mode": "Do you believe Hacking",
+    "Hide": false,
+    "AutoDisable": false,
+    "Mode": "Single",
     "MaxDelay": 1780,
     "MinDelay": 1780,
     "SingleMessage": "Server crashed by kevin client b1!",
@@ -326,18 +715,22 @@
     "RandomCharacterAtFirstMinLength": 2,
     "RandomCharacterAtLastMaxLength": 2,
     "RandomCharacterAtLastMinLength": 2,
-    "StartMode": "None",
+    "Prefix": "None",
+    "CustomPrefix": "",
     "RandomCharacterAtFirstLeft": "![",
     "RandomCharacterAtFirstRight": "]",
     "RandomCharacterAtLastLeft": "[",
     "RandomCharacterAtLastRight": "]",
-    "CustomNoRandom": false,
-    "AutoDisable": false
+    "CustomNoRandom": false
   },
   "Teams": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "ScoreboardTeam": false,
+    "ArmorColor": true,
+    "ArmorColorArmor": "Helmet",
     "Color": false,
     "GommeSW": false,
     "BedCheck": true,
@@ -345,26 +738,34 @@
     "BedCheckXRange": 25,
     "BedCheckYRange": 25,
     "BedCheckZRange": 25,
-    "BedCheckState": "Fond team bed at X:111 Y:80 Z:34."
+    "BedCheckState": "No bed fond."
   },
   "Translator": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Language": "Chinese",
     "API": "YouDao"
   },
   "AirJump": {
     "State": false,
-    "KeyBind": 0
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
   },
   "AirLadder": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Bypass": true
   },
   "AntiVoid": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "FlyFlag",
     "MaxFallDistance": 255,
     "MaxDistanceToSetback": 2.99,
@@ -374,21 +775,25 @@
   },
   "Fly": {
     "State": false,
-    "KeyBind": 0,
+    "KeyBind": 33,
+    "Hide": false,
+    "AutoDisable": "world",
+    "Mode": "NCPPacket",
     "Speed": 5.0,
-    "Mode": "NCP",
-    "ResetMotion": false,
     "KeepAlive": false,
+    "ResetMotion": false,
+    "FakeDamage": true,
+    "Mark": "Up",
     "AAC5PacketMode": "Rise",
     "AAC5UseC04": false,
     "AAC5.2.0Purse": 6,
-    "NCPDelay": 759,
     "RenderPath": true,
     "RenderPathLineWidth": 3.02,
     "ColorMode": "Rainbow",
     "R": 0,
     "G": 111,
     "B": 255,
+    "BuzzMode": "test2",
     "TeleportLong": 10.0,
     "TeleportTimer": 0.2,
     "TeleportHPacket": true,
@@ -397,11 +802,32 @@
     "TeleportMotion": 4.0,
     "TeleportResetMotion": false,
     "TeleportSetPos": false,
-    "FakeDamage": true
+    "VerusMode": "FakeGround",
+    "VerusMoveMode": "Walk",
+    "VerusBoost": "Packet",
+    "VerusBoostTicks": 10,
+    "VerusBoostOnlyFirst": true,
+    "VerusJump": true,
+    "VerusDown": true,
+    "VerusDownNoSneak": true,
+    "NCPPacket-Timer": 1.0,
+    "NCPPacket-UseSpeedEffect": true,
+    "NCPPacket-smart": true,
+    "NCPFly-Motion": 0.28,
+    "NewMatrix-Speed": 2.0,
+    "NewMatrix-JumpTimer": 0.1,
+    "NewMatrix-BoostTimer": 1.0,
+    "NewMatrixClip-BypassMode": "Clip2",
+    "NewMatrixClip-Custom-ClipDelay": 736,
+    "NewMatrixClip-Custom-BlinkDelay": 909,
+    "NewMatrixClip-YClip": 10.0,
+    "Vulcan-Speed": 1.0
   },
   "Freeze": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "NoMove",
     "ResetMotion": false,
     "LockRotation": true
@@ -409,44 +835,58 @@
   "HighJump": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Height": 2.0,
     "Mode": "Vanilla",
     "OnlyGlassPane": false,
-    "Timer": 0.1,
-    "WaitTime": 1,
-    "Fly": true
+    "Timer-Timer": 0.1,
+    "Timer-WaitTime": 1,
+    "Timer-Glide": false
   },
   "InvMove": {
     "State": true,
     "KeyBind": 0,
-    "FakeSprint": false,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Sprint": "Ignore",
     "Bypass": false,
-    "NoMoveClicks": false
+    "NoMoveClicks": false,
+    "AlwaysActiveInClickGUI": true
   },
-  "KeepSprint": {
-    "State": true,
-    "KeyBind": 0
+  "LiquidWalk": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Mode": "Dolphin",
+    "NoJump": false,
+    "AACFlyMotion": 0.1
   },
   "LongJump": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "NCP",
     "NCPBoost": 1.49,
     "AutoJump": true,
     "ExplosionBoostHigh": 0.0,
     "ExplosionBoostLong": 0.1,
-    "Timer": 0.1,
-    "Speed": 1.98,
-    "Delay": 51
+    "visualSpoofY": true
   },
   "NoClip": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Speed": 0.25
   },
   "NoSlow": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "BlockForwardMultiplier": 1.0,
     "BlockStrafeMultiplier": 1.0,
     "ConsumeForwardMultiplier": 1.0,
@@ -460,48 +900,92 @@
   "NoWeb": {
     "State": true,
     "KeyBind": 0,
-    "Mode": "AAC"
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Mode": "AAC",
+    "HorizonSpeed": 0.1
   },
   "Parkour": {
     "State": false,
-    "KeyBind": 0
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
   },
   "SafeWalk": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "AirSafe": false
   },
   "Speed": {
-    "State": false,
-    "KeyBind": 47,
-    "Mode": "AAC5Fast",
+    "State": true,
+    "KeyBind": 45,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Mode": "LegacyNCP",
     "KeepSprint": true,
     "AntiKnockBack": true,
     "AntiKnockBackLong": 0.0,
-    "AntiKnockBackHigh": 0.0
+    "AntiKnockBackHigh": 0.0,
+    "CustomSpeed": 1.6,
+    "CustomDoLaunchSpeed": true,
+    "CustomLaunchSpeed": 1.6,
+    "CustomDoMinimumSpeed": true,
+    "CustomMinimumSpeed": 0.25,
+    "CustomAddYMotion": 0.0,
+    "CustomDoModifyJumpY": true,
+    "CustomY": 0.42,
+    "CustomUpTimer": 1.0,
+    "CustomJumpTimer": 1.25,
+    "CustomDownTimer": 1.0,
+    "CustomStrafe": "Boost",
+    "PlusBoostMode": "Add",
+    "PlusMultiplyAmount": 1.1,
+    "CustomGroundStay": 0,
+    "CustomGroundResetXZ": false,
+    "CustomResetXZ": false,
+    "CustomResetY": false,
+    "CustomPressSpaceKeyOnGround": true,
+    "CustomPressSpaceKeyInAir": false,
+    "CustomUsePreMotion": true,
+    "AirSpeed": 0.2,
+    "JumpModifier": 1.02,
+    "SpeedEffectModifier": 0.03,
+    "LowHop": true,
+    "UseTimer": true,
+    "IntaveStrafe": true
   },
   "Sprint": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "AllDirections": true,
     "Blindness": true,
     "Food": true,
     "CheckServerSide": false,
-    "CheckServerSideOnlyGround": false
+    "CheckServerSideOnlyGround": false,
+    "PacketMode": "Normal"
   },
   "Step": {
     "State": true,
     "KeyBind": 0,
-    "Mode": "NCP",
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Mode": "SigmaNCP",
     "Height": 1.05,
     "JumpHeight": 0.42,
     "Delay": 0,
     "ReverseStep": false,
-    "Motion": 1.0
+    "Motion": 1.0,
+    "SigmaNCPTimer": 0.37
   },
   "Strafe": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Strength": 1.0,
     "NoMoveStop": false,
     "OnGroundStrafe": true,
@@ -510,15 +994,35 @@
   "TargetStrafe": {
     "State": true,
     "KeyBind": 0,
-    "Radius": 2.5,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Radius": 1.08,
     "Render": false,
     "HoldSpace": true,
     "SafeWalk": true,
     "OnlySpeed": false
   },
+  "VehicleJump": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Mode": "Motion",
+    "MotionLong": 5.0,
+    "MotionHigh": 0.9,
+    "Delay": 200,
+    "RenderPos": "OutLine",
+    "ColorMode": "Custom",
+    "R": 255,
+    "G": 255,
+    "B": 255,
+    "LineWidth": 2.0
+  },
   "WallClimb": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "Simple",
     "ClipMode": "Fast",
     "CheckerClimbMotion": 0.0
@@ -526,11 +1030,15 @@
   "WaterSpeed": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Speed": 1.2
   },
   "AntiAFK": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "Random",
     "SwingDelay": 100,
     "RotationDelay": 100,
@@ -542,29 +1050,41 @@
   },
   "AntiCactus": {
     "State": true,
-    "KeyBind": 0
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
   },
   "AutoFish": {
     "State": false,
-    "KeyBind": 0
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
   },
   "AutoRespawn": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Instant": true
   },
   "AutoSneak": {
     "State": false,
-    "KeyBind": 0
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
   },
   "AutoTool": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Silent": true
   },
   "Blink": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Pulse": false,
     "PulseDelay": 1000,
     "ColorRainbow": true,
@@ -575,22 +1095,26 @@
   "FastUse": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "Custom",
     "NoMove": true,
     "CustomDelay": 100,
     "CustomSpeed": 35,
     "CustomTimer": 0.5,
-    "FastBow": false,
-    "FastBowPackets": 20
+    "Debug": true
   },
   "InventoryCleaner": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "world",
     "MaxDelay": 109,
     "MinDelay": 72,
     "InvOpen": false,
     "SimulateInventory": true,
     "NoMove": true,
+    "OnlyStandingStill": true,
     "IgnoreVehicles": false,
     "Hotbar": true,
     "RandomSlot": true,
@@ -599,6 +1123,8 @@
     "MaxBlocks": 512,
     "MaxBuckets": 4,
     "MaxThrowableItems": 3,
+    "MaxPotions": 10,
+    "KeepBadEffectPotions": false,
     "SortSlot-1": "Sword",
     "SortSlot-2": "Bow",
     "SortSlot-3": "Pickaxe",
@@ -609,20 +1135,34 @@
     "SortSlot-8": "Block",
     "SortSlot-9": "Block"
   },
+  "NoC03": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
+  },
   "NoFall": {
     "State": false,
     "KeyBind": 0,
-    "Mode": "Hypixel"
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Mode": "Hypixel",
+    "MotionFlag-MotionSpeed": -0.01,
+    "Phase-PhaseOffset": 1
   },
   "Reach": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "CombatReach": 4.53,
     "BuildReach": 5.0
   },
   "Regen": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "AAC4NoFire",
     "Health": 20,
     "Food": 0,
@@ -633,6 +1173,8 @@
   "Animations": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Preset": "SlideDown",
     "TranslateX": 0.0,
     "TranslateY": 0.05,
@@ -642,11 +1184,14 @@
     "ItemPosZ": -0.71,
     "ItemScale": 0.33,
     "OnlyBlock": false,
+    "RotationItem": false,
     "AnimationSpeed": 8
   },
   "AntiBlind": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Confusion": true,
     "Pumpkin": true,
     "Fire": true
@@ -654,6 +1199,8 @@
   "BlockESP": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "Box",
     "Block": 26,
     "Radius": 40,
@@ -666,6 +1213,8 @@
   "BlockOverlay": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "R": 68,
     "G": 117,
     "B": 255,
@@ -675,15 +1224,21 @@
   },
   "CameraClip": {
     "State": true,
-    "KeyBind": 0
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
   },
   "CapeManager": {
     "State": false,
-    "KeyBind": 184
+    "KeyBind": 184,
+    "Hide": false,
+    "AutoDisable": "Disable"
   },
   "Chams": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Targets": false,
     "Chests": true,
     "Items": true
@@ -691,11 +1246,31 @@
   "ClickGui": {
     "State": false,
     "KeyBind": 54,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "New"
+  },
+  "ChinaHat": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Quality": "Normal",
+    "ShowInFirstPerson": false,
+    "TopColorR": 196,
+    "TopColorG": 10,
+    "TopColorB": 196,
+    "TopColorA": 255,
+    "BottomColorR": 252,
+    "BottomColorG": 65,
+    "BottomColorB": 65,
+    "BottomColorA": 191
   },
   "Crosshair": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Color": "Custom",
     "Red": 255,
     "Green": 0,
@@ -712,6 +1287,8 @@
   "DamageParticle": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "AliveTicks": 40,
     "Size": 4,
     "HealthIncreaseColorR": 0,
@@ -724,6 +1301,8 @@
   "ESP": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "WireFrame",
     "R": 255,
     "G": 255,
@@ -737,26 +1316,40 @@
   "FreeCam": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Speed": 0.8,
     "Fly": true,
-    "NoClip": true
+    "NoClip": true,
+    "Bypass": false,
+    "Debug": false
   },
   "FullBright": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "NightVision"
   },
   "HUD": {
     "State": true,
-    "KeyBind": 0
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "KeepScoreboard": false,
+    "HotBarShowCurrentSlot": true
   },
   "HudDesigner": {
     "State": false,
-    "KeyBind": 199
+    "KeyBind": 199,
+    "Hide": false,
+    "AutoDisable": "Disable"
   },
   "ItemESP": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "ShaderOutline",
     "ShaderRadius": 1.0,
     "R": 0,
@@ -767,6 +1360,8 @@
   "NameTags": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "Liquid",
     "Health": true,
     "Ping": true,
@@ -780,25 +1375,47 @@
   },
   "NoBob": {
     "State": false,
-    "KeyBind": 0
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
   },
   "NoFOV": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "FOV": 1.0
   },
   "NoHurtCam": {
     "State": true,
-    "KeyBind": 0
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
   },
   "NoSwing": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "ServerSide": true
+  },
+  "Particles": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "NoCriticalParticles": true,
+    "NoCriticalParticlesFromServer": true,
+    "NoSharpParticles": true,
+    "NoSharpParticlesFromServer": true,
+    "BlockParticleSpeed": 0.4,
+    "OtherParticleSpeed": 0.4
   },
   "Projectiles": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Color": "Custom",
     "R": 0,
     "G": 160,
@@ -807,18 +1424,52 @@
   "Renderer": {
     "State": true,
     "KeyBind": 0,
-    "NoArmor": true,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "NoArmor": false,
     "NoRightArm": false,
-    "PlayerModel": "Fox"
+    "PlayerModel": "Player"
+  },
+  "RenderSettings": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "FontRenderer": "Glyph",
+    "FontVectorEpsilon": 0.5
   },
   "Rotations": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Body": true
+  },
+  "SourceESP": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "WaterMode": "Box",
+    "WaterRadius": 40,
+    "WaterLimit": 66,
+    "WaterR": 52,
+    "WaterG": 129,
+    "WaterB": 184,
+    "WaterRainbow": false,
+    "LavaMode": "2D",
+    "LavaRadius": 40,
+    "LavaLimit": 128,
+    "LavaR": 250,
+    "LavaG": 132,
+    "LavaB": 43,
+    "LavaRainbow": false
   },
   "StorageESP": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Mode": "Outline",
     "Chest": true,
     "EnderChest": true,
@@ -828,11 +1479,15 @@
   },
   "TNTESP": {
     "State": false,
-    "KeyBind": 0
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable"
   },
   "Tracers": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Color": "Custom",
     "Thickness": 2.0,
     "R": 0,
@@ -840,20 +1495,46 @@
     "B": 255,
     "Bots": true
   },
+  "Trajectories": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "ColorMode": "Distance",
+    "R": 152,
+    "G": 194,
+    "B": 249,
+    "A": 138,
+    "LineWidth": 1.83
+  },
   "TrueSight": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Barriers": true,
     "Entities": true
+  },
+  "XRay": {
+    "State": false,
+    "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
+    "Mode": "Translucent",
+    "Opacity": 160,
+    "NoBlock": true,
+    "OnlyInAir": true
   },
   "Breaker": {
     "State": true,
     "KeyBind": 48,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Block": 26,
-    "ThroughWalls": "Around",
+    "ThroughWalls": "None",
     "Range": 5.52,
     "Action": "Destroy",
-    "Instant": false,
+    "Instant": true,
     "SwitchDelay": 0,
     "Swing": false,
     "Rotations": true,
@@ -864,6 +1545,8 @@
   "ChestStealer": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "world",
     "MaxDelay": 112,
     "MinDelay": 72,
     "DelayOnFirst": true,
@@ -881,27 +1564,37 @@
   "FastBreak": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "BreakDamage": 0.8
   },
   "FastPlace": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Speed": 0
   },
   "LightningDetector": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "MessageMode": "Chat"
   },
   "NoSlowBreak": {
     "State": true,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Air": true,
     "Water": false
   },
   "Nuker": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Radius": 6.0,
     "ThroughWalls": true,
     "Priority": "Distance",
@@ -913,7 +1606,9 @@
   },
   "Scaffold": {
     "State": false,
-    "KeyBind": 33,
+    "KeyBind": 47,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "TowerMode": "ConstantMotion",
     "TowerNoMove": true,
     "TowerConstantMotion": 0.42,
@@ -927,47 +1622,67 @@
     "MinDelay": 0,
     "PlaceDelay": true,
     "AutoBlock": "Spoof",
-    "Sprint": true,
-    "AutoJump": true,
+    "Sprint": "Always",
+    "TowerNoSprintSwitch": false,
+    "AutoJump": false,
     "Swing": false,
     "Search": true,
     "Down": true,
-    "PlaceTiming": "Pre",
+    "PlaceTiming": "Post",
     "Eagle": "Off",
     "BlocksToEagle": 0,
     "EagleEdgeDistance": 0.0,
+    "ExpandMode": "Sigma",
+    "ExpandOnlyMove": true,
+    "ExpandOnlyMoveOnlyGround": true,
     "ExpandLength": 2,
     "Strafe": "Off",
-    "Rotations": true,
+    "Rotations": "MoveDirection",
+    "TowerRotations": "MoveDirection",
+    "AACYawOffset": 180,
+    "CustomYaw": -180,
+    "CustomPitch": 82.17,
+    "CustomTowerYaw": -145,
+    "CustomTowerPitch": 79.0,
     "SilentRotation": true,
-    "KeepRotation": true,
+    "KeepRotation": false,
     "KeepRotationLength": 20,
-    "XYZSearch": "AutoCenter",
+    "XYZSearch": "Sigma",
     "xzRange": 1.0,
     "yRange": 1.0,
     "MinDist": 0.0,
     "SearchAccuracy": 8,
-    "MaxTurnSpeed": 58.62,
-    "MinTurnSpeed": 36.55,
+    "Tower-XYZSearch": "Sigma",
+    "Tower-xzRange": 1.0,
+    "Tower-yRange": 1.0,
+    "Tower-MinDist": 0.0,
+    "Tower-SearchAccuracy": 8,
+    "MaxTurnSpeed": 180.0,
+    "MinTurnSpeed": 180.0,
     "JumpCheck": true,
     "DownCheck": true,
     "Zitter": "Off",
     "ZitterSpeed": 0.13,
     "ZitterStrength": 0.0,
     "Timer": 1.0,
-    "SpeedModifier": 0.95,
-    "Slow": false,
+    "SpeedModifier": 1.0,
+    "MotionSpeedSet": false,
+    "MotionSpeed": 0.1,
+    "Slow": true,
     "SlowSpeed": 0.95,
     "SameY": true,
     "SameYJumpUp": true,
     "SafeWalk": true,
     "AirSafe": false,
+    "WhenPlaceFacingInvalid": "CancelIt",
     "Counter": true,
     "Mark": true
   },
   "TeleportUse": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "Swing": true,
     "RenderPath": false,
     "RenderPos": false,
@@ -986,12 +1701,16 @@
   "Timer": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "false",
     "Speed": 2.15,
     "OnlyOnMove": false
   },
   "World": {
     "State": false,
     "KeyBind": 0,
+    "Hide": false,
+    "AutoDisable": "Disable",
     "TimeMode": "Normal",
     "WeatherMode": "Normal",
     "CustomTime": 1000,
