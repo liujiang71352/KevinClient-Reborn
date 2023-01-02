@@ -18,13 +18,10 @@ import kevin.event.*
 import kevin.module.*
 import kevin.module.modules.movement.flys.FlyMode
 import kevin.module.modules.movement.flys.aac.AAC5
-import kevin.module.modules.movement.flys.ncp.NCPFly
-import kevin.module.modules.movement.flys.ncp.OldNCP
 import kevin.module.modules.movement.flys.matrix.Matrix
 import kevin.module.modules.movement.flys.matrix.NewMatrix
 import kevin.module.modules.movement.flys.matrix.NewMatrixClip
-import kevin.module.modules.movement.flys.ncp.DCJBoost
-import kevin.module.modules.movement.flys.ncp.NCPPacket
+import kevin.module.modules.movement.flys.ncp.*
 import kevin.module.modules.movement.flys.other.Buzz
 import kevin.module.modules.movement.flys.other.Teleport
 import kevin.module.modules.movement.flys.vanilla.Creative
@@ -45,6 +42,7 @@ class Fly : Module("Fly","Allow you fly", Keyboard.KEY_F,ModuleCategory.MOVEMENT
         VerusAuto,
         NCPPacket,
         NCPFly,
+        NCPNew,
         OldNCP,
         Matrix, // from FDP
         NewMatrix, // from FDP

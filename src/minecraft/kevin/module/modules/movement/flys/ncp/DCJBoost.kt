@@ -12,23 +12,20 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package kevin.module.modules.movement.flys.ncp;
+package kevin.module.modules.movement.flys.ncp
 
-import kevin.event.UpdateEvent;
-import kevin.module.modules.movement.flys.FlyMode;
-import kevin.utils.MovementUtils;
-import org.jetbrains.annotations.NotNull;
+import kevin.utils.MovementUtils.strafe
+import kevin.module.modules.movement.flys.FlyMode
+import kevin.event.UpdateEvent
+import kevin.utils.MinecraftInstance
+import kevin.utils.MovementUtils
 
-public class DCJBoost extends FlyMode {
-    public DCJBoost() {
-        super("DCJBoost");
-    }
-
-    public void onUpdate(@NotNull UpdateEvent event) {
-        mc.thePlayer.motionY = 0.0;
-        mc.thePlayer.motionX = 0.0;
-        mc.thePlayer.motionZ = 0.0;
-        mc.thePlayer.capabilities.isFlying = false;
-        MovementUtils.strafe(0.9F * ((mc.thePlayer.ticksExisted % 40) / 120F + 0.7666F));
+class DCJBoost : FlyMode("DCJBoost") {
+    override fun onUpdate(event: UpdateEvent) {
+        mc.thePlayer.motionY = 0.0
+        mc.thePlayer.motionX = 0.0
+        mc.thePlayer.motionZ = 0.0
+        mc.thePlayer.capabilities.isFlying = false
+        strafe(0.9f * (mc.thePlayer.ticksExisted % 40 / 120f + 0.7666f))
     }
 }
