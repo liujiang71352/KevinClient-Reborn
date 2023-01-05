@@ -1195,7 +1195,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
             container = entityplayer.openContainer;
         }
 
-        if (container != null && !packetIn.func_148888_e())
+        if (container != null && !packetIn.func_148888_e()/* !false */)
         {
             this.addToSendQueue(new C0FPacketConfirmTransaction(packetIn.getWindowId(), packetIn.getActionNumber(), true));
         }

@@ -104,6 +104,7 @@ class ModuleManager : Listenable {
             NoCommand,
             NoRotateSet(),
             NoScoreboard,
+            PacketLogger(),
             PerformanceBooster,
             ResourcePackSpoof(),
             SuperSpammer(),
