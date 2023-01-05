@@ -1,11 +1,14 @@
 package kevin.module.modules.misc
 
+import de.gerrygames.viarewind.utils.ChatUtil
 import kevin.event.EventTarget
 import kevin.event.PacketEvent
+import kevin.main.KevinClient
 import kevin.module.BooleanValue
 import kevin.module.Module
 import kevin.module.ModuleCategory
 import kevin.module.Value
+import kevin.utils.ChatUtils
 import net.minecraft.network.EnumPacketDirection
 import net.minecraft.network.Packet
 import net.minecraft.network.play.client.*
@@ -21,6 +24,7 @@ class PacketLogger: Module("PacketLogger", "Allow you know what packet we receiv
     private val serverBoundPackets: HashMap<Class<out Packet<*>>, BooleanValue> = HashMap()
 
     private val vals = LinkedList<BooleanValue>()
+    private val start = "§l§7[§l§9PacketLogger§l§7] "
 
     @EventTarget fun onPacket(event: PacketEvent) {
         val packet = event.packet
@@ -38,6 +42,7 @@ class PacketLogger: Module("PacketLogger", "Allow you know what packet we receiv
 
     private fun output(clz: Class<out Packet<*>>, packet: Packet<*>) {
         val strBuilder = StringBuilder()
+        strBuilder.append(start)
         strBuilder.append(clz.simpleName).append(':').append('\n')
         for (field in clz.fields) {
             strBuilder.append("    ").append(field.name).append(": ")
@@ -46,8 +51,11 @@ class PacketLogger: Module("PacketLogger", "Allow you know what packet we receiv
                 strBuilder.append(field.get(packet))
             } catch (_: Exception) {
                 strBuilder.append("Error when get")
+            } finally {
+                strBuilder.append("\n")
             }
         }
+        ChatUtils.message(strBuilder.toString())
     }
 
     private fun registerPacket(direction: EnumPacketDirection, clz: Class<out Packet<*>>) {

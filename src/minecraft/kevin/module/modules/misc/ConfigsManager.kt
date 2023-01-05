@@ -75,7 +75,8 @@ object ConfigsManager : Module("ConfigsManager", "Manage configs") { // good cod
     fun loadLocal() {
         try {
             KevinClient.moduleManager.getModules().forEach { it.state = false }
-            when (ConfigManager.loadConfig(localConfigs.get())) {
+            val name = localConfigs.get()
+            when (ConfigManager.loadConfig(name)) {
             0 -> {
                 ChatUtils.messageWithStart("§aSuccessfully loaded config §b$name.")
             }
@@ -98,7 +99,7 @@ object ConfigsManager : Module("ConfigsManager", "Manage configs") { // good cod
             res = ServerUtils.sendGet("${apiSecond}siuank/KevinClient-Reborn/master/cfg/$name.json", proxy)
         }
         if (res.second > 0) {
-            ChatUtils.messageWithStart("§cFailed to load config §b${ConfigsManager.name}.§cFile not found.")
+            ChatUtils.messageWithStart("§cFailed to load config §b${name}.§cFile not found.")
             return
         }
         val jsonElement = JsonParser().parse(res.first)
