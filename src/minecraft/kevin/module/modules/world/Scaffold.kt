@@ -44,7 +44,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
     //private val modeValue = ListValue("Mode", arrayOf("Normal", "Expand"), "Normal")
     private val towerModeValue = ListValue(
         "TowerMode",
-        arrayOf("Jump", "Motion", "ConstantMotion", "MotionTP", "Packet", "Teleport", "AAC3.3.9", "AAC3.6.4"),
+        arrayOf("Jump", "Jump2", "Motion", "Motion2", "ConstantMotion", "MotionTP", "MotionTP2", "Packet", "Teleport", "AAC3.3.9", "AAC3.6.4"),
         "Jump"
     )
 
@@ -213,6 +213,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
     private val sameYJumpUp = BooleanValue("SameYJumpUp", false)
     private val safeWalkValue = BooleanValue("SafeWalk", true)
     private val airSafeValue = BooleanValue("AirSafe", false)
+    private val hitableCheck = ListValue("HitableCheck", arrayOf("Strict", "Simple", "Normal"), "Normal")
     private val invalidPlaceFacingMode = ListValue("WhenPlaceFacingInvalid", arrayOf("CancelIt", "FixIt", "IgnoreIt"), "FixIt")
 
     // Visuals
@@ -281,17 +282,44 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
         }
 
         when (towerModeValue.get().lowercase(Locale.getDefault())) {
+            "jump2" -> {
+                if (thePlayer.onGround) {
+                    fakeJump()
+                    thePlayer.motionY = 0.42
+                } else if (thePlayer.motionY < 0) {
+                    fakeJump()
+                    thePlayer.motionY = 0.42
+                }
+            }
             "motion" -> if (thePlayer.onGround) {
                 fakeJump()
                 thePlayer.motionY = 0.42
             } else if (thePlayer.motionY < 0.1) {
                 thePlayer.motionY = -0.3
             }
+            "motion2" -> {
+                if (mc.thePlayer.onGround) {
+                    fakeJump()
+                    mc.thePlayer.motionY = 0.42
+                } else if (mc.thePlayer.motionY < 0.18) {
+                    mc.thePlayer.motionY -= 0.02
+                }
+            }
             "motiontp" -> if (thePlayer.onGround) {
                 fakeJump()
                 thePlayer.motionY = 0.42
             } else if (thePlayer.motionY < 0.23) {
                 thePlayer.setPosition(thePlayer.posX, truncate(thePlayer.posY), thePlayer.posZ)
+            }
+            "motiontp2" -> {
+                if (mc.thePlayer.onGround) {
+                    fakeJump()
+                    mc.thePlayer.motionY = 0.42
+                } else if (mc.thePlayer.motionY < 0.23) {
+                    mc.thePlayer.setPosition(mc.thePlayer.posX, truncate(mc.thePlayer.posY), mc.thePlayer.posZ)
+                    mc.thePlayer.onGround = true
+                    mc.thePlayer.motionY = 0.42
+                }
             }
             "packet" -> if (thePlayer.onGround && timer.hasTimePassed(2)) {
                 fakeJump()
@@ -922,6 +950,15 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
                 )
             }
         }
+        if (!(hitableCheck equal "Normal")) {
+            val eyesVec = mc.thePlayer.getPositionEyes(1f)
+            val lookVec = RotationUtils.bestServerRotation().toDirection().multiply(5.0).add(eyesVec)
+            val movingObjectPosition = mc.theWorld.rayTraceBlocks(eyesVec, lookVec, false, true, false)
+            if (movingObjectPosition.blockPos != targetPlace!!.blockPos) return
+            if (hitableCheck equal "Strict") {
+                if (movingObjectPosition.sideHit != targetPlace!!.enumFacing) return
+            }
+        }
 
         if (!delayTimer.hasTimePassed(delay) || sameY() && launchY - 1 != targetPlace!!.vec3.yCoord.toInt())
             return
@@ -995,6 +1032,9 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
             if (slot != mc.thePlayer!!.inventory.currentItem) {
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer!!.inventory.currentItem))
             }
+        }
+        if (eagleValue equal "Smart") {
+            eagleSneaking = false
         }
         targetPlace = null
     }

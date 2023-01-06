@@ -828,11 +828,11 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 RotationUtils.getOtherRotation(
                     boundingBox,
                     if (randomCenterValue.get()) {
-                        if (RotationUtils.targetRotation == null || RandomUtils.random.nextBoolean()) {
+                        if (RotationUtils.targetRotation == null || (RandomUtils.random.nextBoolean() && !attackTimer.hasTimePassed(attackDelay / 2))) {
                             lastHitVec = Vec3(
-                                MathHelper.clamp_double(thePlayer.posX, bb.minX, bb.maxX) + RandomUtils.nextDouble(-0.25, 0.25),
+                                MathHelper.clamp_double(thePlayer.posX, bb.minX, bb.maxX) + RandomUtils.nextDouble(-0.2, 0.2),
                                 MathHelper.clamp_double(thePlayer.posY + 1.62F, bb.minY, bb.maxY) + RandomUtils.nextDouble(-0.2, 0.2),
-                                MathHelper.clamp_double(thePlayer.posZ, bb.minZ, bb.maxZ) + RandomUtils.nextDouble(-0.25, 0.25)
+                                MathHelper.clamp_double(thePlayer.posZ, bb.minZ, bb.maxZ) + RandomUtils.nextDouble(-0.2, 0.2)
                             )
                         }
                         lastHitVec

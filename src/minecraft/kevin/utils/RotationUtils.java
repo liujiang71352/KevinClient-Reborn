@@ -275,8 +275,11 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         for(double xSearch = 0.15D; xSearch < 0.85D; xSearch += 0.1D) {
             for (double ySearch = 0.15D; ySearch < 1D; ySearch += 0.1D) {
                 for (double zSearch = 0.15D; zSearch < 0.85D; zSearch += 0.1D) {
-                    final Vec3 vec3 = new Vec3(bb.minX + (bb.maxX - bb.minX) * xSearch,
-                            bb.minY + (bb.maxY - bb.minY) * ySearch, bb.minZ + (bb.maxZ - bb.minZ) * zSearch);
+                    final Vec3 vec3 = new Vec3(
+                            bb.minX + (bb.maxX - bb.minX) * xSearch,
+                            bb.minY + (bb.maxY - bb.minY) * ySearch,
+                            bb.minZ + (bb.maxZ - bb.minZ) * zSearch
+                    );
                     final Rotation rotation = toRotation(vec3, predict);
                     final double vecDist = eyes.distanceTo(vec3);
 

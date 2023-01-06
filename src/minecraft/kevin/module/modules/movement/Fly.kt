@@ -43,6 +43,7 @@ class Fly : Module("Fly","Allow you fly", Keyboard.KEY_F,ModuleCategory.MOVEMENT
         NCPPacket,
         NCPFly,
         NCPNew,
+        HypixelVanilla,
         OldNCP,
         Matrix, // from FDP
         NewMatrix, // from FDP

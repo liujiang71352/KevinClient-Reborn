@@ -23,7 +23,7 @@ import kotlin.math.sin
 object RaycastUtils : MinecraftInstance() {
 
     @JvmStatic
-    fun raycastEntity(range: Double, entityFilter: EntityFilter) = raycastEntity(range, RotationUtils.serverRotation.yaw, RotationUtils.serverRotation.pitch, entityFilter)
+    fun raycastEntity(range: Double, entityFilter: EntityFilter) = raycastEntity(range, RotationUtils.bestServerRotation().yaw, RotationUtils.bestServerRotation().pitch, entityFilter)
 
     private fun raycastEntity(range: Double, yaw: Float, pitch: Float, entityFilter: EntityFilter): Entity? {
         val renderViewEntity = mc.renderViewEntity
