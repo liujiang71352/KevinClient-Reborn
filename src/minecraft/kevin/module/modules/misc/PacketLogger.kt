@@ -1,6 +1,5 @@
 package kevin.module.modules.misc
 
-import de.gerrygames.viarewind.utils.ChatUtil
 import kevin.event.EventTarget
 import kevin.event.PacketEvent
 import kevin.main.KevinClient
@@ -17,6 +16,7 @@ import net.minecraft.network.play.server.*
 import net.minecraft.network.play.server.S14PacketEntity.*
 import java.util.LinkedList
 
+@Suppress("UNCHECKED_CAST")
 class PacketLogger: Module("PacketLogger", "Allow you know what packet we receive and send.", category = ModuleCategory.MISC) {
     private val logClientBoundPacket = BooleanValue("LogClientBoundPacket", true)
     private val logServerBoundPacket = BooleanValue("LogServerBoundPacket", true)
@@ -24,42 +24,46 @@ class PacketLogger: Module("PacketLogger", "Allow you know what packet we receiv
     private val serverBoundPackets: HashMap<Class<out Packet<*>>, BooleanValue> = HashMap()
 
     private val vals = LinkedList<BooleanValue>()
-    private val start = "§l§7[§l§9PacketLogger§l§7] "
+    private val start = "§l§7[§l§9Packet§l§7] "
 
     @EventTarget fun onPacket(event: PacketEvent) {
         val packet = event.packet
         val clz = packet.javaClass
+        var out = false
         if (clientBoundPackets.containsKey(clz)) {
             if (!logClientBoundPacket.get()) return
             if (!clientBoundPackets[clz]!!.get()) return
-            output(clz, packet)
+            out = true
         } else if (serverBoundPackets.containsKey(clz)) {
             if (!logServerBoundPacket.get()) return
             if (!serverBoundPackets[clz]!!.get()) return
-            output(clz, packet)
+            out = true
         }
+        if (!out) return
+        if (clz.isMemberClass)
+            output(clz.declaringClass as Class<out Packet<*>>, packet)
+        else
+            output(clz, packet)
     }
 
     private fun output(clz: Class<out Packet<*>>, packet: Packet<*>) {
         val strBuilder = StringBuilder()
         strBuilder.append(start)
-        strBuilder.append(clz.simpleName).append(':').append('\n')
-        for (field in clz.fields) {
-            strBuilder.append("    ").append(field.name).append(": ")
+        strBuilder.append(clz.simpleName).append(':')
+        for (field in clz.declaredFields) {
+            strBuilder.append("\n§7    ").append(field.name).append(": ")
             try {
                 field.isAccessible = true
                 strBuilder.append(field.get(packet))
             } catch (_: Exception) {
                 strBuilder.append("Error when get")
-            } finally {
-                strBuilder.append("\n")
             }
         }
         ChatUtils.message(strBuilder.toString())
     }
 
     private fun registerPacket(direction: EnumPacketDirection, clz: Class<out Packet<*>>) {
-        val bv = BooleanValue(clz::class.java.simpleName, false)
+        val bv = BooleanValue(clz.simpleName, false)
         if (direction == EnumPacketDirection.CLIENTBOUND) {
             clientBoundPackets[clz] = bv
         } else {
