@@ -299,6 +299,47 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         return vecRotation;
     }
 
+    public static VecRotation newSearchCenter(final AxisAlignedBB bb, boolean outborder, final boolean random,
+                                              final boolean predict, final boolean throughWalls, final float distance) {
+        final Vec3 eyes = mc.thePlayer.getPositionEyes(1F);
+
+        VecRotation vecRotation = null;
+
+        final Rotation rot = bestServerRotation();
+        if (random && mc.thePlayer.ticksExisted % 5 == 0) {
+            rot.setYaw(RandomUtils.INSTANCE.nextFloat(-5, 5) + rot.getYaw());
+            rot.setPitch(RandomUtils.INSTANCE.nextFloat(-5, 5) + rot.getPitch());
+        }
+
+//        outborder = outborder && mc.thePlayer.ticksExisted % 10 != 0;
+
+        for(double xSearch = 0.15D; xSearch < 0.85D; xSearch += 0.1D) {
+            for (double ySearch = 0.15D; ySearch < 1D; ySearch += 0.1D) {
+                for (double zSearch = 0.15D; zSearch < 0.85D; zSearch += 0.1D) {
+                    final Vec3 vec3 = new Vec3(
+                            bb.minX + (bb.maxX - bb.minX) * xSearch,
+                            bb.minY + (bb.maxY - bb.minY) * ySearch,
+                            bb.minZ + (bb.maxZ - bb.minZ) * zSearch
+                    );
+
+                    final Rotation rotation = toRotation(vec3, predict);
+                    final double vecDist = eyes.distanceTo(vec3);
+
+                    if (vecDist > distance)
+                        continue;
+
+                    if (throughWalls || isVisible(vec3)) {
+                        final VecRotation currentVec = new VecRotation(vec3, rotation);
+
+                        if (vecRotation == null || getRotationDifference(currentVec.getRotation(), rot) < getRotationDifference(vecRotation.getRotation(), rot))
+                            vecRotation = currentVec;
+                    }
+                }
+            }
+        }
+        return vecRotation;
+    }
+
     /**
      * Calculate difference between the client rotation and your entity
      *

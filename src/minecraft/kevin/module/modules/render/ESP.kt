@@ -23,7 +23,7 @@ import kevin.utils.ColorUtils
 import kevin.utils.ColorUtils.rainbow
 import kevin.utils.EntityUtils
 import kevin.font.GameFontRenderer.Companion.getColorIndex
-import kevin.utils.RenderUtils.glColor
+import kevin.utils.RenderUtils.*
 import kevin.utils.WorldToScreen
 import kevin.utils.isClientFriend
 import net.minecraft.client.renderer.GlStateManager
@@ -42,7 +42,7 @@ import kotlin.math.min
 
 class ESP : Module("ESP", "Allows you to see targets through walls.", category = ModuleCategory.RENDER) {
     @JvmField
-    val modeValue = ListValue("Mode", arrayOf("Box","2D","Outline","WireFrame"),"Box")
+    val modeValue = ListValue("Mode", arrayOf("Box", "OtherBox","2D","Outline","WireFrame"),"Box")
     private val colorRedValue = IntegerValue("R", 255, 0, 255)
     private val colorGreenValue = IntegerValue("G", 255, 0, 255)
     private val colorBlueValue = IntegerValue("B", 255, 0, 255)
@@ -85,6 +85,7 @@ class ESP : Module("ESP", "Allows you to see targets through walls.", category =
             val color = getColor(entity)
             when(mode){
                 "Box" -> drawEntityBox(entity,color)
+                "OtherBox" -> drawOtherBox(entity, color)
                 "2D" -> {
                     val renderManager = mc.renderManager
                     val timer = mc.timer
@@ -216,6 +217,35 @@ class ESP : Module("ESP", "Allows you to see targets through walls.", category =
         worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ).endVertex()
         worldRenderer.pos(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ).endVertex()
         tessellator.draw()
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
+        glDepthMask(true)
+        glDisable(GL_BLEND)
+        glEnable(GL_TEXTURE_2D)
+        glEnable(GL_DEPTH_TEST)
+        glDisable(GL_LINE_SMOOTH)
+    }
+    private fun drawOtherBox(entity: EntityLivingBase, color: Color) {
+        val timer = mc.timer
+        val renderManager = mc.renderManager
+        val x: Double =
+            (entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * timer.renderPartialTicks
+                    - renderManager.renderPosX)
+        val y: Double =
+            (entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * timer.renderPartialTicks
+                    - renderManager.renderPosY)
+        val z: Double =
+            (entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * timer.renderPartialTicks
+                    - renderManager.renderPosZ)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glEnable(GL_BLEND)
+        glDisable(GL_TEXTURE_2D)
+        glDisable(GL_DEPTH_TEST)
+        glLineWidth(1f)
+        glEnable(GL_LINE_SMOOTH)
+        glColor(color.red, color.green, color.blue, 95)
+        otherDrawOutlinedBoundingBox(entity.rotationYawHead, x, y, z, entity.width / 2 + 0.1, entity.height + 0.1)
+        glColor(color.red, color.green, color.blue,26)
+        otherDrawBoundingBox(entity.rotationYawHead, x, y, z, entity.width / 2 + 0.1, entity.height + 0.1)
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
         glDepthMask(true)
         glDisable(GL_BLEND)

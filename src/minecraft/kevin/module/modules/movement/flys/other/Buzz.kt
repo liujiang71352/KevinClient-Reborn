@@ -15,21 +15,51 @@
 package kevin.module.modules.movement.flys.other
 
 import kevin.event.BlockBBEvent
+import kevin.event.PacketEvent
 import kevin.event.UpdateEvent
 import kevin.module.ListValue
 import kevin.module.modules.movement.flys.FlyMode
 import kevin.utils.MovementUtils
 import net.minecraft.block.BlockAir
+import net.minecraft.network.Packet
+import net.minecraft.network.play.INetHandlerPlayClient
+import net.minecraft.network.play.client.C00PacketKeepAlive
+import net.minecraft.network.play.client.C02PacketUseEntity
+import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
+import net.minecraft.network.play.client.C07PacketPlayerDigging
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
+import net.minecraft.network.play.client.C0APacketAnimation
+import net.minecraft.network.play.client.C0BPacketEntityAction
+import net.minecraft.network.play.client.C0FPacketConfirmTransaction
+import net.minecraft.network.play.server.S00PacketKeepAlive
+import net.minecraft.network.play.server.S12PacketEntityVelocity
+import net.minecraft.network.play.server.S32PacketConfirmTransaction
+import net.minecraft.potion.Potion
 import net.minecraft.util.AxisAlignedBB
+import net.optifine.util.LinkedList
+import java.util.concurrent.LinkedBlockingQueue
 import kotlin.math.cos
 import kotlin.math.sin
 
 object Buzz : FlyMode("Buzz") {
-    private val mode = ListValue("BuzzMode", arrayOf("test1", "test2", "test3", "test4"), "test1")
+    private val mode = ListValue("BuzzMode", arrayOf("test1", "test2", "test3", "test4", "test5"), "test1")
     private var boost = false
+    private val packets = LinkedBlockingQueue<Packet<*>>()
+    private val serverPackets = LinkedBlockingQueue<Packet<*>>()
+    private var speed = 1.237F
+    private var enabledTicks = 0
 
     override fun onEnable() {
+        if (mode equal "test5") {
+            if (!mc.thePlayer.onGround) fly.state = false
+            speed = if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
+                2.001542F
+            } else {
+                1.62F
+            } * MovementUtils.getBaseMoveSpeed().toFloat()
+            return
+        }
         if (!mc.thePlayer.onGround) return
         mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 3.42, mc.thePlayer.posZ, false))
         mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 1E-12, mc.thePlayer.posZ, false))
@@ -73,8 +103,59 @@ object Buzz : FlyMode("Buzz") {
                 }
                 if (thePlayer.onGround) thePlayer.jump()
             }
+            "test5" -> {
+                mc.thePlayer.motionX = 0.0
+                mc.thePlayer.motionZ = 0.0
+                MovementUtils.strafe(speed)
+                speed -= speed / 128f
+                mc.thePlayer.motionY = 0.0
+                if (enabledTicks == 1) {
+                    speed *= 2.16F
+                    speed *= speed * if (mc.thePlayer.ticksExisted % 2 == 0) 1.575F else 1.725F
+                }
+                if (enabledTicks == 5) {
+                    mc.thePlayer.handleStatusUpdate(2)
+                    mc.thePlayer.hurtTime = 0
+                }
+            }
+        }
+        ++enabledTicks
+    }
+
+    override fun onDisable() {
+        super.onDisable()
+        mc.thePlayer.motionX *= 0.6
+        mc.thePlayer.motionZ *= 0.6
+        mc.thePlayer.motionY = 0.0
+        while (packets.isNotEmpty()) {
+            mc.netHandler.addToSendQueue(packets.take())
+        }
+        while (serverPackets.isNotEmpty()) {
+            @Suppress("UNCHECKED_CAST")
+            (serverPackets.take() as Packet<INetHandlerPlayClient>).processPacket(mc.netHandler)
         }
     }
+
+    override fun onPacket(event: PacketEvent) {
+        if (!(mode equal "test5")) return
+        if (event.isCancelled) return
+        val packet = event.packet
+        if (packet is C03PacketPlayer) {
+            event.cancelEvent()
+            if (packet.isMoving) {
+                if (enabledTicks > 1) {
+                    packet.onGround = false
+                }
+                if (mc.thePlayer.ticksExisted % 3 != 0) packets.add(packet)
+            }
+        } else if (packet is C0APacketAnimation || packet is C02PacketUseEntity || packet is C07PacketPlayerDigging || packet is C08PacketPlayerBlockPlacement || packet is C0BPacketEntityAction) {
+            event.cancelEvent()
+        } else if (packet is S32PacketConfirmTransaction || packet is S00PacketKeepAlive || packet is S12PacketEntityVelocity) {
+            event.cancelEvent()
+            serverPackets.add(packet)
+        }
+    }
+
     override fun onBB(event: BlockBBEvent) {
         if (event.block is BlockAir && event.y <= fly.launchY) {
             event.boundingBox = AxisAlignedBB.fromBounds(event.x.toDouble(), event.y.toDouble(), event.z.toDouble(), event.x + 1.0, fly.launchY, event.z + 1.0)

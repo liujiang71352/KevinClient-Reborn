@@ -19,14 +19,18 @@ import kevin.event.PacketEvent
 import kevin.event.Render3DEvent
 import kevin.main.KevinClient
 import kevin.module.BooleanValue
+import kevin.module.FloatValue
 import kevin.module.Module
 import kevin.module.ModuleCategory
 import kevin.module.modules.combat.KillAura
 import kevin.utils.RotationUtils
 import net.minecraft.network.play.client.C03PacketPlayer
 
-class Rotations : Module("Rotations", description = "Allows you to see server-sided head and body rotations.", category = ModuleCategory.RENDER){
+object Rotations : Module("Rotations", description = "Allows you to see server-sided head and body rotations.", category = ModuleCategory.RENDER){
     private val bodyValue = BooleanValue("Body", true)
+    val smoothBackValue = BooleanValue("SmoothBackRotation", true)
+    val smoothBackYawSpeed = FloatValue("SmoothBackYawSpeed", 40F, 1F, 180F)
+    val smoothBackPitchSpeed = FloatValue("SmoothBackPitchSpeed", 30F, 1F, 180F)
 
     private var playerYaw: Float? = null
 
@@ -70,4 +74,10 @@ class Rotations : Module("Rotations", description = "Allows you to see server-si
                  || getState(CivBreak::class.java)  ||
                 getState(ChestAura::class.java)**/
     }
+
+    @JvmStatic
+    fun sbYawSpeed() = if (smoothBackValue.get()) smoothBackYawSpeed.get() else 180F
+
+    @JvmStatic
+    fun sbPitchSpeed() = if (smoothBackValue.get()) smoothBackPitchSpeed.get() else 180F
 }

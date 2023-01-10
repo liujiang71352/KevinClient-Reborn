@@ -19,6 +19,7 @@ import kevin.main.KevinClient
 import kevin.module.*
 import kevin.module.modules.movement.Speed
 import kevin.utils.*
+import net.minecraft.client.settings.GameSettings
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
@@ -36,7 +37,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
     private val verticalValue = FloatValue("Vertical", 0F, -1F, 1F)
     private val modeValue = ListValue("Mode", arrayOf("Simple", "AAC", "AACPush", "AACZero", "AACv4",
         "Reverse", "SmoothReverse", "Jump", "Glitch", "AAC5Packet", "MatrixReduce", "MatrixSimple", "MatrixReverse",
-        "Vulcan", "AllowFirst", "Click", "TestIntave"), "Simple")
+        "Vulcan", "AllowFirst", "Click", "LegitSmart", "TestIntave"), "Simple")
 
     // Reverse
     private val reverseStrengthValue = FloatValue("ReverseStrength", 1F, 0.1F, 1F)
@@ -54,6 +55,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
     private val clickTime = IntegerValue("ClickMinHurtTime", 8, 1, 10) // 10: only click when receive velocity packet
     private val clickRange = FloatValue("ClickRange", 3.0F, 2.5F, 7F)
     private val clickOnPacket = BooleanValue("ClickOnPacket", true)
+    private val clickSwing = BooleanValue("ClickSwing", false)
     private val clickFakeSwing = BooleanValue("ClickFakeSwing", true)
 
     // explosion value
@@ -209,6 +211,14 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                     velocityInput = false
                 }
             } else velocityInput = false
+            "legitsmart" -> if (velocityInput) {
+                if (mc.thePlayer.onGround && mc.thePlayer.hurtTime == 9 && mc.thePlayer.isSprinting && mc.currentScreen == null && mc.thePlayer.ticksExisted % 3 != 0) {
+                    mc.gameSettings.keyBindJump.pressed = true
+                } else if (mc.thePlayer.hurtTime == 8) {
+                    mc.gameSettings.keyBindJump.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindJump)
+                    velocityInput = false
+                }
+            }
             "testintave" -> if (velocityInput && thePlayer.hurtTime > 0) {
                 if (thePlayer.hurtTime in 3..7) {
                     thePlayer.motionX /= 1.010101
@@ -346,7 +356,8 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
             if (doAttack) {
                 KevinClient.eventManager.callEvent(AttackEvent(it))
                 repeat(attack) { _ ->
-                    mc.netHandler.addToSendQueue(C0APacketAnimation())
+                    if (clickSwing.get()) mc.thePlayer.swingItem()
+                    else mc.netHandler.addToSendQueue(C0APacketAnimation())
                     mc.netHandler.addToSendQueue(C02PacketUseEntity(it, C02PacketUseEntity.Action.ATTACK))
                 }
                 mc.thePlayer.attackTargetEntityWithCurrentItem(it)

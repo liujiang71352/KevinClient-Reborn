@@ -35,7 +35,7 @@ import net.minecraft.util.AxisAlignedBB
 import org.lwjgl.opengl.GL11.*
 
 class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their previous locations", category = ModuleCategory.COMBAT) {
-    private val minDistance = FloatValue("MinDistance", 2.99f, 2f, 4f)
+    private val minDistance = FloatValue("MinDistance", 2.9f, 2f, 4f)
     private val maxDistance = FloatValue("MaxDistance", 5f, 2f, 6f)
     private val maxTime = IntegerValue("MaxTime", 200, 0, 1000)
     private val onlyKillAura = BooleanValue("OnlyKillAura", true)
@@ -43,8 +43,9 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
     private val smartPacket = BooleanValue("Smart", true)
     private val resetOnVelocity = BooleanValue("ResetOnVelocity", true)
     private val resetOnLagging = BooleanValue("ResetOnLagging", true)
+    private val rangeCheckMode = ListValue("RangeCheckMode", arrayOf("RayCast", "DirectDistance"), "DirectDistance")
 
-    private val espMode = ListValue("ESPMode", arrayOf("FullBox", "OutlineBox", "NormalBox", "None"), "Box")
+    private val espMode = ListValue("ESPMode", arrayOf("FullBox", "OutlineBox", "NormalBox", "OtherOutlineBox", "OtherFullBox", "None"), "Box")
 
     val storagePackets = ArrayList<Packet<INetHandlerPlayClient>>()
     private val storageEntities = ArrayList<Entity>()
@@ -71,16 +72,24 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
                 val z = entity.serverPosZ.toDouble() / 32.0
                 if (!onlyKillAura.get() || killAura.state || needFreeze) {
                     val afterBB = AxisAlignedBB(x - 0.4F, y, z - 0.4F, x + 0.4F, y + 1.4F, z + 0.4F)
-                    var afterRange = afterBB.getLookingTargetRange(mc.thePlayer!!)
-                    var beforeRange = entity.getLookDistanceToEntityBox()
-                    if (afterRange == Double.MAX_VALUE) {
+                    var afterRange: Double
+                    var beforeRange: Double
+                    if (rangeCheckMode equal "RayCast") {
+                        afterRange = afterBB.getLookingTargetRange(mc.thePlayer!!)
+                        beforeRange = entity.getLookDistanceToEntityBox()
+                        if (afterRange == Double.MAX_VALUE) {
+                            val eyes = mc.thePlayer!!.getPositionEyes(1F)
+                            afterRange = getNearestPointBB(eyes, afterBB).distanceTo(eyes) + 0.075
+                        }
+                        if (beforeRange == Double.MAX_VALUE) beforeRange = mc.thePlayer!!.getDistanceToEntityBox(entity) + 0.075
+                    } else {
                         val eyes = mc.thePlayer!!.getPositionEyes(1F)
-                        afterRange = getNearestPointBB(eyes, afterBB).distanceTo(eyes) + 0.075
+                        afterRange = getNearestPointBB(eyes, afterBB).distanceTo(eyes)
+                        beforeRange = mc.thePlayer!!.getDistanceToEntityBox(entity)
                     }
-                    if (beforeRange == Double.MAX_VALUE) beforeRange = mc.thePlayer!!.getDistanceToEntityBox(entity) + 0.075
 
-                    if (beforeRange < minDistance.get()) {
-                        if (afterRange in minDistance.get()..maxDistance.get() && (!smartPacket.get() || afterRange >= beforeRange)) {
+                    if (beforeRange <= minDistance.get()) {
+                        if (afterRange in minDistance.get()..maxDistance.get() && (!smartPacket.get() || rangeCheckMode equal "RayCast" || afterRange > beforeRange + 0.02)) {
                             if (!needFreeze) {
                                 timer.reset()
                                 needFreeze = true
@@ -164,12 +173,21 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
 
         var outline = false
         var filled = false
+        var other = false
         when (espMode.get()) {
             "NormalBox" -> {
                 outline = true
                 filled = true
             }
             "FullBox" -> {
+                filled = true
+            }
+            "OtherOutlineBox" -> {
+                other = true
+                outline = true
+            }
+            "OtherFullBox" -> {
+                other = true
                 filled = true
             }
             else -> {
@@ -196,14 +214,23 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
             val x = entity.serverPosX.toDouble() / 32.0 - renderManager.renderPosX
             val y = entity.serverPosY.toDouble() / 32.0 - renderManager.renderPosY
             val z = entity.serverPosZ.toDouble() / 32.0 - renderManager.renderPosZ
-            val bb = AxisAlignedBB(x - 0.4F, y, z - 0.4F, x + 0.4F, y + 1.9F, z + 0.4F)
-            if (outline) {
-                RenderUtils.glColor(32, 200, 32, 255)
-                RenderUtils.drawSelectionBoundingBox(bb)
-            }
-            if (filled) {
-                RenderUtils.glColor(32, 255, 32, if (outline) 26 else 35)
-                RenderUtils.drawFilledBox(bb)
+            if (other) {
+                if (outline) {
+                    RenderUtils.otherDrawOutlinedBoundingBox(entity.rotationYawHead, x, y, z, entity.width / 2.0 + 0.1, entity.height + 0.1)
+                }
+                if (filled) {
+                    RenderUtils.otherDrawBoundingBox(entity.rotationYawHead, x, y, z, entity.width / 2.0 + 0.1, entity.height + 0.1)
+                }
+            } else {
+                val bb = AxisAlignedBB(x - 0.4F, y, z - 0.4F, x + 0.4F, y + 1.9F, z + 0.4F)
+                if (outline) {
+                    RenderUtils.glColor(32, 200, 32, 255)
+                    RenderUtils.drawSelectionBoundingBox(bb)
+                }
+                if (filled) {
+                    RenderUtils.glColor(32, 255, 32, if (outline) 26 else 35)
+                    RenderUtils.drawFilledBox(bb)
+                }
             }
         }
 

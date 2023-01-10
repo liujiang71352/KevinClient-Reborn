@@ -161,7 +161,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
         }
     }
 
-    private val rotationModeValue = ListValue("RotationMode", arrayOf("LiquidBounce", "LiquidSense", "NearestPoint"), "LiquidBounce")
+    private val rotationModeValue = ListValue("RotationMode", arrayOf("LiquidBounce", "Advanced", "LiquidSense", "NearestPoint"), "LiquidBounce")
     private val silentRotationValue = ListValue("SilentRotation", arrayOf("Always", "OnlyNoMove", "Off"), "Always")
     private val rotationStrafeValue = ListValue("Strafe", arrayOf("Off", "Vanilla", "Strict", "Silent"), "Off")
     private val randomCenterValue = BooleanValue("RandomCenter", true)
@@ -841,6 +841,19 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                     mc.thePlayer!!.getDistanceToEntityBox(entity) < throughWallsRangeValue.get(),
                     discoverRangeValue.get()
                 ) ?: return false,
+                (Math.random() * (yawMaxTurnSpeed.get() - yawMinTurnSpeed.get()) + yawMinTurnSpeed.get()).toFloat(),
+                (Math.random() * (pitchMaxTurnSpeed.get() - pitchMinTurnSpeed.get()) + pitchMinTurnSpeed.get()).toFloat()
+            )
+        } else if (rotationModeValue equal "Advanced") {
+            val (_, rotation) = RotationUtils.newSearchCenter(
+                boundingBox,
+                outborderValue.get(),
+                randomCenterValue.get(),
+                predictValue.get(),
+                mc.thePlayer!!.getDistanceToEntityBox(entity) < throughWallsRangeValue.get(),
+                discoverRangeValue.get()
+            ) ?: return false
+            RotationUtils.limitAngleChange(RotationUtils.serverRotation, rotation,
                 (Math.random() * (yawMaxTurnSpeed.get() - yawMinTurnSpeed.get()) + yawMinTurnSpeed.get()).toFloat(),
                 (Math.random() * (pitchMaxTurnSpeed.get() - pitchMinTurnSpeed.get()) + pitchMinTurnSpeed.get()).toFloat()
             )

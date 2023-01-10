@@ -20,6 +20,7 @@ import kevin.event.MotionEvent
 import kevin.main.KevinClient
 import kevin.module.*
 import kevin.module.Module
+import kevin.utils.ChatUtils
 import kevin.utils.RaycastUtils
 import kevin.utils.expands
 import kevin.utils.getNearestPointBB
@@ -40,6 +41,8 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
     private val onlyKillAura = BooleanValue("OnlyKillAura", true)
     private val auraClick = BooleanValue("AuraClick", true)
     private val onlyPlayer = BooleanValue("OnlyPlayer", true)
+    private val debug = BooleanValue("Debug", false)
+
     private val killAura: KillAura by lazy { KevinClient.moduleManager.getModule(KillAura::class.java) }
 
     @JvmStatic
@@ -64,13 +67,16 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
                 return
             }
             val vecEyes = thePlayer.getPositionEyes(1f)
-            val range = getNearestPointBB(
+            val box = getNearestPointBB(
                 vecEyes,
                 entity.entityBoundingBox.expands(entity.collisionBorderSize.toDouble())
-            ).distanceTo(vecEyes)
+            )
+            val range = box.distanceTo(vecEyes)
+            val predictEyes = thePlayer.getPositionEyes(3f)
+            val afterRange = box.distanceTo(predictEyes)
             if (range < minDistance.get()) {
                 stopWorking = true
-            } else if (range <= maxDistance.get() && range < lastNearest) {
+            } else if (range <= maxDistance.get() && range < lastNearest && afterRange < range) {
                 stopWorking = false
                 foundTarget()
             }
@@ -82,19 +88,22 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
             )
             if (entityList.isNotEmpty()) {
                 val vecEyes = thePlayer.getPositionEyes(1f)
+                val afterEyes = thePlayer.getPositionEyes(3f)
                 var targetFound = false
                 var targetInRange = false
                 var nearest = 10.0
                 for (entity in entityList) {
                     if (onlyPlayer.get() && entity !is EntityPlayer) continue
-                    val range = getNearestPointBB(
+                    val box = getNearestPointBB(
                         vecEyes,
                         entity.entityBoundingBox.expands(entity.collisionBorderSize.toDouble())
-                    ).distanceTo(vecEyes)
+                    )
+                    val range = box.distanceTo(vecEyes)
+                    val afterRange = box.distanceTo(afterEyes)
                     if (range < minDistance.get()) {
                         targetInRange = true
                         break
-                    } else if (range <= maxDistance.get()) {
+                    } else if (range <= maxDistance.get() && afterRange < range) {
                         targetFound = true
                     }
                     nearest = min(nearest, range)
@@ -121,10 +130,12 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
             ++freezeTicks
             mc.runTick()
         }
+        if (debug.get()) ChatUtils.messageWithStart("Timed")
         if (auraClick.get()) {
             killAura.clicks++
             ++freezeTicks
             mc.runTick()
+            if (debug.get()) ChatUtils.messageWithStart("Clicked")
         }
         stopWorking = false
         working = false

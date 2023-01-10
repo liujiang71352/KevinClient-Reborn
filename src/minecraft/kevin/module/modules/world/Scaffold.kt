@@ -259,6 +259,32 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
         slot = mc.thePlayer!!.inventory.currentItem
         facesBlock = false
         aacRotationPositive = ThreadLocalRandom.current().nextBoolean()
+        if (rotationsOn) {
+            val calculatedRotation = calculateRotation(RotationUtils.bestServerRotation())
+            if (minTurnSpeedValue.get() < 180) {
+                val limitedRotation = RotationUtils.limitAngleChange(
+                    RotationUtils.serverRotation,
+                    calculatedRotation,
+                    (Math.random() * (maxTurnSpeedValue.get() - minTurnSpeedValue.get()) + minTurnSpeedValue.get()).toFloat()
+                )
+
+                if ((10 * wrapAngleTo180_float(limitedRotation.yaw)).roundToInt() == (10 * wrapAngleTo180_float(calculatedRotation.yaw)).roundToInt() &&
+                    (10 * wrapAngleTo180_float(limitedRotation.pitch)).roundToInt() == (10 * wrapAngleTo180_float(calculatedRotation.pitch)).roundToInt()) {
+                    setRotation(calculatedRotation)
+                    lockRotation = calculatedRotation
+                    facesBlock = true
+                } else {
+                    setRotation(limitedRotation)
+                    lockRotation = limitedRotation
+                    facesBlock = false
+                }
+            } else {
+                setRotation(calculatedRotation)
+                lockRotation = calculatedRotation
+                facesBlock = true
+            }
+            lockRotationTimer.reset()
+        }
     }
 
     private fun fakeJump() {
@@ -490,18 +516,8 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
                     }
                     eagleSneaking = shouldEagle
                 } else {
-                    if (eagleValue equal "Smart") {
-                        val roundY = mc.thePlayer.posY.toInt()
-                        var shouldSneak = shouldEagle
-                        for (y in (roundY-1)..(roundY-3)) {
-                            shouldSneak = shouldSneak && mc.theWorld.getBlockState(BlockPos(mc.thePlayer.posX, y.toDouble(), mc.thePlayer.posZ)).block == Blocks.air
-                            if (!shouldSneak) break
-                        }
-                        mc.gameSettings.keyBindSneak.pressed = shouldSneak
-                    } else {
-                        mc.gameSettings.keyBindSneak.pressed = shouldEagle
-                        placedBlocksWithoutEagle = 0
-                    }
+                    mc.gameSettings.keyBindSneak.pressed = shouldEagle
+                    placedBlocksWithoutEagle = 0
                 }
             } else {
                 placedBlocksWithoutEagle++
@@ -931,6 +947,20 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
             return
         }
 
+        // HitableCheck
+        if (!(hitableCheck equal "Normal")) {
+            val eyesVec = mc.thePlayer.getPositionEyes(1f)
+            val lookVec = RotationUtils.bestServerRotation().toDirection().multiply(5.0).add(eyesVec)
+            val movingObjectPosition = mc.theWorld.rayTraceBlocks(eyesVec, lookVec, false, true, false)
+            if (movingObjectPosition.blockPos != targetPlace!!.blockPos || (hitableCheck equal "Strict" && movingObjectPosition.sideHit != targetPlace!!.enumFacing)) {
+                targetPlace!!.vec3 = movingObjectPosition.hitVec
+                if (eagleValue equal "Smart") {
+                    mc.gameSettings.keyBindSneak.pressed = true
+                }
+                return
+            }
+        }
+
         //2022-12-19 Hit facing check
         val f: Float = (targetPlace!!.vec3.xCoord - targetPlace!!.blockPos.x.toDouble()).toFloat()
         val f1: Float = (targetPlace!!.vec3.yCoord - targetPlace!!.blockPos.y.toDouble()).toFloat()
@@ -948,15 +978,6 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
                     MathHelper.clamp_double(vec.yCoord, pos.y + 0.0, pos.y + 1.0),
                     MathHelper.clamp_double(vec.zCoord, pos.z + 0.0, pos.z + 1.0)
                 )
-            }
-        }
-        if (!(hitableCheck equal "Normal")) {
-            val eyesVec = mc.thePlayer.getPositionEyes(1f)
-            val lookVec = RotationUtils.bestServerRotation().toDirection().multiply(5.0).add(eyesVec)
-            val movingObjectPosition = mc.theWorld.rayTraceBlocks(eyesVec, lookVec, false, true, false)
-            if (movingObjectPosition.blockPos != targetPlace!!.blockPos) return
-            if (hitableCheck equal "Strict") {
-                if (movingObjectPosition.sideHit != targetPlace!!.enumFacing) return
             }
         }
 
@@ -1034,7 +1055,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
             }
         }
         if (eagleValue equal "Smart") {
-            eagleSneaking = false
+            mc.gameSettings.keyBindSneak.pressed = false
         }
         targetPlace = null
     }
@@ -1257,12 +1278,8 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
                                 zSearch += if (auto) 0.1 else xzSSV
                                 continue
                             }
-                            if (placeRotation == null || RotationUtils.getRotationDifference(rotation) < RotationUtils.getRotationDifference(
-                                    placeRotation.rotation
-                                )
-                            ) {
-                                placeRotation =
-                                    PlaceRotation(PlaceInfo(neighbor, facingType.opposite, hitVec), rotation)
+                            if (placeRotation == null || RotationUtils.getRotationDifference(rotation) < RotationUtils.getRotationDifference(placeRotation.rotation)) {
+                                placeRotation = PlaceRotation(PlaceInfo(neighbor, facingType.opposite, hitVec), rotation)
                             }
 
                             zSearch += if (auto) 0.1 else xzSSV
@@ -1283,13 +1300,8 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
                     (Math.random() * (maxTurnSpeedValue.get() - minTurnSpeedValue.get()) + minTurnSpeedValue.get()).toFloat()
                 )
 
-                if ((10 * wrapAngleTo180_float(limitedRotation.yaw)).roundToInt() == (10 * wrapAngleTo180_float(
-                        calculatedRotation.yaw
-                    )).roundToInt() &&
-                    (10 * wrapAngleTo180_float(limitedRotation.pitch)).roundToInt() == (10 * wrapAngleTo180_float(
-                        calculatedRotation.pitch
-                    )).roundToInt()
-                ) {
+                if ((10 * wrapAngleTo180_float(limitedRotation.yaw)).roundToInt() == (10 * wrapAngleTo180_float(calculatedRotation.yaw)).roundToInt() &&
+                    (10 * wrapAngleTo180_float(limitedRotation.pitch)).roundToInt() == (10 * wrapAngleTo180_float(calculatedRotation.pitch)).roundToInt()) {
                     setRotation(calculatedRotation)
                     lockRotation = calculatedRotation
                     facesBlock = true
