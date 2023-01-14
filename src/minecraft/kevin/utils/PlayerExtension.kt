@@ -27,6 +27,7 @@ import net.minecraft.entity.passive.EntitySquid
 import net.minecraft.entity.passive.EntityVillager
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.MovingObjectPosition
 import net.minecraft.util.Vec3
 import kotlin.math.*
 
@@ -42,6 +43,12 @@ fun Entity.getLookDistanceToEntityBox(entity: Entity=this, rotation: Rotation? =
     val eyes = this.getPositionEyes(1F)
     val end = (rotation?: RotationUtils.bestServerRotation()).toDirection().multiply(range).add(eyes)
     return entity.entityBoundingBox.calculateIntercept(eyes, end)?.hitVec?.distanceTo(eyes) ?: Double.MAX_VALUE
+}
+
+fun Entity.rayTraceWithServerSideRotation(range: Double): MovingObjectPosition {
+    val eyes = this.getPositionEyes(1f)
+    val end = RotationUtils.bestServerRotation().toDirection().multiply(range).add(eyes)
+    return this.worldObj.rayTraceBlocks(eyes, end, false, false, true)
 }
 
 fun getNearestPointBB(eye: Vec3, box: AxisAlignedBB): Vec3 {

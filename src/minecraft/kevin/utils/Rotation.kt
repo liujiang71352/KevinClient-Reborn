@@ -238,6 +238,25 @@ data class Rotation(var yaw: Float, var pitch: Float) : MinecraftInstance() {
         val f3: Float = MathHelper.sin(-pitch * 0.017453292f)
         return Vec3((f1 * f2).toDouble(), f3.toDouble(), (f * f2).toDouble())
     }
+
+    fun cloneSelf(): Rotation {
+        return Rotation(yaw, pitch)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null) return false
+        if (other is Array<*>) {
+            if (other.size != 2) return false
+            if (other[0] !is Number || other[1] !is Number) return false
+            return other[0] == yaw && other[1] == pitch
+        }
+        if (other !is Rotation) return false
+        return other.yaw == this.yaw && other.pitch == this.pitch
+    }
+
+    override fun hashCode(): Int {
+        return (yaw * 25566).toInt().shl(10) + (pitch * 25566).toInt()
+    }
 }
 
 /**

@@ -228,23 +228,21 @@ class ESP : Module("ESP", "Allows you to see targets through walls.", category =
         val timer = mc.timer
         val renderManager = mc.renderManager
         val x: Double =
-            (entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * timer.renderPartialTicks
-                    - renderManager.renderPosX)
+            (entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * timer.renderPartialTicks - renderManager.renderPosX)
         val y: Double =
-            (entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * timer.renderPartialTicks
-                    - renderManager.renderPosY)
+            (entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * timer.renderPartialTicks - renderManager.renderPosY)
         val z: Double =
-            (entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * timer.renderPartialTicks
-                    - renderManager.renderPosZ)
+            (entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * timer.renderPartialTicks - renderManager.renderPosZ)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_BLEND)
         glDisable(GL_TEXTURE_2D)
         glDisable(GL_DEPTH_TEST)
         glLineWidth(1f)
         glEnable(GL_LINE_SMOOTH)
-        glColor(color.red, color.green, color.blue, 95)
+        glDepthMask(false)
+        glColor(color.red, color.green, color.blue, 255)
         otherDrawOutlinedBoundingBox(entity.rotationYawHead, x, y, z, entity.width / 2 + 0.1, entity.height + 0.1)
-        glColor(color.red, color.green, color.blue,26)
+        glColor(color.red, color.green, color.blue,120)
         otherDrawBoundingBox(entity.rotationYawHead, x, y, z, entity.width / 2 + 0.1, entity.height + 0.1)
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
         glDepthMask(true)

@@ -34,14 +34,26 @@ import kotlin.math.min
  */
 object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faster", category = ModuleCategory.COMBAT) {
     private val mode = ListValue("Mode", arrayOf("RayCast", "Radius"), "RayCast")
-    private val minDistance = FloatValue("MinDistance", 3F, 0F, 4F)
-    private val maxDistance = FloatValue("MaxDistance", 4F, 3F, 7F)
+    private val minDistance: FloatValue = object : FloatValue("MinDistance", 3F, 0F, 4F) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            if (newValue > maxDistance.get()) set(maxDistance.get())
+        }
+    }
+    private val maxDistance: FloatValue = object : FloatValue("MaxDistance", 4F, 3F, 7F) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            if (newValue < minDistance.get()) set(minDistance.get())
+        }
+    }
+    private val rangeMode = ListValue("RangeMode", arrayOf("Setting", "Smart"), "Smart")
     private val maxTimeValue = IntegerValue("MaxTime", 3, 1, 20)
     private val delayValue = IntegerValue("Delay", 5, 0, 20)
+    private val maxHurtTimeValue = IntegerValue("TargetMaxHurtTime", 2, 0, 10)
     private val onlyKillAura = BooleanValue("OnlyKillAura", true)
     private val auraClick = BooleanValue("AuraClick", true)
     private val onlyPlayer = BooleanValue("OnlyPlayer", true)
     private val debug = BooleanValue("Debug", false)
+    private val betterAnimation = BooleanValue("BetterAnimation", true)
+//    private val bypassValue = BooleanValue("Test", false)
 
     private val killAura: KillAura by lazy { KevinClient.moduleManager.getModule(KillAura::class.java) }
 
@@ -51,6 +63,8 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
     private var lastNearest = 10.0
     private var cooldown = 0
     private var freezeTicks = 0
+    private var bypassTick = 0
+    private var firstAnimation = true
 
     @EventTarget fun onMotion(event: MotionEvent) {
         if (event.eventState == EventState.PRE) return
@@ -62,7 +76,7 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
                     return entity != null && entity is EntityLivingBase && (!onlyPlayer.get() || entity is EntityPlayer)
                 }
             })
-            if (entity == null) {
+            if (entity == null || entity !is EntityLivingBase) {
                 lastNearest = 10.0
                 return
             }
@@ -72,11 +86,13 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
                 entity.entityBoundingBox.expands(entity.collisionBorderSize.toDouble())
             )
             val range = box.distanceTo(vecEyes)
-            val predictEyes = thePlayer.getPositionEyes(3f)
+            val predictEyes = if (rangeMode equal "Smart") {
+                thePlayer.getPositionEyes(maxTimeValue.get() + 1f)
+            } else thePlayer.getPositionEyes(3f)
             val afterRange = box.distanceTo(predictEyes)
             if (range < minDistance.get()) {
                 stopWorking = true
-            } else if (range <= maxDistance.get() && range < lastNearest && afterRange < range) {
+            } else if (((rangeMode equal "Smart" && range > minDistance.get() && afterRange < minDistance.get() && afterRange < range) || (rangeMode equal "Setting" && range <= maxDistance.get() && range < lastNearest && afterRange < range)) && entity.hurtTime <= maxHurtTimeValue.get()) {
                 stopWorking = false
                 foundTarget()
             }
@@ -88,11 +104,14 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
             )
             if (entityList.isNotEmpty()) {
                 val vecEyes = thePlayer.getPositionEyes(1f)
-                val afterEyes = thePlayer.getPositionEyes(3f)
+                val afterEyes = if (rangeMode equal "Smart") {
+                    thePlayer.getPositionEyes(maxTimeValue.get() + 1f)
+                } else thePlayer.getPositionEyes(3f)
                 var targetFound = false
                 var targetInRange = false
                 var nearest = 10.0
                 for (entity in entityList) {
+                    if (entity !is EntityLivingBase) continue
                     if (onlyPlayer.get() && entity !is EntityPlayer) continue
                     val box = getNearestPointBB(
                         vecEyes,
@@ -103,7 +122,7 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
                     if (range < minDistance.get()) {
                         targetInRange = true
                         break
-                    } else if (range <= maxDistance.get() && afterRange < range) {
+                    } else if (range <= maxDistance.get() && afterRange < range && entity.hurtTime <= maxHurtTimeValue.get()) {
                         targetFound = true
                     }
                     nearest = min(nearest, range)
@@ -126,6 +145,7 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
         cooldown = delayValue.get()
         working = true
         freezeTicks = 0
+        if (betterAnimation.get()) firstAnimation = false
         while (freezeTicks <= maxTimeValue.get() && !stopWorking) {
             ++freezeTicks
             mc.runTick()
@@ -143,6 +163,10 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
 
     @JvmStatic
     fun handleTick(): Boolean {
+        if (bypassTick == 1) {
+            ++bypassTick
+            return false
+        }
         if (working || freezeTicks < 0) return true
         if (state && freezeTicks > 0) {
             --freezeTicks
@@ -153,5 +177,14 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
     }
 
     @JvmStatic
-    fun freezeAnimation(): Boolean = freezeTicks != 0
+    fun freezeAnimation(): Boolean {
+        if (freezeTicks != 0) {
+            if (!firstAnimation) {
+                firstAnimation = true
+                return false
+            }
+            return true
+        }
+        return false
+    }
 }

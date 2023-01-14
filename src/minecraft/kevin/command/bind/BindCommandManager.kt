@@ -53,7 +53,7 @@ object BindCommandManager : MinecraftInstance(),Listenable,ICommand {
                     1 -> ChatUtils.messageWithStart("§cUsage: §9.§6bindCommand §b${args[0]} §c<Key> <Command>")
                     2 -> ChatUtils.messageWithStart("§cUsage: §9.§6bindCommand §b${args[0]} ${args[1]} §c<Command>")
                     else -> {
-                        val key = Keyboard.getKeyIndex(args[1].toUpperCase())
+                        val key = Keyboard.getKeyIndex(args[1].uppercase())
                         if (key == Keyboard.KEY_NONE) {
                             ChatUtils.messageWithStart("§cError: Key '${args[1]}' does not exist.")
                         } else {
@@ -103,7 +103,7 @@ object BindCommandManager : MinecraftInstance(),Listenable,ICommand {
                         if (id < 1) {
                             ChatUtils.messageWithStart("§cError: ID must > 0.")
                         } else {
-                            val key = Keyboard.getKeyIndex(args[2].toUpperCase())
+                            val key = Keyboard.getKeyIndex(args[2].uppercase())
                             if (key == Keyboard.KEY_NONE) {
                                 ChatUtils.messageWithStart("§cError: Key '${args[2]}' does not exist.")
                             } else {

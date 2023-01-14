@@ -16,6 +16,7 @@ package kevin.module.modules.render
 
 import kevin.event.EventTarget
 import kevin.event.PacketEvent
+import kevin.event.TickEvent
 import kevin.main.KevinClient
 import kevin.module.*
 import kevin.module.modules.Targets
@@ -44,7 +45,7 @@ class ClickGui : Module("ClickGui","Opens the ClickGUI.", category = ModuleCateg
 
     private val mode = ListValue("Mode", arrayOf("New","Old"),"New")
 
-    @EventTarget(ignoreCondition = true)
+    @EventTarget
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if (packet is S2EPacketCloseWindow && (mc.currentScreen is ClickGUI || mc.currentScreen is NewClickGui)) {
@@ -57,7 +58,14 @@ class ClickGui : Module("ClickGui","Opens the ClickGUI.", category = ModuleCateg
             "New" -> mc.displayGuiScreen(KevinClient.newClickGui)
             "Old" -> mc.displayGuiScreen(KevinClient.clickGUI)
         }
-        this.state = false
+    }
+
+    override fun onDisable() {
+        if (mc.currentScreen is ClickGUI || mc.currentScreen is NewClickGui) mc.displayGuiScreen(null)
+    }
+
+    @EventTarget fun onTick(event: TickEvent) {
+        if (this.state && !(mc.currentScreen is ClickGUI || mc.currentScreen is NewClickGui)) this.state = false
     }
 
     class ClickGUI : GuiScreen(){

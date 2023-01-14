@@ -83,4 +83,13 @@ public final class InventoryUtils extends MinecraftInstance {
 
         return -1;
     }
+
+    public static boolean isBlockListBlock(ItemBlock itemBlock) {
+        Block block = itemBlock.getBlock();
+        return BLOCK_BLACKLIST.contains(block) || !block.isFullCube();
+    }
+
+    public static boolean canPlaceBlock(Block block) {
+        return block.isFullCube() && !BLOCK_BLACKLIST.contains(block);
+    }
 }

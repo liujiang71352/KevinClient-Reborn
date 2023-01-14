@@ -305,10 +305,10 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
 
         VecRotation vecRotation = null;
 
-        final Rotation rot = bestServerRotation();
-        if (random && mc.thePlayer.ticksExisted % 5 == 0) {
-            rot.setYaw(RandomUtils.INSTANCE.nextFloat(-5, 5) + rot.getYaw());
-            rot.setPitch(RandomUtils.INSTANCE.nextFloat(-5, 5) + rot.getPitch());
+        final Rotation rot = bestServerRotation().cloneSelf();
+        if (random) {
+            if (RotationUtils.random.nextGaussian() > 0.8) rot.setYaw(RandomUtils.INSTANCE.nextFloat(-5, 5) + rot.getYaw());
+            if (RotationUtils.random.nextGaussian() > 0.8) rot.setPitch(RandomUtils.INSTANCE.nextFloat(-5, 5) + rot.getPitch());
         }
 
 //        outborder = outborder && mc.thePlayer.ticksExisted % 10 != 0;

@@ -22,7 +22,7 @@ object FontGC : Listenable {
     private val activeFontRenderers: ArrayList<GameFontRenderer> = ArrayList()
 
     private var gcTicks: Int = 0
-    const val GC_TICKS = 600 // Start garbage collection every 600 ticks
+    const val GC_TICKS = 600 // Start garbage collection every 600 ticks (30s)
     const val CACHED_FONT_REMOVAL_TIME = 30000 // Remove cached texts after 30s of not being used
 
     @EventTarget

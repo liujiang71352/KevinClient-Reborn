@@ -18,7 +18,7 @@ open class Event
 
 open class CancellableEvent : Event(){
     var isCancelled: Boolean = false
-        private set
+        protected set
     fun cancelEvent() {
         isCancelled = true
     }

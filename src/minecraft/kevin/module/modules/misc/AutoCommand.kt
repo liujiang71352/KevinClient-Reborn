@@ -33,6 +33,7 @@ class AutoCommand : Module("AutoCommand","Send commands automatically.",category
     private val autoRegisterValue = BooleanValue("AutoRegister",true)
     private val autoJoin = BooleanValue("AutoJoin",true)
     private val autoJoinDetectMessage = TextValue("AutoJoinDetectMessage","top")
+    private val autoJoinDetectMessage2 = TextValue("AutoJoinDetectMessage2","died")
     private val autoJoinDelay = IntegerValue("AutoJoinDelay",5000,50,10000)
     private val autoJoinMessage = TextValue("AutoJoinMessage","/join")
     private val autoJoinNotificationMode = ListValue("AutoJoinNotificationMode", arrayOf("Notification","Chat","None"),"Notification")

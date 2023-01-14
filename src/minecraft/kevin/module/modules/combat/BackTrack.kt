@@ -35,8 +35,16 @@ import net.minecraft.util.AxisAlignedBB
 import org.lwjgl.opengl.GL11.*
 
 class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their previous locations", category = ModuleCategory.COMBAT) {
-    private val minDistance = FloatValue("MinDistance", 2.9f, 2f, 4f)
-    private val maxDistance = FloatValue("MaxDistance", 5f, 2f, 6f)
+    private val minDistance: FloatValue = object : FloatValue("MinDistance", 2.9f, 2f, 4f) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            if (newValue > maxDistance.get()) set(maxDistance.get())
+        }
+    }
+    private val maxDistance: FloatValue = object : FloatValue("MaxDistance", 5f, 2f, 6f) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            if (newValue < minDistance.get()) set(minDistance.get())
+        }
+    }
     private val maxTime = IntegerValue("MaxTime", 200, 0, 1000)
     private val onlyKillAura = BooleanValue("OnlyKillAura", true)
     private val onlyPlayer = BooleanValue("OnlyPlayer", true)
@@ -216,9 +224,11 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
             val z = entity.serverPosZ.toDouble() / 32.0 - renderManager.renderPosZ
             if (other) {
                 if (outline) {
+                    RenderUtils.glColor(32, 200, 32, 255)
                     RenderUtils.otherDrawOutlinedBoundingBox(entity.rotationYawHead, x, y, z, entity.width / 2.0 + 0.1, entity.height + 0.1)
                 }
                 if (filled) {
+                    RenderUtils.glColor(32, 255, 32, 35)
                     RenderUtils.otherDrawBoundingBox(entity.rotationYawHead, x, y, z, entity.width / 2.0 + 0.1, entity.height + 0.1)
                 }
             } else {

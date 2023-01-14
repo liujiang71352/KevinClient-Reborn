@@ -20,6 +20,7 @@ import kevin.main.KevinClient
 import net.minecraft.client.Minecraft
 import java.lang.reflect.InvocationTargetException
 
+@Suppress("UNCHECKED_CAST")
 class EventManager {
     private val registry = HashMap<Class<out Event>, MutableList<EventHook>>()
     fun registerListener(listener: Listenable) {

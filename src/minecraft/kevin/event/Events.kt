@@ -19,7 +19,6 @@ import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.multiplayer.WorldClient
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.network.INetHandler
 import net.minecraft.network.Packet
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
@@ -42,6 +41,12 @@ data class EntityMovementEvent(val movedEntity: Entity) : Event()
 class JumpEvent(var motion: Float) : CancellableEvent()
 
 class KeyEvent(val key: Int) : Event()
+
+object ClickUpdateEvent : CancellableEvent() {
+    fun reInit() {
+        isCancelled = false;
+    }
+}
 
 class MotionEvent(val eventState: EventState) : CancellableEvent()
 

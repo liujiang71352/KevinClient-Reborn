@@ -1541,7 +1541,7 @@ public abstract class Entity implements ICommandSender
     /**
      * Creates a Vec3 using the pitch and yaw of the entities rotation.
      */
-    protected final Vec3 getVectorForRotation(float pitch, float yaw)
+    public final Vec3 getVectorForRotation(float pitch, float yaw)
     {
         float f = MathHelper.cos(-yaw * ((float)Math.PI / 180F) - (float)Math.PI);
         float f1 = MathHelper.sin(-yaw * ((float)Math.PI / 180F) - (float)Math.PI);
@@ -2730,6 +2730,11 @@ public abstract class Entity implements ICommandSender
     public EnumFacing getHorizontalFacing()
     {
         return EnumFacing.getHorizontal(MathHelper.floor_double((double)(this.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3);
+    }
+
+    public EnumFacing getHorizontalFacing(float yaw)
+    {
+        return EnumFacing.getHorizontal(MathHelper.floor_double((double)(yaw * 4.0F / 360.0F) + 0.5D) & 3);
     }
 
     protected HoverEvent getHoverEvent()

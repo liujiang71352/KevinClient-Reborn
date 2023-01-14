@@ -97,6 +97,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
     private val autoJump = BooleanValue("AutoJump",false)
     private val swingValue = BooleanValue("Swing", true)
     private val searchValue = BooleanValue("Search", true)
+    private val advancedSearchValue = BooleanValue("AdvancedSearch", true)
     private val downValue = BooleanValue("Down", true)
     private val placeModeValue = ListValue("PlaceTiming", arrayOf("Pre", "Post"), "Post")
 
@@ -224,6 +225,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
 
     // Target block
     private var targetPlace: PlaceInfo? = null
+    private var lastPlace: BlockPos? = null
 
     // Rotation lock
     private var lockRotation: Rotation? = null
@@ -259,32 +261,32 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
         slot = mc.thePlayer!!.inventory.currentItem
         facesBlock = false
         aacRotationPositive = ThreadLocalRandom.current().nextBoolean()
-        if (rotationsOn) {
-            val calculatedRotation = calculateRotation(RotationUtils.bestServerRotation())
-            if (minTurnSpeedValue.get() < 180) {
-                val limitedRotation = RotationUtils.limitAngleChange(
-                    RotationUtils.serverRotation,
-                    calculatedRotation,
-                    (Math.random() * (maxTurnSpeedValue.get() - minTurnSpeedValue.get()) + minTurnSpeedValue.get()).toFloat()
-                )
-
-                if ((10 * wrapAngleTo180_float(limitedRotation.yaw)).roundToInt() == (10 * wrapAngleTo180_float(calculatedRotation.yaw)).roundToInt() &&
-                    (10 * wrapAngleTo180_float(limitedRotation.pitch)).roundToInt() == (10 * wrapAngleTo180_float(calculatedRotation.pitch)).roundToInt()) {
-                    setRotation(calculatedRotation)
-                    lockRotation = calculatedRotation
-                    facesBlock = true
-                } else {
-                    setRotation(limitedRotation)
-                    lockRotation = limitedRotation
-                    facesBlock = false
-                }
-            } else {
-                setRotation(calculatedRotation)
-                lockRotation = calculatedRotation
-                facesBlock = true
-            }
-            lockRotationTimer.reset()
-        }
+//        if (rotationsOn) {
+//            val calculatedRotation = calculateRotation(RotationUtils.bestServerRotation())
+//            if (minTurnSpeedValue.get() < 180) {
+//                val limitedRotation = RotationUtils.limitAngleChange(
+//                    RotationUtils.serverRotation,
+//                    calculatedRotation,
+//                    (Math.random() * (maxTurnSpeedValue.get() - minTurnSpeedValue.get()) + minTurnSpeedValue.get()).toFloat()
+//                )
+//
+//                if ((10 * wrapAngleTo180_float(limitedRotation.yaw)).roundToInt() == (10 * wrapAngleTo180_float(calculatedRotation.yaw)).roundToInt() &&
+//                    (10 * wrapAngleTo180_float(limitedRotation.pitch)).roundToInt() == (10 * wrapAngleTo180_float(calculatedRotation.pitch)).roundToInt()) {
+//                    setRotation(calculatedRotation)
+//                    lockRotation = calculatedRotation
+//                    facesBlock = true
+//                } else {
+//                    setRotation(limitedRotation)
+//                    lockRotation = limitedRotation
+//                    facesBlock = false
+//                }
+//            } else {
+//                setRotation(calculatedRotation)
+//                lockRotation = calculatedRotation
+//                facesBlock = true
+//            }
+//            lockRotationTimer.reset()
+//        }
     }
 
     private fun fakeJump() {
@@ -930,10 +932,23 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
                 }
             }
         } else if (searchValue.get()) {
-            for (x in -1..1) {
-                for (z in -1..1) {
-                    if (search(blockPosition.add(x, 0, z), !shouldGoDown)) {
-                        return
+            if (advancedSearchValue.get() && lastPlace != null) {
+                if (search(lastPlace!!, !shouldGoDown)) {
+                    return
+                }
+                for (x in -1..1) {
+                    for (z in -1..1) {
+                        if (search(blockPosition.add(x, 0, z), !shouldGoDown)) {
+                            return
+                        }
+                    }
+                }
+            } else {
+                for (x in -1..1) {
+                    for (z in -1..1) {
+                        if (search(blockPosition.add(x, 0, z), !shouldGoDown)) {
+                            return
+                        }
                     }
                 }
             }
@@ -949,7 +964,11 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
 
         // HitableCheck
         if (!(hitableCheck equal "Normal")) {
-            val eyesVec = mc.thePlayer.getPositionEyes(1f)
+            val eyesVec: Vec3 = if (placeModeValue equal "Pre") { // we aren't tell server our position in pre MotionEvent, so...
+                Vec3(mc.thePlayer.lastReportedPosX, mc.thePlayer.lastReportedPosY, mc.thePlayer.lastReportedPosZ)
+            } else {
+                mc.thePlayer.getPositionEyes(1f)
+            }
             val lookVec = RotationUtils.bestServerRotation().toDirection().multiply(5.0).add(eyesVec)
             val movingObjectPosition = mc.theWorld.rayTraceBlocks(eyesVec, lookVec, false, true, false)
             if (movingObjectPosition.blockPos != targetPlace!!.blockPos || (hitableCheck equal "Strict" && movingObjectPosition.sideHit != targetPlace!!.enumFacing)) {
@@ -1043,6 +1062,8 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
             } else {
                 mc.netHandler.addToSendQueue(C0APacketAnimation())
             }
+
+            lastPlace = targetPlace!!.blockPos.add(targetPlace!!.enumFacing.frontOffsetX, targetPlace!!.enumFacing.frontOffsetY, targetPlace!!.enumFacing.frontOffsetZ)
         }
 
         if (isDynamicSprint) {
@@ -1278,8 +1299,15 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
                                 zSearch += if (auto) 0.1 else xzSSV
                                 continue
                             }
-                            if (placeRotation == null || RotationUtils.getRotationDifference(rotation) < RotationUtils.getRotationDifference(placeRotation.rotation)) {
-                                placeRotation = PlaceRotation(PlaceInfo(neighbor, facingType.opposite, hitVec), rotation)
+                            if (advancedSearchValue.get()) {
+                                val rot = Rotation(wrapAngleTo180_float(MovementUtils.direction.toFloat() - 180F), RotationUtils.bestServerRotation().pitch)
+                                if (placeRotation == null || RotationUtils.getRotationDifference(rotation, rot) < RotationUtils.getRotationDifference(placeRotation.rotation, rot)) {
+                                    placeRotation = PlaceRotation(PlaceInfo(neighbor, facingType.opposite, hitVec), rotation)
+                                }
+                            } else {
+                                if (placeRotation == null || RotationUtils.getRotationDifference(rotation) < RotationUtils.getRotationDifference(placeRotation.rotation)) {
+                                    placeRotation = PlaceRotation(PlaceInfo(neighbor, facingType.opposite, hitVec), rotation)
+                                }
                             }
 
                             zSearch += if (auto) 0.1 else xzSSV

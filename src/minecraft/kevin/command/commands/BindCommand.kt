@@ -33,7 +33,7 @@ class BindCommand : ICommand {
             ChatUtils.messageWithStart("§9Module §c§l" + args[0] + "§9 not found.")
             return
         }
-        val key = Keyboard.getKeyIndex(args[1].toUpperCase())
+        val key = Keyboard.getKeyIndex(args[1].uppercase())
         module.keyBind = key
         ChatUtils.messageWithStart("§9Bound module §b§l${module.name}§9 to key §a§l${Keyboard.getKeyName(key)}§3.")
         Minecraft.getMinecraft().soundHandler.playSound(

@@ -150,9 +150,26 @@ open class ListValue(name: String, val values: Array<String>, value: String) : V
         }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (other == null) return false
+        if (other is String) {
+            return this equal other
+        }
+        if (other is ListValue) {
+            return this.openList == other.openList && this.name == other.name && this.values.contentEquals(other.values) && this.value == other.value
+        }
+        return false
+    }
+
     override fun toJson() = JsonPrimitive(value)
 
     override fun fromJson(element: JsonElement) {
         if (element.isJsonPrimitive) changeValue(element.asString)
+    }
+
+    override fun hashCode(): Int {
+        var result = values.contentHashCode()
+        result = 31 * result + openList.hashCode()
+        return result
     }
 }

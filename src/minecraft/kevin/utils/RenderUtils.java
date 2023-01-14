@@ -1013,18 +1013,18 @@ public final class RenderUtils extends MinecraftInstance{
         yaw4 *= -1.0F;
         yaw4 = (float)(yaw4 * 0.017453292519943295D);
 
-        float x1 = (float)(Math.sin(yaw1) * width + (double)x);
-        float z1 = (float)(Math.cos(yaw1) * width + (double)z);
-        float x2 = (float)(Math.sin(yaw2) * width + (double)x);
-        float z2 = (float)(Math.cos(yaw2) * width + (double)z);
-        float x3 = (float)(Math.sin(yaw3) * width + (double)x);
-        float z3 = (float)(Math.cos(yaw3) * width + (double)z);
-        float x4 = (float)(Math.sin(yaw4) * width + (double)x);
-        float z4 = (float)(Math.cos(yaw4) * width + (double)z);
-        float y2 = (float)((double)y + height);
+        float x1 = (float)(Math.sin(yaw1) * width + x);
+        float z1 = (float)(Math.cos(yaw1) * width + z);
+        float x2 = (float)(Math.sin(yaw2) * width + x);
+        float z2 = (float)(Math.cos(yaw2) * width + z);
+        float x3 = (float)(Math.sin(yaw3) * width + x);
+        float z3 = (float)(Math.cos(yaw3) * width + z);
+        float x4 = (float)(Math.sin(yaw4) * width + x);
+        float z4 = (float)(Math.cos(yaw4) * width + z);
+        float y2 = (float)(y + height);
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();
-        worldrenderer.begin(3, DefaultVertexFormats.POSITION);
+        worldrenderer.begin(GL_LINE_STRIP, DefaultVertexFormats.POSITION);
         worldrenderer.pos(x1, y, z1).endVertex();
         worldrenderer.pos(x1, y2, z1).endVertex();
         worldrenderer.pos(x2, y2, z2).endVertex();
@@ -1044,7 +1044,6 @@ public final class RenderUtils extends MinecraftInstance{
         worldrenderer.pos(x4, y2, z4).endVertex();
         worldrenderer.pos(x1, y2, z1).endVertex();
         worldrenderer.pos(x1, y, z1).endVertex();
-        worldrenderer.endVertex();
         tessellator.draw();
     }
 
@@ -1091,15 +1090,15 @@ public final class RenderUtils extends MinecraftInstance{
 
         yaw4 *= -1.0F;
         yaw4 = (float)((double)yaw4 * 0.017453292519943295D);
-        float x1 = (float)(Math.sin(yaw1) * width + (double)x);
-        float z1 = (float)(Math.cos(yaw1) * width + (double)z);
-        float x2 = (float)(Math.sin(yaw2) * width + (double)x);
-        float z2 = (float)(Math.cos(yaw2) * width + (double)z);
-        float x3 = (float)(Math.sin(yaw3) * width + (double)x);
-        float z3 = (float)(Math.cos(yaw3) * width + (double)z);
-        float x4 = (float)(Math.sin(yaw4) * width + (double)x);
-        float z4 = (float)(Math.cos(yaw4) * width + (double)z);
-        float y2 = (float)((double)y + height);
+        float x1 = (float)(Math.sin(yaw1) * width + x);
+        float z1 = (float)(Math.cos(yaw1) * width + z);
+        float x2 = (float)(Math.sin(yaw2) * width + x);
+        float z2 = (float)(Math.cos(yaw2) * width + z);
+        float x3 = (float)(Math.sin(yaw3) * width + x);
+        float z3 = (float)(Math.cos(yaw3) * width + z);
+        float x4 = (float)(Math.sin(yaw4) * width + x);
+        float z4 = (float)(Math.cos(yaw4) * width + z);
+        float y2 = (float)(y + height);
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();
         worldrenderer.begin(7, DefaultVertexFormats.POSITION);
@@ -1127,7 +1126,6 @@ public final class RenderUtils extends MinecraftInstance{
         worldrenderer.pos(x2, y2, z2).endVertex();
         worldrenderer.pos(x3, y2, z3).endVertex();
         worldrenderer.pos(x4, y2, z4).endVertex();
-        worldrenderer.endVertex();
         tessellator.draw();
     }
 

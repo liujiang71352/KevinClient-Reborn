@@ -73,6 +73,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     }
 
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
+    private val smartAttackValue = BooleanValue("SmartAttack", false)
 
     // Range (public because velocity...)
     val rangeValue: FloatValue = object : FloatValue("Range", 3.7f, 1f, 8f) {
@@ -105,7 +106,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     private val scaffoldCheck = BooleanValue("ScaffoldCheck", true)
 
     //Timing
-    private val attackTimingValue = ListValue("AttackTiming", arrayOf("Pre", "Post", "Update", "Pre&Post", "Update&Pre", "Update&Post", "Update&Pre&Post"), "Update")
+    private val attackTimingValue = ListValue("AttackTiming", arrayOf("Legit", "Pre", "Post", "Update", "Pre&Post", "Update&Pre", "Update&Post", "Update&Pre&Post"), "Update")
     private val extraBlockTimingValue // vanilla will send block packet at pre
     = ListValue("ExtraBlockTiming", arrayOf("NoExtra", "Pre", "Post", "Update", "Pre&Post", "Update&Pre", "Update&Post", "Update&Pre&Post"), "NoExtra")
     private val afterTickTimingValue = ListValue("AfterTickBlockTiming", arrayOf("Pre", "Post", "Both"), "Post")
@@ -479,6 +480,14 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     }
 
     @EventTarget
+    fun onClick(event: ClickUpdateEvent) {
+        if (attackTimingValue equal "Legit") {
+            updateHitable()
+            runAttackLoop()
+        }
+    }
+
+    @EventTarget
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if (autoBlockValue equal "Vulcan" && ((packet is C07PacketPlayerDigging && packet.status == C07PacketPlayerDigging.Action.RELEASE_USE_ITEM) || packet is C08PacketPlayerBlockPlacement) && lastBlocking)
@@ -560,7 +569,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
 
         target ?: return
 
-        if (currentTarget != null && attackTimer.hasTimePassed(attackDelay) &&
+        if (currentTarget != null && attackTimer.hasTimePassed(attackDelay + if (!smartAttackValue.get() || mc.thePlayer.hurtTime != 0 || (target !is EntityLivingBase || (target as EntityLivingBase).hurtTime <= 3)) 0 else 460) &&
             (currentTarget !is EntityLivingBase || (currentTarget as EntityLivingBase).hurtTime <= hurtTimeValue.get())) {
             clicks++
             attackTimer.reset()

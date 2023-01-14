@@ -86,7 +86,8 @@ public class InstallerFrame extends JFrame
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             InstallerFrame installerframe = new InstallerFrame();
             Utils.centerWindow(installerframe, (Component)null);
-            installerframe.show();
+//            installerframe.show();
+            installerframe.setVisible(true);
         }
         catch (Exception exception)
         {

@@ -70,7 +70,7 @@ class Trajectories : Module("Trajectories", description = "Shows the trajectory 
                 }
                 is EntityFireball -> {
                     gravity = 0F
-                    motionSlowdown = 1F
+                    motionSlowdown = 1.0F
                 }
                 else -> {
                     gravity = 0.03F
@@ -98,7 +98,7 @@ class Trajectories : Module("Trajectories", description = "Shows the trajectory 
             if (colorMode.get() == "Rainbow"){
                 RenderUtils.glColor(ColorUtils.rainbow())
             }else if (colorMode equal "Distance") {
-                val distance = min(Vec3(posX, posY, posZ).squareDistanceTo(Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ)).toInt(), 255)
+                val distance = min(Vec3(posX, posY, posZ).distanceTo(Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ)).toInt(), 255)
                 RenderUtils.glColor(Color(255 - distance, min(255, cColorG.get() + distance), cColorB.get(), cColorA.get()))
             } else if (colorMode equal "Speed") {
                 RenderUtils.glColor(Color(cColorR.get(), 255 - min((motionX * motionX * 100 + motionZ * motionZ * 100).toInt(), 255), cColorB.get(), cColorA.get()))
@@ -137,7 +137,7 @@ class Trajectories : Module("Trajectories", description = "Shows the trajectory 
                 collidedEntities.add(thePlayer)
 
                 for (possibleEntity in collidedEntities) {
-                    if (possibleEntity.canBeCollidedWith()) {
+                    if (possibleEntity.canBeCollidedWith() && e != possibleEntity) {
                         val possibleEntityBoundingBox = possibleEntity.entityBoundingBox
                             .expand(size.toDouble(), size.toDouble(), size.toDouble())
 
@@ -171,7 +171,7 @@ class Trajectories : Module("Trajectories", description = "Shows the trajectory 
                     posZ - renderManager.renderPosZ).endVertex()
 
                 if (e is EntityFireball) { // IT MAKE MY COMPUTER LAG...
-                    if (++aliveTicks > 400) break
+                    if (++aliveTicks >= 200) break
                 }
             }
             tessellator.draw()

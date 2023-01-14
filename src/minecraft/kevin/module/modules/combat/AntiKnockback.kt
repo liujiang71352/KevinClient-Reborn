@@ -37,7 +37,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
     private val verticalValue = FloatValue("Vertical", 0F, -1F, 1F)
     private val modeValue = ListValue("Mode", arrayOf("Simple", "AAC", "AACPush", "AACZero", "AACv4",
         "Reverse", "SmoothReverse", "Jump", "Glitch", "AAC5Packet", "MatrixReduce", "MatrixSimple", "MatrixReverse",
-        "Vulcan", "AllowFirst", "Click", "LegitSmart", "TestIntave"), "Simple")
+        "Vulcan", "AllowFirst", "Click", "LegitSmart", "IntaveJump", "TestIntave"), "Simple")
 
     // Reverse
     private val reverseStrengthValue = FloatValue("ReverseStrength", 1F, 0.1F, 1F)
@@ -71,6 +71,9 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
 
     // SmoothReverse
     private var reverseHurt = false
+
+    // legit smart
+    private var jumped = 0
 
     // AACPush
     private var jump = false
@@ -212,9 +215,23 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                 }
             } else velocityInput = false
             "legitsmart" -> if (velocityInput) {
-                if (mc.thePlayer.onGround && mc.thePlayer.hurtTime == 9 && mc.thePlayer.isSprinting && mc.currentScreen == null && mc.thePlayer.ticksExisted % 3 != 0) {
-                    mc.gameSettings.keyBindJump.pressed = true
+                if (mc.thePlayer.onGround && mc.thePlayer.hurtTime == 9 && mc.thePlayer.isSprinting && mc.currentScreen == null) {
+                    if (jumped > 2) {
+                        jumped = 0
+                    } else {
+                        ++jumped
+                        if (mc.thePlayer.ticksExisted % 5 != 0) mc.gameSettings.keyBindJump.pressed = true
+                    }
                 } else if (mc.thePlayer.hurtTime == 8) {
+                    mc.gameSettings.keyBindJump.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindJump)
+                    velocityInput = false
+                }
+            }
+            "intavejump" -> if (velocityInput) {
+                if (mc.thePlayer.hurtTime == 9) {
+                    if (++jumped % 2 == 0 && mc.thePlayer.onGround && mc.thePlayer.isSprinting && mc.currentScreen == null)
+                        mc.gameSettings.keyBindJump.pressed = true
+                } else {
                     mc.gameSettings.keyBindJump.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindJump)
                     velocityInput = false
                 }
@@ -264,7 +281,11 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                     packet.motionZ = (packet.motionZ * horizontal).toInt()
                 }
 
-                "aac", "reverse", "smoothreverse", "aaczero", "allowfirst", "testintave" -> velocityInput = true
+                "aac", "reverse", "smoothreverse", "aaczero", "allowfirst", "testintave", "intavejump" -> velocityInput = true
+
+                "legitsmart" -> {
+                    if (packet.motionX * packet.motionX + packet.motionZ * packet.motionZ + packet.motionY * packet.motionY > 640000) velocityInput = true
+                }
 
                 "aac5packet" -> {
                     if (mc.isIntegratedServerRunning) return

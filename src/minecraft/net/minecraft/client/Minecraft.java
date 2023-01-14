@@ -1464,7 +1464,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         }
     }
 
-    private void sendClickBlockToController(boolean leftClick)
+    public void sendClickBlockToController(boolean leftClick)
     {
         if (!leftClick)
         {
@@ -2104,52 +2104,57 @@ public class Minecraft implements IThreadListener, IPlayerUsage
                 this.displayGuiScreen(new GuiChat("/"));
             }
 
-            if (this.thePlayer.isUsingItem())
-            {
-                if (!this.gameSettings.keyBindUseItem.isKeyDown())
+            ClickUpdateEvent.INSTANCE.reInit();
+            KevinClient.eventManager.callEvent(ClickUpdateEvent.INSTANCE);
+
+            if (!ClickUpdateEvent.INSTANCE.isCancelled()) {
+                if (this.thePlayer.isUsingItem())
                 {
-                    this.playerController.onStoppedUsingItem(this.thePlayer);
+                    if (!this.gameSettings.keyBindUseItem.isKeyDown())
+                    {
+                        this.playerController.onStoppedUsingItem(this.thePlayer);
+                    }
+
+                    while (this.gameSettings.keyBindAttack.isPressed())
+                    {
+                        ;
+                    }
+
+                    while (this.gameSettings.keyBindUseItem.isPressed())
+                    {
+                        ;
+                    }
+
+                    while (this.gameSettings.keyBindPickBlock.isPressed())
+                    {
+                        ;
+                    }
+                }
+                else
+                {
+                    while (this.gameSettings.keyBindAttack.isPressed())
+                    {
+                        this.clickMouse();
+                    }
+
+                    while (this.gameSettings.keyBindUseItem.isPressed())
+                    {
+                        this.rightClickMouse();
+                    }
+
+                    while (this.gameSettings.keyBindPickBlock.isPressed())
+                    {
+                        this.middleClickMouse();
+                    }
                 }
 
-                while (this.gameSettings.keyBindAttack.isPressed())
-                {
-                    ;
-                }
-
-                while (this.gameSettings.keyBindUseItem.isPressed())
-                {
-                    ;
-                }
-
-                while (this.gameSettings.keyBindPickBlock.isPressed())
-                {
-                    ;
-                }
-            }
-            else
-            {
-                while (this.gameSettings.keyBindAttack.isPressed())
-                {
-                    this.clickMouse();
-                }
-
-                while (this.gameSettings.keyBindUseItem.isPressed())
+                if (this.gameSettings.keyBindUseItem.isKeyDown() && this.rightClickDelayTimer == 0 && !this.thePlayer.isUsingItem())
                 {
                     this.rightClickMouse();
                 }
 
-                while (this.gameSettings.keyBindPickBlock.isPressed())
-                {
-                    this.middleClickMouse();
-                }
+                this.sendClickBlockToController(this.currentScreen == null && this.gameSettings.keyBindAttack.isKeyDown() && this.inGameHasFocus);
             }
-
-            if (this.gameSettings.keyBindUseItem.isKeyDown() && this.rightClickDelayTimer == 0 && !this.thePlayer.isUsingItem())
-            {
-                this.rightClickMouse();
-            }
-
-            this.sendClickBlockToController(this.currentScreen == null && this.gameSettings.keyBindAttack.isKeyDown() && this.inGameHasFocus);
         }
 
         if (this.theWorld != null)

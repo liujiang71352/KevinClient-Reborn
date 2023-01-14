@@ -46,7 +46,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
     /**
      * The last X position which was transmitted to the server, used to determine when the X position changes and needs
-     * to be re-trasmitted
+     * to be re-transmitted
      */
     private double lastReportedPosX;
 
@@ -718,6 +718,18 @@ public class EntityPlayerSP extends AbstractClientPlayer
     {
         boolean flag = this.movementInput != null && this.movementInput.sneak;
         return flag && !this.sleeping;
+    }
+
+    public double getLastReportedPosX() {
+        return lastReportedPosX;
+    }
+
+    public double getLastReportedPosY() {
+        return lastReportedPosY;
+    }
+
+    public double getLastReportedPosZ() {
+        return lastReportedPosZ;
     }
 
     public void updateEntityActionState()
