@@ -13,9 +13,9 @@ public class EntityOtherPlayerMP extends AbstractClientPlayer
 {
     private boolean isItemInUse;
     private int otherPlayerMPPosRotationIncrements;
-    private double otherPlayerMPX;
-    private double otherPlayerMPY;
-    private double otherPlayerMPZ;
+    public double otherPlayerMPX;
+    public double otherPlayerMPY;
+    public double otherPlayerMPZ;
     private double otherPlayerMPYaw;
     private double otherPlayerMPPitch;
 

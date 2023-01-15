@@ -12,6 +12,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+@file:Suppress("UNCHECKED_CAST")
+
 package kevin.module
 
 import kevin.event.EventTarget
@@ -227,6 +229,8 @@ class ModuleManager : Listenable {
     }
 
     fun <T: Module> getModule(module: Class<T>) = modules.first { it.javaClass == module } as T
+
+    operator fun <T: Module> get(module: Class<T>) = getModule(module)
 
     @EventTarget
     fun onKey(key: KeyEvent){

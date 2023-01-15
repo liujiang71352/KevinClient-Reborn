@@ -72,6 +72,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
         }
     }
 
+    private val noSpamClick = BooleanValue("NoSpamClick", true)
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
     private val smartAttackValue = BooleanValue("SmartAttack", false)
 
@@ -496,9 +497,16 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
 
     private fun runAttackLoop() {
         if (target != null && currentTarget != null) {
-            while (clicks > 0) {
-                runAttack()
-                clicks--
+            if (noSpamClick.get()) {
+                if (clicks > 0) {
+                    runAttack()
+                    clicks = 0
+                }
+            } else {
+                while (clicks > 0) {
+                    runAttack()
+                    clicks--
+                }
             }
         }
     }

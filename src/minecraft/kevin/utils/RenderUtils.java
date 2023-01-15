@@ -410,6 +410,43 @@ public final class RenderUtils extends MinecraftInstance{
         GL11.glPopMatrix();
     }
 
+    public static void draw2D(final EntityLivingBase entity, final double posX, final double posY, final double posZ, final int color, final int backgroundColor) {
+        GL11.glPushMatrix();
+        GL11.glTranslated(posX, posY, posZ);
+        GL11.glRotated(-mc.getRenderManager().playerViewY, 0F, 1F, 0F);
+        GL11.glScaled(-0.1D, -0.1D, 0.1D);
+
+        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        GL11.glDepthMask(true);
+
+        glColor(color);
+
+        glCallList(DISPLAY_LISTS_2D[0]);
+
+        glColor(backgroundColor);
+
+        glCallList(DISPLAY_LISTS_2D[1]);
+
+        GL11.glTranslated(0, 21 + -(entity.getEntityBoundingBox().maxY - entity.getEntityBoundingBox().minY) * 12, 0);
+
+        glColor(color);
+        glCallList(DISPLAY_LISTS_2D[2]);
+
+        glColor(backgroundColor);
+        glCallList(DISPLAY_LISTS_2D[3]);
+
+        // Stop render
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_BLEND);
+
+        GL11.glPopMatrix();
+    }
+
     public static void drawLineStart(final Color color,final float width){
         glEnable(GL_BLEND);
         glDisable(GL_TEXTURE_2D);

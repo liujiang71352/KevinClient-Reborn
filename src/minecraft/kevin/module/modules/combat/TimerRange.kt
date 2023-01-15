@@ -20,10 +20,8 @@ import kevin.event.MotionEvent
 import kevin.main.KevinClient
 import kevin.module.*
 import kevin.module.Module
-import kevin.utils.ChatUtils
-import kevin.utils.RaycastUtils
-import kevin.utils.expands
-import kevin.utils.getNearestPointBB
+import kevin.utils.*
+import net.minecraft.client.entity.EntityOtherPlayerMP
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
@@ -53,7 +51,7 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
     private val onlyPlayer = BooleanValue("OnlyPlayer", true)
     private val debug = BooleanValue("Debug", false)
     private val betterAnimation = BooleanValue("BetterAnimation", true)
-//    private val bypassValue = BooleanValue("Test", false)
+    private val bypassValue = BooleanValue("TestBypass", false)
 
     private val killAura: KillAura by lazy { KevinClient.moduleManager.getModule(KillAura::class.java) }
 
@@ -67,7 +65,7 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
     private var firstAnimation = true
 
     @EventTarget fun onMotion(event: MotionEvent) {
-        if (event.eventState == EventState.PRE) return
+        if (event.eventState == EventState.PRE) return // post event mean player's tick is done
         val thePlayer = mc.thePlayer ?: return
         if (onlyKillAura.get() && !killAura.state) return
         if (mode equal "RayCast") {
@@ -80,16 +78,24 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
                 lastNearest = 10.0
                 return
             }
+            if (!EntityUtils.isSelected(entity, true)) return
             val vecEyes = thePlayer.getPositionEyes(1f)
-            val box = getNearestPointBB(
-                vecEyes,
-                entity.entityBoundingBox.expands(entity.collisionBorderSize.toDouble())
-            )
-            val range = box.distanceTo(vecEyes)
             val predictEyes = if (rangeMode equal "Smart") {
                 thePlayer.getPositionEyes(maxTimeValue.get() + 1f)
             } else thePlayer.getPositionEyes(3f)
-            val afterRange = box.distanceTo(predictEyes)
+            val entityBox = entity.entityBoundingBox.expands(entity.collisionBorderSize.toDouble())
+            val box = getNearestPointBB(
+                vecEyes,
+                entityBox
+            )
+            val box2 = getNearestPointBB(
+                predictEyes,
+                if (entity is EntityOtherPlayerMP) {
+                    entityBox.offset(entity.otherPlayerMPX - entity.posX, entity.otherPlayerMPY - entity.posY, entity.otherPlayerMPZ - entity.posZ)
+                } else entityBox
+            )
+            val range = box.distanceTo(vecEyes)
+            val afterRange = box2.distanceTo(predictEyes)
             if (range < minDistance.get()) {
                 stopWorking = true
             } else if (((rangeMode equal "Smart" && range > minDistance.get() && afterRange < minDistance.get() && afterRange < range) || (rangeMode equal "Setting" && range <= maxDistance.get() && range < lastNearest && afterRange < range)) && entity.hurtTime <= maxHurtTimeValue.get()) {
@@ -113,12 +119,20 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
                 for (entity in entityList) {
                     if (entity !is EntityLivingBase) continue
                     if (onlyPlayer.get() && entity !is EntityPlayer) continue
+                    if (!EntityUtils.isSelected(entity, true)) continue
+                    val entityBox = entity.entityBoundingBox.expands(entity.collisionBorderSize.toDouble())
                     val box = getNearestPointBB(
                         vecEyes,
-                        entity.entityBoundingBox.expands(entity.collisionBorderSize.toDouble())
+                        entityBox
+                    )
+                    val box2 = getNearestPointBB(
+                        afterEyes,
+                        if (entity is EntityOtherPlayerMP) {
+                            entityBox.offset(entity.otherPlayerMPX - entity.posX, entity.otherPlayerMPY - entity.posY, entity.otherPlayerMPZ - entity.posZ)
+                        } else entityBox
                     )
                     val range = box.distanceTo(vecEyes)
-                    val afterRange = box.distanceTo(afterEyes)
+                    val afterRange = box2.distanceTo(afterEyes)
                     if (range < minDistance.get()) {
                         targetInRange = true
                         break
@@ -142,6 +156,12 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
 
     fun foundTarget() {
         if (cooldown > 0 || freezeTicks != 0) return
+        if (bypassValue.get()) {
+            if (bypassTick < 2) {
+                if (bypassTick == 0) bypassTick = 1
+                return
+            }
+        }
         cooldown = delayValue.get()
         working = true
         freezeTicks = 0
@@ -150,13 +170,14 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
             ++freezeTicks
             mc.runTick()
         }
-        if (debug.get()) ChatUtils.messageWithStart("Timed")
+        if (debug.get()) ChatUtils.messageWithStart("Timer-ed")
         if (auraClick.get()) {
             killAura.clicks++
             ++freezeTicks
             mc.runTick()
             if (debug.get()) ChatUtils.messageWithStart("Clicked")
         }
+        if (bypassValue.get()) --freezeTicks // we have been freeze 1 tick before
         stopWorking = false
         working = false
     }
@@ -165,7 +186,7 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
     fun handleTick(): Boolean {
         if (bypassTick == 1) {
             ++bypassTick
-            return false
+            return true
         }
         if (working || freezeTicks < 0) return true
         if (state && freezeTicks > 0) {

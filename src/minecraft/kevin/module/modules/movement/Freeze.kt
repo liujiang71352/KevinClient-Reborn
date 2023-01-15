@@ -21,10 +21,12 @@ import kevin.module.BooleanValue
 import kevin.module.ListValue
 import kevin.module.Module
 import kevin.module.ModuleCategory
+import kevin.utils.PacketUtils
 import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.play.server.S08PacketPlayerPosLook
 
 class Freeze : Module("Freeze", "Allows you to stay stuck in mid air.", category = ModuleCategory.MOVEMENT) {
-    private val mode = ListValue("Mode", arrayOf("SetDead","NoMove"),"SetDead")
+    private val mode = ListValue("Mode", arrayOf("SetDead","NoMove", "NoPacket"),"NoPacket")
     private val resetMotionValue = BooleanValue("ResetMotion",false)
     private val lockRotation = BooleanValue("LockRotation",true)
 
@@ -44,7 +46,7 @@ class Freeze : Module("Freeze", "Allows you to stay stuck in mid air.", category
                 thePlayer.rotationYaw = thePlayer.cameraYaw
                 thePlayer.rotationPitch = thePlayer.cameraPitch
             }
-            "NoMove" -> {
+            "NoMove", "NoPacket" -> {
                 mc.thePlayer.motionX = .0
                 mc.thePlayer.motionY = .0
                 mc.thePlayer.motionZ = .0
@@ -54,14 +56,53 @@ class Freeze : Module("Freeze", "Allows you to stay stuck in mid air.", category
     }
     @EventTarget fun onPacket(event: PacketEvent) {
         val packet = event.packet
-        if (packet is C03PacketPlayer&&(packet is C03PacketPlayer.C05PacketPlayerLook || packet is C03PacketPlayer.C06PacketPlayerPosLook)) {
-            if (!lockRotation.get()) return
-            when(mode.get()){
-                "NoMove" -> {
-                    packet.yaw = rotationYaw
-                    packet.pitch = rotationPitch
-                    packet.rotating = false
+        if (mode.get() == "NoMove") {
+            if (packet is C03PacketPlayer&&(packet is C03PacketPlayer.C05PacketPlayerLook || packet is C03PacketPlayer.C06PacketPlayerPosLook)) {
+                if (!lockRotation.get()) return
+                packet.yaw = rotationYaw
+                packet.pitch = rotationPitch
+                packet.rotating = false
+            }
+        }
+        if (mode equal "NoPacket") {
+            if (packet is C03PacketPlayer) event.cancelEvent()
+            else if (packet is S08PacketPlayerPosLook) {
+                motionX = 0.0
+                motionY = 0.0
+                motionZ = 0.0
+                var d0: Double = packet.x
+                var d1: Double = packet.y
+                var d2: Double = packet.z
+                var f: Float = packet.getYaw()
+                var f1: Float = packet.getPitch()
+                if (packet.func_179834_f().contains(S08PacketPlayerPosLook.EnumFlags.X)) {
+                    d0 += mc.thePlayer.posX
+                } else {
+                    motionX = 0.0
                 }
+
+                if (packet.func_179834_f().contains(S08PacketPlayerPosLook.EnumFlags.Y)) {
+                    d1 += mc.thePlayer.posY
+                } else {
+                    motionY = 0.0
+                }
+
+                if (packet.func_179834_f().contains(S08PacketPlayerPosLook.EnumFlags.Z)) {
+                    d2 += mc.thePlayer.posZ
+                } else {
+                    motionZ = 0.0
+                }
+
+                if (packet.func_179834_f().contains(S08PacketPlayerPosLook.EnumFlags.X_ROT)) {
+                    f1 += mc.thePlayer.rotationPitch
+                }
+
+                if (packet.func_179834_f().contains(S08PacketPlayerPosLook.EnumFlags.Y_ROT)) {
+                    f += mc.thePlayer.rotationYaw
+                }
+                mc.thePlayer.setPositionAndRotation(d0, d1, d2, f, f1)
+                PacketUtils.sendPacketNoEvent(C03PacketPlayer.C06PacketPlayerPosLook(d0, d1, d2, f, f1, false))
+                event.cancelEvent()
             }
         }
     }
@@ -69,7 +110,7 @@ class Freeze : Module("Freeze", "Allows you to stay stuck in mid air.", category
     override fun onDisable() {
         when(mode.get()){
             "SetDead" -> mc.thePlayer?.isDead = false
-            "NoMove" -> mc.thePlayer.speedInAir = .02F
+            "NoMove", "NoPacket" -> mc.thePlayer.speedInAir = .02F
         }
         if (resetMotionValue.get()) {
             mc.thePlayer.motionX = .0

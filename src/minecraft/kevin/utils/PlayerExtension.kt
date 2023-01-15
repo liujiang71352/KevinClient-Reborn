@@ -82,7 +82,7 @@ fun Entity.isMob(): Boolean {
 }
 
 fun EntityPlayer.isClientFriend(): Boolean {
-    val entityName = name ?: return false
+//    val entityName = name ?: return false
 
     //return LiquidBounce.fileManager.friendsConfig.isFriend(stripColor(entityName))
     return false

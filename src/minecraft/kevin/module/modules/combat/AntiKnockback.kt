@@ -37,7 +37,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
     private val verticalValue = FloatValue("Vertical", 0F, -1F, 1F)
     private val modeValue = ListValue("Mode", arrayOf("Simple", "AAC", "AACPush", "AACZero", "AACv4",
         "Reverse", "SmoothReverse", "Jump", "Glitch", "AAC5Packet", "MatrixReduce", "MatrixSimple", "MatrixReverse",
-        "Vulcan", "AllowFirst", "Click", "LegitSmart", "IntaveJump", "TestIntave"), "Simple")
+        "Vulcan", "AllowFirst", "Click", "LegitSmart", "IntaveJump", "TestBuzzReverse", "TestIntave"), "Simple")
 
     // Reverse
     private val reverseStrengthValue = FloatValue("ReverseStrength", 1F, 0.1F, 1F)
@@ -229,8 +229,10 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
             }
             "intavejump" -> if (velocityInput) {
                 if (mc.thePlayer.hurtTime == 9) {
-                    if (++jumped % 2 == 0 && mc.thePlayer.onGround && mc.thePlayer.isSprinting && mc.currentScreen == null)
+                    if (++jumped % 2 == 0 && mc.thePlayer.onGround && mc.thePlayer.isSprinting && mc.currentScreen == null) {
                         mc.gameSettings.keyBindJump.pressed = true
+                        jumped = 0 // don't spam
+                    }
                 } else {
                     mc.gameSettings.keyBindJump.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindJump)
                     velocityInput = false
@@ -321,6 +323,10 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                 "matrixreverse" -> {
                     packet.motionX = (packet.motionX * -0.3).toInt()
                     packet.motionZ = (packet.motionZ * -0.3).toInt()
+                }
+                "testbuzzreverse" -> {
+                    packet.motionX = -packet.motionX
+                    packet.motionZ = -packet.motionZ
                 }
                 "vulcan" -> event.cancelEvent()
                 "click" -> {

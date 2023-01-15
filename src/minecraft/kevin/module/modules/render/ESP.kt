@@ -23,6 +23,7 @@ import kevin.utils.ColorUtils
 import kevin.utils.ColorUtils.rainbow
 import kevin.utils.EntityUtils
 import kevin.font.GameFontRenderer.Companion.getColorIndex
+import kevin.utils.RenderUtils
 import kevin.utils.RenderUtils.*
 import kevin.utils.WorldToScreen
 import kevin.utils.isClientFriend
@@ -42,7 +43,7 @@ import kotlin.math.min
 
 class ESP : Module("ESP", "Allows you to see targets through walls.", category = ModuleCategory.RENDER) {
     @JvmField
-    val modeValue = ListValue("Mode", arrayOf("Box", "OtherBox","2D","Outline","WireFrame"),"Box")
+    val modeValue = ListValue("Mode", arrayOf("Box", "OtherBox","2D","Another2D","Outline","WireFrame"),"Box")
     private val colorRedValue = IntegerValue("R", 255, 0, 255)
     private val colorGreenValue = IntegerValue("G", 255, 0, 255)
     private val colorBlueValue = IntegerValue("B", 255, 0, 255)
@@ -59,7 +60,7 @@ class ESP : Module("ESP", "Allows you to see targets through walls.", category =
     @EventTarget
     fun onRender3D(event: Render3DEvent){
         val mode = modeValue.get()
-        if (mode !in arrayOf("Box","2D")) return
+        if (mode !in arrayOf("Box","OtherBox","Another2D","2D")) return
         val mvMatrix = WorldToScreen.getMatrix(GL_MODELVIEW_MATRIX)
         val projectionMatrix = WorldToScreen.getMatrix(GL_PROJECTION_MATRIX)
         if (mode == "2D"){
@@ -86,6 +87,17 @@ class ESP : Module("ESP", "Allows you to see targets through walls.", category =
             when(mode){
                 "Box" -> drawEntityBox(entity,color)
                 "OtherBox" -> drawOtherBox(entity, color)
+                "Another2D" -> {
+                    val renderManager = mc.renderManager
+                    val timer = mc.timer
+                    val posX: Double =
+                        entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * timer.renderPartialTicks - renderManager.renderPosX
+                    val posY: Double =
+                        entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * timer.renderPartialTicks - renderManager.renderPosY
+                    val posZ: Double =
+                        entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * timer.renderPartialTicks - renderManager.renderPosZ
+                    draw2D(entity, posX, posY, posZ, color.rgb, Color.BLACK.rgb)
+                }
                 "2D" -> {
                     val renderManager = mc.renderManager
                     val timer = mc.timer
@@ -237,7 +249,7 @@ class ESP : Module("ESP", "Allows you to see targets through walls.", category =
         glEnable(GL_BLEND)
         glDisable(GL_TEXTURE_2D)
         glDisable(GL_DEPTH_TEST)
-        glLineWidth(1f)
+        glLineWidth(1.5f)
         glEnable(GL_LINE_SMOOTH)
         glDepthMask(false)
         glColor(color.red, color.green, color.blue, 255)

@@ -29,7 +29,7 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.client.C0BPacketEntityAction
 
 class SuperKnockback : Module("SuperKnockback", "Increases knockback dealt to other entities.", category = ModuleCategory.COMBAT) {
-    private val modeValue = ListValue("Mode", arrayOf("ExtraPacket", "Packet", "W-Tap", "Legit"), "ExtraPacket")
+    private val modeValue = ListValue("Mode", arrayOf("ExtraPacket", "Packet", "W-Tap", "Legit", "LegitFast"), "ExtraPacket")
     private val maxDelay: IntegerValue = object : IntegerValue("Legit-MaxDelay", 60, 0, 100) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val i = minDelay.get()
@@ -98,7 +98,7 @@ class SuperKnockback : Module("SuperKnockback", "Increases knockback dealt to ot
                     mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
                     mc.thePlayer.serverSprintState = true
                 }
-                "Legit" -> {
+                "Legit", "LegitFast" -> {
                     if (!isHit) {
                         isHit = true
                         attackTimer.reset()
@@ -112,17 +112,23 @@ class SuperKnockback : Module("SuperKnockback", "Increases knockback dealt to ot
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if (!(modeValue equal "Legit"))
-            return
-        if (isHit && attackTimer.hasTimePassed(delay/2)) {
-            isHit = false
-            mc.thePlayer.isSprinting = false
-            stopSprint = true
-            stopTimer.reset()
+        if  (modeValue equal "LegitFast") {
+            if (isHit) {
+                mc.thePlayer.sprintingTicksLeft = 1
+                stopTimer.reset()
+            }
         }
-        if (modeValue equal "Legit" && !KevinClient.moduleManager.getModule(Sprint::class.java).state) {
-            ChatUtils.messageWithStart("§cError: You must turn on sprint to use the legit mode SuperKnockBack.")
-            this.state = false
+        if (modeValue equal "Legit") {
+            if (isHit && attackTimer.hasTimePassed(delay / 2)) {
+                isHit = false
+                mc.thePlayer.isSprinting = false
+                stopSprint = true
+                stopTimer.reset()
+            }
+            if (!KevinClient.moduleManager.getModule(Sprint::class.java).state) {
+                ChatUtils.messageWithStart("§cError: You must turn on sprint to use the legit mode SuperKnockBack.")
+                this.state = false
+            }
         }
     }
 
