@@ -18,16 +18,12 @@ import kevin.event.*
 import kevin.module.*
 import kevin.module.modules.movement.flys.FlyMode
 import kevin.module.modules.movement.flys.aac.AAC5
-import kevin.module.modules.movement.flys.matrix.Matrix
-import kevin.module.modules.movement.flys.matrix.NewMatrix
-import kevin.module.modules.movement.flys.matrix.NewMatrixClip
+import kevin.module.modules.movement.flys.matrix.*
 import kevin.module.modules.movement.flys.ncp.*
-import kevin.module.modules.movement.flys.other.Buzz
-import kevin.module.modules.movement.flys.other.Teleport
-import kevin.module.modules.movement.flys.vanilla.Creative
-import kevin.module.modules.movement.flys.vanilla.Vanilla
+import kevin.module.modules.movement.flys.other.*
+import kevin.module.modules.movement.flys.vanilla.*
 import kevin.module.modules.movement.flys.verus.VerusAuto
-import kevin.module.modules.movement.flys.vulcan.Vulcan
+import kevin.module.modules.movement.flys.vulcan.*
 import kevin.utils.*
 import org.lwjgl.input.Keyboard
 import java.awt.Color
@@ -49,6 +45,7 @@ class Fly : Module("Fly","Allow you fly", Keyboard.KEY_F,ModuleCategory.MOVEMENT
         NewMatrix, // from FDP
         NewMatrixClip, // from FDP
         Vulcan, // from FDP
+        VulcanClip, // from FDP
         DCJBoost() // from Milk
     )
 
