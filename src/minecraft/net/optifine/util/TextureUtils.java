@@ -289,14 +289,7 @@ public class TextureUtils
         if (iresourcemanager instanceof IReloadableResourceManager)
         {
             IReloadableResourceManager ireloadableresourcemanager = (IReloadableResourceManager)iresourcemanager;
-            IResourceManagerReloadListener iresourcemanagerreloadlistener = new IResourceManagerReloadListener()
-            {
-                public void onResourceManagerReload(IResourceManager var1)
-                {
-                    TextureUtils.resourcesReloaded(var1);
-                }
-            };
-            ireloadableresourcemanager.registerReloadListener(iresourcemanagerreloadlistener);
+            ireloadableresourcemanager.registerReloadListener(TextureUtils::resourcesReloaded);
         }
 
         ITickableTextureObject itickabletextureobject = new ITickableTextureObject()

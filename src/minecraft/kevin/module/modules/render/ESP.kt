@@ -245,6 +245,7 @@ class ESP : Module("ESP", "Allows you to see targets through walls.", category =
             (entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * timer.renderPartialTicks - renderManager.renderPosY)
         val z: Double =
             (entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * timer.renderPartialTicks - renderManager.renderPosZ)
+        glPushMatrix()
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_BLEND)
         glDisable(GL_TEXTURE_2D)
@@ -262,6 +263,7 @@ class ESP : Module("ESP", "Allows you to see targets through walls.", category =
         glEnable(GL_TEXTURE_2D)
         glEnable(GL_DEPTH_TEST)
         glDisable(GL_LINE_SMOOTH)
+        glPopMatrix()
     }
     fun getColor(entity: EntityLivingBase): Color{
         run {

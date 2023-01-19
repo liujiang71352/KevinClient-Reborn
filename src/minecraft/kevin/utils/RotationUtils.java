@@ -37,6 +37,8 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
 
     public static int keepLength;
 
+    public static final float[] lastRandomDeltaRotation = {0f, 0f};
+
     public static Rotation targetRotation;
     public static Rotation serverRotation = new Rotation(0F, 0F);
 
@@ -307,14 +309,20 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
 
         final Rotation rot = bestServerRotation().cloneSelf();
         if (random) {
-            if (RotationUtils.random.nextGaussian() > 0.8) rot.setYaw(RandomUtils.INSTANCE.nextFloat(-5, 5) + rot.getYaw());
-            if (RotationUtils.random.nextGaussian() > 0.8) rot.setPitch(RandomUtils.INSTANCE.nextFloat(-5, 5) + rot.getPitch());
+            if (RotationUtils.random.nextGaussian() > 0.5) {
+                lastRandomDeltaRotation[0] = lastRandomDeltaRotation[0] * 0.6f + RandomUtils.INSTANCE.nextFloat(-5, 5);
+                rot.setYaw(lastRandomDeltaRotation[0] + rot.getYaw());
+            }
+            if (RotationUtils.random.nextGaussian() > 0.5) {
+                lastRandomDeltaRotation[1] = lastRandomDeltaRotation[1] * 0.6f + RandomUtils.INSTANCE.nextFloat(-5, 5);
+                rot.setPitch(lastRandomDeltaRotation[1] + rot.getPitch());
+            }
         }
 
 //        outborder = outborder && mc.thePlayer.ticksExisted % 10 != 0;
 
         for(double xSearch = 0.15D; xSearch < 0.85D; xSearch += 0.1D) {
-            for (double ySearch = 0.15D; ySearch < 1D; ySearch += 0.1D) {
+            for (double ySearch = 0D; ySearch < 1D; ySearch += 0.02D) {
                 for (double zSearch = 0.15D; zSearch < 0.85D; zSearch += 0.1D) {
                     final Vec3 vec3 = new Vec3(
                             bb.minX + (bb.maxX - bb.minX) * xSearch,

@@ -79,8 +79,8 @@ public class PlayerControllerOF extends PlayerControllerMP
      * Return true when the player rightclick on an entity
      *  
      * @param player The player's instance
-     * @param entityIn The entity clicked
-     * @param movingObject The object clicked
+     * @param target The entity clicked
+     * @param ray The object clicked
      */
     public boolean isPlayerRightClickingOnEntity(EntityPlayer player, Entity target, MovingObjectPosition ray)
     {

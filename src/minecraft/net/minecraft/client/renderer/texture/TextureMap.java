@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
+
+import kevin.module.modules.misc.PerformanceBooster;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.StitcherException;
 import net.minecraft.client.resources.IResource;
@@ -31,7 +33,6 @@ import net.optifine.ConnectedTextures;
 import net.optifine.CustomItems;
 import net.optifine.EmissiveTextures;
 import net.optifine.SmartAnimations;
-import net.optifine.reflect.Reflector;
 import net.optifine.reflect.ReflectorForge;
 import net.optifine.shaders.ShadersTex;
 import net.optifine.util.CounterInt;
@@ -67,12 +68,12 @@ public class TextureMap extends AbstractTexture implements ITickableTextureObjec
 
     public TextureMap(String p_i46099_1_)
     {
-        this(p_i46099_1_, (IIconCreator)null);
+        this(p_i46099_1_, null);
     }
 
     public TextureMap(String p_i5_1_, boolean p_i5_2_)
     {
-        this(p_i5_1_, (IIconCreator)null, p_i5_2_);
+        this(p_i5_1_, null, p_i5_2_);
     }
 
     public TextureMap(String p_i46100_1_, IIconCreator iconCreatorIn)
@@ -156,13 +157,13 @@ public class TextureMap extends AbstractTexture implements ITickableTextureObjec
         int k = 1 << this.mipmapLevels;
         int l = 0;
         int i1 = 0;
-        Iterator iterator = this.mapRegisteredSprites.entrySet().iterator();
+        Iterator<Entry<String, TextureAtlasSprite>> iterator = this.mapRegisteredSprites.entrySet().iterator();
 
         while (true)
         {
             if (iterator.hasNext())
             {
-                Entry<String, TextureAtlasSprite> entry = (Entry)iterator.next();
+                Entry<String, TextureAtlasSprite> entry = iterator.next();
 
                 if (!this.skipFirst)
                 {
@@ -260,7 +261,7 @@ public class TextureMap extends AbstractTexture implements ITickableTextureObjec
                     }
                     catch (RuntimeException runtimeexception)
                     {
-                        logger.error("Unable to parse metadata from " + resourcelocation2, (Throwable)runtimeexception);
+                        logger.error("Unable to parse metadata from " + resourcelocation2, runtimeexception);
                         ReflectorForge.FMLClientHandler_trackBrokenTexture(resourcelocation2, runtimeexception.getMessage());
                         continue;
                     }
@@ -476,6 +477,10 @@ public class TextureMap extends AbstractTexture implements ITickableTextureObjec
                 Config.dbg("Exporting texture map: " + this.basePath);
                 TextureUtils.saveGlTexture("debug/" + this.basePath.replaceAll("/", "_"), this.getGlTextureId(), this.mipmapLevels, stitcher.getCurrentWidth(), stitcher.getCurrentHeight());
             }
+            /* Modified by kevin */
+            logger.info("Handle performanceBooster...");
+            PerformanceBooster.postTextureStitch();
+            /* Modified by kevin */
 
             return;
         }
@@ -783,7 +788,7 @@ public class TextureMap extends AbstractTexture implements ITickableTextureObjec
         return this.counterIndexInMap.getValue();
     }
 
-    private int detectMaxMipmapLevel(Map p_detectMaxMipmapLevel_1_, IResourceManager p_detectMaxMipmapLevel_2_)
+    private int detectMaxMipmapLevel(Map<?, ?> p_detectMaxMipmapLevel_1_, IResourceManager p_detectMaxMipmapLevel_2_)
     {
         int i = this.detectMinimumSpriteSize(p_detectMaxMipmapLevel_1_, p_detectMaxMipmapLevel_2_, 20);
 
@@ -809,14 +814,13 @@ public class TextureMap extends AbstractTexture implements ITickableTextureObjec
         return j;
     }
 
-    private int detectMinimumSpriteSize(Map p_detectMinimumSpriteSize_1_, IResourceManager p_detectMinimumSpriteSize_2_, int p_detectMinimumSpriteSize_3_)
+    private int detectMinimumSpriteSize(Map<?, ?> p_detectMinimumSpriteSize_1_, IResourceManager p_detectMinimumSpriteSize_2_, int p_detectMinimumSpriteSize_3_)
     {
-        Map map = new HashMap();
+        Map<Integer, Integer> map = new HashMap<>();
 
-        for (Object ff_Object : p_detectMinimumSpriteSize_1_.entrySet())
+        for (Entry<?, ?> ff_Object : p_detectMinimumSpriteSize_1_.entrySet())
         {
-        	Entry entry = (Entry)ff_Object;
-            TextureAtlasSprite textureatlassprite = (TextureAtlasSprite)entry.getValue();
+            TextureAtlasSprite textureatlassprite = (TextureAtlasSprite) ff_Object.getValue();
             ResourceLocation resourcelocation = new ResourceLocation(textureatlassprite.getIconName());
             ResourceLocation resourcelocation1 = this.completeResourceLocation(resourcelocation);
 
@@ -845,28 +849,25 @@ public class TextureMap extends AbstractTexture implements ITickableTextureObjec
                                 }
                                 else
                                 {
-                                    int k = (int) map.get(j);
+                                    int k = map.get(j);
                                     map.put(j, k + 1);
                                 }
                             }
                         }
                     }
                 }
-                catch (Exception var17)
-                {
-                    ;
-                }
+                catch (Exception ignored) {}
             }
         }
 
         int l = 0;
-        Set set = map.keySet();
-        Set set1 = new TreeSet(set);
+        Set<Integer> set = map.keySet();
+        Set<Integer> set1 = new TreeSet<>(set);
 
         for (Object o: set1)
         {
         	int j1 = (int)o;
-            int l1 = (int) map.get(j1);
+            int l1 = map.get(j1);
             l += l1;
         }
 
@@ -877,7 +878,7 @@ public class TextureMap extends AbstractTexture implements ITickableTextureObjec
         for (Object o: set1)
         {
         	int j2 = (int)o;
-            int k2 = (int) map.get(j2);
+            int k2 = map.get(j2);
             k1 += k2;
 
             if (j2 > i1)

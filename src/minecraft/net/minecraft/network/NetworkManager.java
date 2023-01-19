@@ -49,6 +49,7 @@ import kevin.via.CommonTransformer;
 import kevin.via.DecodeHandler;
 import kevin.via.EncodeHandler;
 import kevin.via.ViaVersion;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.CryptManager;
@@ -175,7 +176,11 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
                     backTrack = KevinClient.moduleManager.getModule(BackTrack.class);
                 }
                 if (backTrack.getState()) {
-                    backTrack.onPacket(packetEvent);
+                    try {
+                        backTrack.onPacket(packetEvent);
+                    } catch (Exception e) {
+                        Minecraft.logger.error("Exception caught in BackTrack", e);
+                    }
                     if (packetEvent.isCancelled()) return;
                 }
 

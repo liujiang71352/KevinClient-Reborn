@@ -34,6 +34,7 @@ class FreeCam : Module("FreeCam", "Allows you to move out of your body.", catego
     private val speedValue = FloatValue("Speed", 0.8f, 0.1f, 2f)
     private val flyValue = BooleanValue("Fly", true)
     private val noClipValue = BooleanValue("NoClip", true)
+    private val noPacket = BooleanValue("NoPlayerPacket", false)
     private val bypass = BooleanValue("Bypass", false)
     private val debug = BooleanValue("Debug", false)
 
@@ -116,7 +117,7 @@ class FreeCam : Module("FreeCam", "Allows you to move out of your body.", catego
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if (packet is C03PacketPlayer) {
-            if (bypass.get()) {
+            if (!noPacket.get() && bypass.get()) {
                 PacketUtils.sendPacketNoEvent(
                     if (positionUpdateTicks >= 20) {
                         positionUpdateTicks = 0

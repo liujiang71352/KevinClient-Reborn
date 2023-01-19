@@ -62,6 +62,7 @@ object VulcanClip : FlyMode("VulcanClip") {
             if (glide.get()) {
                 canGlide = true
             } else {
+                mc.timer.timerSpeed = 1f
                 fly.state = false
             }
         }

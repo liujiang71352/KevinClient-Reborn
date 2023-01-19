@@ -258,10 +258,11 @@ class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their 
 
     fun releasePackets() {
         val netHandler: INetHandlerPlayClient = mc.netHandler
+        if (storagePackets.isEmpty()) return
         while (storagePackets.isNotEmpty()) {
             storagePackets.removeAt(0).let{
                 try {
-                    val packetEvent = PacketEvent(it)
+                    val packetEvent = PacketEvent(it ?: return)
                     if (!packetList.contains(it)) KevinClient.eventManager.callEvent(packetEvent)
                     if (!packetEvent.isCancelled) it.processPacket(netHandler)
                 } catch (_: ThreadQuickExitException) { }

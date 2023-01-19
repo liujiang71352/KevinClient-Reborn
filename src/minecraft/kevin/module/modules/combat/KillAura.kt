@@ -419,7 +419,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
             return
 
         // Update target
-        updateTarget()
+//        updateTarget()
 
         if (target == null) {
             stopBlocking()
@@ -454,6 +454,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
             discoveredTargets.clear()
             return
         }
+        updateTarget()
 
         if (noInventoryAttackValue.get() && ((mc.currentScreen)is GuiContainer ||
                     System.currentTimeMillis() - containerOpen < noInventoryDelayValue.get())) {
@@ -483,6 +484,8 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     @EventTarget
     fun onClick(event: ClickUpdateEvent) {
         if (attackTimingValue equal "Legit") {
+            if (mc.thePlayer == null || mc.theWorld == null) return
+            updateTarget()
             updateHitable()
             runAttackLoop()
         }
@@ -577,7 +580,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
 
         target ?: return
 
-        if (currentTarget != null && attackTimer.hasTimePassed(attackDelay + if (!smartAttackValue.get() || mc.thePlayer.hurtTime != 0 || (target !is EntityLivingBase || (target as EntityLivingBase).hurtTime <= 3)) 0 else 460) &&
+        if (currentTarget != null && attackTimer.hasTimePassed(attackDelay + if (!smartAttackValue.get() || mc.thePlayer.hurtTime != 0 || (target !is EntityLivingBase || (target as EntityLivingBase).hurtTime <= 3)) 0 else 500) &&
             (currentTarget !is EntityLivingBase || (currentTarget as EntityLivingBase).hurtTime <= hurtTimeValue.get())) {
             clicks++
             attackTimer.reset()
@@ -908,6 +911,10 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
         // Disable hitable check if turn speed is zero
         if (yawMaxTurnSpeed.get() <= 0F || alwaysHitable.get()) {
             hitable = true
+            return
+        }
+        if (target == null || mc.thePlayer == null) {
+            hitable = false
             return
         }
 

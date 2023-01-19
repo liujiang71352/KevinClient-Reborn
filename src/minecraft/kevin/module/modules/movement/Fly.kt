@@ -46,6 +46,7 @@ class Fly : Module("Fly","Allow you fly", Keyboard.KEY_F,ModuleCategory.MOVEMENT
         NewMatrixClip, // from FDP
         Vulcan, // from FDP
         VulcanClip, // from FDP
+        VulcanDamage, // from FDP
         DCJBoost() // from Milk
     )
 

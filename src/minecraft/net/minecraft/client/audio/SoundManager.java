@@ -122,7 +122,7 @@ public class SoundManager
                                 }
                             }
                         });
-                        SoundManager.this.sndSystem = SoundManager.this.new SoundSystemStarterThread();
+                        SoundManager.this.sndSystem = new SoundSystemStarterThread();
                         SoundManager.this.loaded = true;
                         SoundManager.this.sndSystem.setMasterVolume(SoundManager.this.options.getSoundLevel(SoundCategory.MASTER));
                         SoundManager.logger.info(SoundManager.LOG_MARKER, "Sound engine started");
@@ -520,7 +520,7 @@ public class SoundManager
         }
     }
 
-    class SoundSystemStarterThread extends SoundSystem
+    static class SoundSystemStarterThread extends SoundSystem
     {
         private SoundSystemStarterThread()
         {

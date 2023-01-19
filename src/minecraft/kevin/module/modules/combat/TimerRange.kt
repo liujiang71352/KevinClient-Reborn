@@ -162,6 +162,7 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
                 return
             }
         }
+        bypassTick = 0
         cooldown = delayValue.get()
         working = true
         freezeTicks = 0
@@ -205,6 +206,9 @@ object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faste
                 return false
             }
             return true
+        }
+        if (bypassValue.get()) {
+            if (bypassTick == 1) return true
         }
         return false
     }
