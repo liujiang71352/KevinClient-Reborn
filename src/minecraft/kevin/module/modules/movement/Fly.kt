@@ -33,7 +33,6 @@ class Fly : Module("Fly","Allow you fly", Keyboard.KEY_F,ModuleCategory.MOVEMENT
         Vanilla,
         Creative,
         AAC5,
-        Buzz,
         Teleport,
         VerusAuto,
         NCPPacket,
@@ -44,6 +43,7 @@ class Fly : Module("Fly","Allow you fly", Keyboard.KEY_F,ModuleCategory.MOVEMENT
         Matrix, // from FDP
         NewMatrix, // from FDP
         NewMatrixClip, // from FDP
+        Pika,
         Vulcan, // from FDP
         VulcanClip, // from FDP
         VulcanDamage, // from FDP

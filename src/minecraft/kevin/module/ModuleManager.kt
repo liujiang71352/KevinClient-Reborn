@@ -96,7 +96,7 @@ class ModuleManager : Listenable {
             AutoGC,
             AutoL(),
             ChatControl,
-            ComponentOnHover(),
+            ComponentOnHover,
             ConfigsManager,
             Diastimeter(),
             HideAndSeekHack,

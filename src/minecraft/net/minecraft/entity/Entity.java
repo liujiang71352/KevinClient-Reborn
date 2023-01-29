@@ -373,7 +373,7 @@ public abstract class Entity implements ICommandSender
 
             if (this.width > f && !this.firstUpdate && !this.worldObj.isRemote)
             {
-                this.moveEntity((double)(f - this.width), 0.0D, (double)(f - this.width));
+                this.moveEntity(f - this.width, 0.0D, f - this.width);
             }
         }
     }
@@ -656,7 +656,7 @@ public abstract class Entity implements ICommandSender
             {
                 this.isInWeb = false;
                 x *= 0.25D;
-                y *= (double)0.05F;
+                y *= 0.05F;
                 z *= 0.25D;
                 this.motionX = 0.0D;
                 this.motionY = 0.0D;
@@ -1157,7 +1157,7 @@ public abstract class Entity implements ICommandSender
      */
     public boolean handleWaterMovement()
     {
-        if (this.worldObj.handleMaterialAcceleration(this.getEntityBoundingBox().expand(0.0D, (double) -0.4F, 0.0D).contract(0.001D, 0.001D, 0.001D), Material.water, this))
+        if (this.worldObj.handleMaterialAcceleration(this.getEntityBoundingBox().expand(0.0D, -0.4F, 0.0D).contract(0.001D, 0.001D, 0.001D), Material.water, this))
         {
             if (!this.inWater && !this.firstUpdate)
             {
@@ -1195,14 +1195,14 @@ public abstract class Entity implements ICommandSender
         {
             float f2 = (this.rand.nextFloat() * 2.0F - 1.0F) * this.width;
             float f3 = (this.rand.nextFloat() * 2.0F - 1.0F) * this.width;
-            this.worldObj.spawnParticle(EnumParticleTypes.WATER_BUBBLE, this.posX + (double)f2, (double)(f1 + 1.0F), this.posZ + (double)f3, this.motionX, this.motionY - (double)(this.rand.nextFloat() * 0.2F), this.motionZ);
+            this.worldObj.spawnParticle(EnumParticleTypes.WATER_BUBBLE, this.posX + (double)f2, f1 + 1.0F, this.posZ + (double)f3, this.motionX, this.motionY - (double)(this.rand.nextFloat() * 0.2F), this.motionZ);
         }
 
         for (int j = 0; (float)j < 1.0F + this.width * 20.0F; ++j)
         {
             float f4 = (this.rand.nextFloat() * 2.0F - 1.0F) * this.width;
             float f5 = (this.rand.nextFloat() * 2.0F - 1.0F) * this.width;
-            this.worldObj.spawnParticle(EnumParticleTypes.WATER_SPLASH, this.posX + (double)f4, (double)(f1 + 1.0F), this.posZ + (double)f5, this.motionX, this.motionY, this.motionZ);
+            this.worldObj.spawnParticle(EnumParticleTypes.WATER_SPLASH, this.posX + (double)f4, f1 + 1.0F, this.posZ + (double)f5, this.motionX, this.motionY, this.motionZ);
         }
     }
 
@@ -1262,7 +1262,7 @@ public abstract class Entity implements ICommandSender
 
     public boolean isInLava()
     {
-        return this.worldObj.isMaterialInBB(this.getEntityBoundingBox().expand((double) -0.1F, (double) -0.4F, (double) -0.1F), Material.lava);
+        return this.worldObj.isMaterialInBB(this.getEntityBoundingBox().expand(-0.1F, -0.4F, -0.1F), Material.lava);
     }
 
     /**
@@ -1419,7 +1419,7 @@ public abstract class Entity implements ICommandSender
         double d0 = this.posX - x;
         double d1 = this.posY - y;
         double d2 = this.posZ - z;
-        return (double)MathHelper.sqrt_double(d0 * d0 + d1 * d1 + d2 * d2);
+        return MathHelper.sqrt_double(d0 * d0 + d1 * d1 + d2 * d2);
     }
 
     /**
@@ -1455,7 +1455,7 @@ public abstract class Entity implements ICommandSender
 
                 if (d2 >= (double)0.01F)
                 {
-                    d2 = (double)MathHelper.sqrt_double(d2);
+                    d2 = MathHelper.sqrt_double(d2);
                     d0 = d0 / d2;
                     d1 = d1 / d2;
                     double d3 = 1.0D / d2;
@@ -1547,7 +1547,7 @@ public abstract class Entity implements ICommandSender
         float f1 = MathHelper.sin(-yaw * ((float)Math.PI / 180F) - (float)Math.PI);
         float f2 = -MathHelper.cos(-pitch * ((float)Math.PI / 180F));
         float f3 = MathHelper.sin(-pitch * ((float)Math.PI / 180F));
-        return new Vec3((double)(f1 * f2), (double)f3, (double)(f * f2));
+        return new Vec3(f1 * f2, f3, f * f2);
     }
 
     public Vec3 getPositionEyes(float partialTicks)
@@ -1906,7 +1906,7 @@ public abstract class Entity implements ICommandSender
 
             for (int i = 0; i < 8; ++i)
             {
-                int j = MathHelper.floor_double(this.posY + (double)(((float)((i >> 0) % 2) - 0.5F) * 0.1F) + (double)this.getEyeHeight());
+                int j = MathHelper.floor_double(this.posY + (double)(((float)((i) % 2) - 0.5F) * 0.1F) + (double)this.getEyeHeight());
                 int k = MathHelper.floor_double(this.posX + (double)(((float)((i >> 1) % 2) - 0.5F) * this.width * 0.8F));
                 int l = MathHelper.floor_double(this.posZ + (double)(((float)((i >> 2) % 2) - 0.5F) * this.width * 0.8F));
 
@@ -1961,9 +1961,9 @@ public abstract class Entity implements ICommandSender
             if (this.ridingEntity != null)
             {
                 this.ridingEntity.updateRiderPosition();
-                this.entityRiderYawDelta += (double)(this.ridingEntity.rotationYaw - this.ridingEntity.prevRotationYaw);
+                this.entityRiderYawDelta += this.ridingEntity.rotationYaw - this.ridingEntity.prevRotationYaw;
 
-                for (this.entityRiderPitchDelta += (double)(this.ridingEntity.rotationPitch - this.ridingEntity.prevRotationPitch); this.entityRiderYawDelta >= 180.0D; this.entityRiderYawDelta -= 360.0D)
+                for (this.entityRiderPitchDelta += this.ridingEntity.rotationPitch - this.ridingEntity.prevRotationPitch; this.entityRiderYawDelta >= 180.0D; this.entityRiderYawDelta -= 360.0D)
                 {
                     ;
                 }
@@ -1989,22 +1989,22 @@ public abstract class Entity implements ICommandSender
 
                 if (d0 > (double)f)
                 {
-                    d0 = (double)f;
+                    d0 = f;
                 }
 
                 if (d0 < (double)(-f))
                 {
-                    d0 = (double)(-f);
+                    d0 = -f;
                 }
 
                 if (d1 > (double)f)
                 {
-                    d1 = (double)f;
+                    d1 = f;
                 }
 
                 if (d1 < (double)(-f))
                 {
-                    d1 = (double)(-f);
+                    d1 = -f;
                 }
 
                 this.entityRiderYawDelta -= d0;
@@ -2139,7 +2139,7 @@ public abstract class Entity implements ICommandSender
                 double d0 = blockpattern$patternhelper.getFinger().getAxis() == EnumFacing.Axis.X ? (double)blockpattern$patternhelper.getPos().getZ() : (double)blockpattern$patternhelper.getPos().getX();
                 double d1 = blockpattern$patternhelper.getFinger().getAxis() == EnumFacing.Axis.X ? this.posZ : this.posX;
                 d1 = Math.abs(MathHelper.func_181160_c(d1 - (double)(blockpattern$patternhelper.getFinger().rotateY().getAxisDirection() == EnumFacing.AxisDirection.NEGATIVE ? 1 : 0), d0, d0 - (double)blockpattern$patternhelper.func_181118_d()));
-                double d2 = MathHelper.func_181160_c(this.posY - 1.0D, (double)blockpattern$patternhelper.getPos().getY(), (double)(blockpattern$patternhelper.getPos().getY() - blockpattern$patternhelper.func_181119_e()));
+                double d2 = MathHelper.func_181160_c(this.posY - 1.0D, blockpattern$patternhelper.getPos().getY(), blockpattern$patternhelper.getPos().getY() - blockpattern$patternhelper.func_181119_e());
                 this.lastPortalVec = new Vec3(d1, d2, 0.0D);
                 this.teleportDirection = blockpattern$patternhelper.getFinger();
             }
@@ -2380,27 +2380,27 @@ public abstract class Entity implements ICommandSender
 
             if (i == 0)
             {
-                this.motionX = (double)(-f);
+                this.motionX = -f;
             }
 
             if (i == 1)
             {
-                this.motionX = (double)f;
+                this.motionX = f;
             }
 
             if (i == 3)
             {
-                this.motionY = (double)f;
+                this.motionY = f;
             }
 
             if (i == 4)
             {
-                this.motionZ = (double)(-f);
+                this.motionZ = -f;
             }
 
             if (i == 5)
             {
-                this.motionZ = (double)f;
+                this.motionZ = f;
             }
 
             return true;
@@ -2616,38 +2616,14 @@ public abstract class Entity implements ICommandSender
 
     public void addEntityCrashInfo(CrashReportCategory category)
     {
-        category.addCrashSectionCallable("Entity Type", new Callable<String>()
-        {
-            public String call() throws Exception
-            {
-                return EntityList.getEntityString(Entity.this) + " (" + Entity.this.getClass().getCanonicalName() + ")";
-            }
-        });
+        category.addCrashSectionCallable("Entity Type", () -> EntityList.getEntityString(Entity.this) + " (" + Entity.this.getClass().getCanonicalName() + ")");
         category.addCrashSection("Entity ID", this.entityId);
-        category.addCrashSectionCallable("Entity Name", new Callable<String>()
-        {
-            public String call() throws Exception
-            {
-                return Entity.this.getName();
-            }
-        });
+        category.addCrashSectionCallable("Entity Name", () -> Entity.this.getName());
         category.addCrashSection("Entity's Exact location", String.format("%.2f, %.2f, %.2f", this.posX, this.posY, this.posZ));
-        category.addCrashSection("Entity's Block location", CrashReportCategory.getCoordinateInfo((double)MathHelper.floor_double(this.posX), (double)MathHelper.floor_double(this.posY), (double)MathHelper.floor_double(this.posZ)));
+        category.addCrashSection("Entity's Block location", CrashReportCategory.getCoordinateInfo(MathHelper.floor_double(this.posX), MathHelper.floor_double(this.posY), MathHelper.floor_double(this.posZ)));
         category.addCrashSection("Entity's Momentum", String.format("%.2f, %.2f, %.2f", this.motionX, this.motionY, this.motionZ));
-        category.addCrashSectionCallable("Entity's Rider", new Callable<String>()
-        {
-            public String call() throws Exception
-            {
-                return Entity.this.riddenByEntity.toString();
-            }
-        });
-        category.addCrashSectionCallable("Entity's Vehicle", new Callable<String>()
-        {
-            public String call() throws Exception
-            {
-                return Entity.this.ridingEntity.toString();
-            }
-        });
+        category.addCrashSectionCallable("Entity's Rider", () -> Entity.this.riddenByEntity.toString());
+        category.addCrashSectionCallable("Entity's Vehicle", () -> Entity.this.ridingEntity.toString());
     }
 
     /**
@@ -2702,7 +2678,7 @@ public abstract class Entity implements ICommandSender
 
     public void setAlwaysRenderNameTag(boolean alwaysRenderNameTag)
     {
-        this.dataWatcher.updateObject(3, Byte.valueOf((byte)(alwaysRenderNameTag ? 1 : 0)));
+        this.dataWatcher.updateObject(3, (byte) (alwaysRenderNameTag ? 1 : 0));
     }
 
     public boolean getAlwaysRenderNameTag()

@@ -239,8 +239,7 @@ public class ResourcePackRepository
                     settablefuture.setException(p_onFailure_1_);
                 }
             });
-            ListenableFuture listenablefuture = this.downloadingPacks;
-            return listenablefuture;
+            return this.downloadingPacks;
         }
         finally
         {

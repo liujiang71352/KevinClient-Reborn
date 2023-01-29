@@ -37,7 +37,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
     private val verticalValue = FloatValue("Vertical", 0F, -1F, 1F)
     private val modeValue = ListValue("Mode", arrayOf("Simple", "AAC", "AACPush", "AACZero", "AACv4",
         "Reverse", "SmoothReverse", "Jump", "Glitch", "AAC5Packet", "MatrixReduce", "MatrixSimple", "MatrixReverse",
-        "Vulcan", "AllowFirst", "Click", "LegitSmart", "IntaveJump", "TestBuzzReverse", "TestIntave"), "Simple")
+        "Vulcan", "AllowFirst", "Click", "LegitSmart", "IntaveJump", "TestBuzzReverse", "PikaStable", "TestIntave"), "Simple")
 
     // Reverse
     private val reverseStrengthValue = FloatValue("ReverseStrength", 1F, 0.1F, 1F)
@@ -238,6 +238,14 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                     velocityInput = false
                 }
             }
+            "pikastable" -> if (velocityInput && velocityTimer.hasTimePassed(80)) {
+                if (!thePlayer.onGround) {
+                    val reducer = (Math.random() - 0.5) / 50.0 + 0.2f
+                    thePlayer.motionX *= reducer
+                    thePlayer.motionZ *= reducer
+                }
+                velocityInput = false
+            }
             "testintave" -> if (velocityInput && thePlayer.hurtTime > 0) {
                 if (thePlayer.hurtTime in 3..7) {
                     thePlayer.motionX /= 1.010101
@@ -283,7 +291,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                     packet.motionZ = (packet.motionZ * horizontal).toInt()
                 }
 
-                "aac", "reverse", "smoothreverse", "aaczero", "allowfirst", "testintave", "intavejump" -> velocityInput = true
+                "aac", "reverse", "smoothreverse", "aaczero", "allowfirst", "testintave", "pikastable", "intavejump" -> velocityInput = true
 
                 "legitsmart" -> {
                     if (packet.motionX * packet.motionX + packet.motionZ * packet.motionZ + packet.motionY * packet.motionY > 640000) velocityInput = true

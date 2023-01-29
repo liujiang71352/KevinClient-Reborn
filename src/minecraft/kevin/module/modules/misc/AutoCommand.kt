@@ -26,12 +26,14 @@ import kevin.main.KevinClient
 import kevin.module.*
 import kevin.utils.ChatUtils
 import kevin.utils.MSTimer
+import net.minecraft.event.ClickEvent
 import net.minecraft.network.play.server.S02PacketChat
 
 class AutoCommand : Module("AutoCommand","Send commands automatically.",category = ModuleCategory.MISC) {
     private val autoLoginValue = BooleanValue("AutoLogin",true)
     private val autoRegisterValue = BooleanValue("AutoRegister",true)
     private val autoJoin = BooleanValue("AutoJoin",true)
+    private val autoJoinMessageMode = ListValue("AutoJoinSendMessageMode", arrayOf("Custom", "FindCommand"), "Custom")
     private val autoJoinDetectMessage = TextValue("AutoJoinDetectMessage","top")
     private val autoJoinDetectMessage2 = TextValue("AutoJoinDetectMessage2","died")
     private val autoJoinDelay = IntegerValue("AutoJoinDelay",5000,50,10000)
@@ -47,6 +49,7 @@ class AutoCommand : Module("AutoCommand","Send commands automatically.",category
 
     private val timer = MSTimer()
     private val autoJoinTimer = MSTimer()
+    private var command = ""
     private var register = false
     private var login = false
     private var join = false
@@ -65,14 +68,24 @@ class AutoCommand : Module("AutoCommand","Send commands automatically.",category
         val packet = event.packet
         if (packet !is S02PacketChat) return
         val text = packet.chatComponent.formattedText
+        val component = packet.chatComponent
         if (text.contains(autoRegisterDetectMessage.get(),true)&&autoRegisterValue.get()) {register=true;timer.reset();return}
         if (text.contains(autoLoginDetectMessage.get(),true)&&autoLoginValue.get()) {login=true;timer.reset()}
-        if (text.contains(autoJoinDetectMessage.get(),true)&&autoJoin.get()) {
+        if ((text.contains(autoJoinDetectMessage.get(),true) || text.contains(autoJoinDetectMessage2.get(),true))&&autoJoin.get()) {
             join=true
             autoJoinTimer.reset()
             when(autoJoinNotificationMode.get()){
                 "Notification" -> KevinClient.hud.addNotification(Notification("Send command after ${autoJoinDelay.get()} MS.", "AutoJoin"))
                 "Chat" -> ChatUtils.messageWithStart("[AutoJoin] Send command after ${autoJoinDelay.get()} MS.")
+            }
+            if (autoJoinMessageMode equal "Custom") command = autoJoinMessage.get()
+            else {
+                component.siblings.forEach { sib ->
+                    val clickEvent = sib.chatStyle.chatClickEvent
+                    if(clickEvent != null && clickEvent.action == ClickEvent.Action.RUN_COMMAND && clickEvent.value.startsWith("/")) {
+                        command = clickEvent.value
+                    }
+                }
             }
         }
     }

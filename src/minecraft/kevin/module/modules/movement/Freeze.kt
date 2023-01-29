@@ -67,6 +67,7 @@ class Freeze : Module("Freeze", "Allows you to stay stuck in mid air.", category
         if (mode equal "NoPacket") {
             if (packet is C03PacketPlayer) event.cancelEvent()
             else if (packet is S08PacketPlayerPosLook) {
+                if (!mc.netHandler.isDoneLoadingTerrain) return
                 motionX = 0.0
                 motionY = 0.0
                 motionZ = 0.0

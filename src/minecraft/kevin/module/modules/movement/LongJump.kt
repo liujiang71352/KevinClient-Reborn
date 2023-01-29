@@ -17,14 +17,16 @@ package kevin.module.modules.movement
 import kevin.event.*
 import kevin.module.*
 import kevin.utils.MovementUtils
+import kevin.utils.PacketUtils
 import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.server.S27PacketExplosion
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 
 @Suppress("unused_parameter")
 class LongJump : Module("LongJump", "Allows you to jump further.", category = ModuleCategory.MOVEMENT) {
-    private val modeValue = ListValue("Mode", arrayOf("NCP", "AACv1", "AACv2", "Buzz", "BuzzBoost", "AACv3", "Mineplex", "Mineplex2", "Mineplex3", "Redesky", "BlocksMCBlockOver", "ExplosionBoost"), "NCP")
+    private val modeValue = ListValue("Mode", arrayOf("NCP", "AACv1", "AACv2", "Buzz", "BuzzBoost", "PikaNew", "AACv3", "Mineplex", "Mineplex2", "Mineplex3", "Redesky", "BlocksMCBlockOver", "ExplosionBoost"), "NCP")
     private val ncpBoostValue = FloatValue("NCPBoost", 4.25f, 1f, 10f)
     private val autoJumpValue = BooleanValue("AutoJump", false)
     private val explosionBoostHigh = FloatValue("ExplosionBoostHigh",0.00F,0.01F,1F)
@@ -183,6 +185,8 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
             thePlayer.motionX = 0.0
             thePlayer.motionZ = 0.0
             event.zeroXZ()
+        } else if (modeValue equal "PikaNew" && canBoost) {
+            event.zeroXZ()
         }
     }
 
@@ -208,16 +212,32 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
                     mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 1E-10, mc.thePlayer.posZ, false))
                     mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true))
                 }
+                "pikanew" -> {
+                    mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY - 0.07 - Math.random(), mc.thePlayer.posZ, true))
+                    event.cancelEvent()
+                }
             }
         }
     }
 
     @EventTarget
     fun onPacket(event: PacketEvent){
-        if (event.packet is S27PacketExplosion)
+        if (event.packet is S27PacketExplosion) {
             if (event.packet.func_149149_c() != 0F ||
                 event.packet.func_149144_d() != 0F ||
-                event.packet.func_149147_e() != 0F) explosion = true
+                event.packet.func_149147_e() != 0F
+            ) explosion = true
+        }else if (event.packet is S08PacketPlayerPosLook && modeValue equal "pikanew") {
+            val packet = event.packet
+            if (!mc.netHandler.isDoneLoadingTerrain || !canBoost) return
+            canBoost = false
+            event.cancelEvent()
+            mc.thePlayer.setPositionAndRotation(packet.x, packet.y, packet.z, packet.yaw, packet.pitch)
+            PacketUtils.sendPacketNoEvent(C03PacketPlayer.C06PacketPlayerPosLook(packet.x, packet.y, packet.z, packet.yaw, packet.pitch, false))
+            mc.thePlayer.handleStatusUpdate(2)
+            mc.thePlayer.motionY = MovementUtils.getJumpMotion(0.701f + 0.0) + Math.random() / 50.0
+            MovementUtils.strafe(MovementUtils.getBaseMoveSpeed().toFloat() + 0.22f + (Math.random() / 700f).toFloat())
+        }
     }
 
     @EventTarget fun onMotion(event: MotionEvent) {

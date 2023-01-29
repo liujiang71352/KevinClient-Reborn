@@ -133,7 +133,7 @@ public class RegionFile
                     }
                     else
                     {
-                        this.dataFile.seek((long)(j * 4096));
+                        this.dataFile.seek(j * 4096L);
                         int l = this.dataFile.readInt();
 
                         if (l > 4096 * k)

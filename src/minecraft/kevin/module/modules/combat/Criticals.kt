@@ -27,13 +27,14 @@ import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S0BPacketAnimation
 
 class Criticals : Module(name = "Criticals", description = "Automatically deals critical hits.", category = ModuleCategory.COMBAT) {
-    val modeValue = ListValue("Mode", arrayOf("Packet", "NcpPacket", "AACPacket", "NoGround", "Hop", "Jump", "LowJump", "Visual", "MineMora", "Hypixel", "BlocksMC"), "Packet")
+    val modeValue = ListValue("Mode", arrayOf("Packet", "NcpPacket", "AACPacket", "NoGround", "Hop", "Jump", "LowJump", "Visual", "MineMora", "Hypixel", "BlocksMC", "Edit"), "Packet")
     val delayValue = IntegerValue("Delay", 0, 0, 500)
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
     private val debug = BooleanValue("Debug", false)
 
     val msTimer = MSTimer()
     private var target = -114514
+    private var editPacket = false
 
     override fun onEnable() {
         if (modeValue.get().equals("NoGround", ignoreCase = true) && mc.thePlayer!!.onGround)
@@ -106,6 +107,9 @@ class Criticals : Module(name = "Criticals", description = "Automatically deals 
                     mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(x, y + 0.00150000001304, z, false))
                     thePlayer.onCriticalHit(entity)
                 }
+                "edit" -> {
+                    editPacket = true
+                }
             }
 
             msTimer.reset()
@@ -116,8 +120,10 @@ class Criticals : Module(name = "Criticals", description = "Automatically deals 
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
 
-        if (packet is C03PacketPlayer && modeValue.get().equals("NoGround", ignoreCase = true))
+        if (packet is C03PacketPlayer && (modeValue.get().equals("NoGround", ignoreCase = true) || editPacket)) {
             packet.isOnGround = false
+            editPacket = false
+        }
 
         if (debug.get() && packet is S0BPacketAnimation && packet.animationType == 4 && target == packet.entityID) { // Debug
             ChatUtils.messageWithStart("§7[§bCriticals§7] §2Crit: §a${packet.entityID}")
