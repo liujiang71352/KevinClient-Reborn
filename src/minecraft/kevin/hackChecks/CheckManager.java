@@ -19,6 +19,8 @@ public class CheckManager {
             NoSlowCheck.class
     };
     private final LinkedList<Check> checks = new LinkedList<>();
+    private double totalVL = 0;
+    private short addedTicks = 0;
     public CheckManager(EntityOtherPlayerMP target) {
         for (Class<?> clz : checksClz) {
             try {
@@ -35,12 +37,16 @@ public class CheckManager {
                 check.onLivingUpdate();
                 if (check.wasFailed()) {
                     ChatUtils.INSTANCE.message(String.format("§l§7[§l§9HackDetector§l§7]§r §4%s§7 maybe using §c%s§7 hack§8: §7%s", check.handlePlayer.getName(), check.name, check.description()));
+                    totalVL += check.getPoint();
+
+                    addedTicks = 30;
                     check.reset();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        if (--addedTicks <= 0) totalVL -= totalVL > 0 ? 0.05 : 0;
     }
 
     public void positionUpdate(double x, double y, double z) {

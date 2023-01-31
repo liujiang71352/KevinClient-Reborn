@@ -42,7 +42,8 @@ public class KillAuraCheck extends Check {
             if (accBuffer > 0) bufferAdder = -1;
             for (Entity entity : entities) {
                 AxisAlignedBB bb = entity.getEntityBoundingBox().expand(0.1, 0.1, 0.1);
-                if (bb.isVecInside(vecEye)) {
+                // Check if target didn't move or player's eyes is in other player
+                if (bb.isVecInside(vecEye) || (entity.prevPosX == entity.posX && entity.prevPosZ == entity.posZ)) {
                     bufferAdder = 0;
                     continue;
                 }

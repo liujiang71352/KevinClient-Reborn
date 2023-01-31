@@ -61,4 +61,12 @@ public class Check extends MinecraftInstance {
     public void reset() {
         violationLevel = 0;
     }
+
+    public double getPoint() {
+        return 5.0;
+    }
+
+    public String reportName() {
+        return name;
+    }
 }

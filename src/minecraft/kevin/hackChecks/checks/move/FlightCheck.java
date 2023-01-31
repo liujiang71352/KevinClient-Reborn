@@ -1,9 +1,13 @@
 package kevin.hackChecks.checks.move;
 
 import kevin.hackChecks.Check;
+import kevin.utils.OtherExtensionsKt;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.potion.Potion;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
+
+import java.util.List;
 
 // FlightCheck detect the player who is floating / flying / gliding
 // It check for motionY
@@ -14,13 +18,13 @@ public class FlightCheck extends Check {
     // use buffer to prevent false positives.
     // we are not the antiCheat for server, we haven't promised to mark all cheaters.
     // it likes VerusAC, work silent and accurate.
-    // there is no meaningful of this check if we have lots of false.
+    // there is no meaningful of this check if we have lots of false
     short buffer = 0, jumpBuffer = 0;
     boolean updated = false;
     public FlightCheck(EntityOtherPlayerMP playerMP) {
         super(playerMP);
         name = "Flight";
-        checkViolationLevel = 20;
+        checkViolationLevel = 25;
     }
     private double lastDeltaY = 0;
 
@@ -33,11 +37,11 @@ public class FlightCheck extends Check {
         }
         if (updated) {
             // Float
-            if (deltaY >= lastDeltaY) {
-                BlockPos bp = new BlockPos(handlePlayer.prevPosX, handlePlayer.prevPosY - 0.25, handlePlayer.prevPosZ);
-                if (!mc.theWorld.isBlockLoaded(bp) || (deltaY == lastDeltaY && Math.abs(deltaY - 3.2) < 1e-5)) return;
-                if (mc.theWorld.isAirBlock(bp)) {
-                    if (++buffer > 5) flag(String.format("glide/fly, d=(%.5f, %.5f)", lastDeltaY, deltaY), 2.3);
+            if (deltaY >= lastDeltaY && !(handlePlayer.isInWater() || handlePlayer.isInLava())) {
+//                BlockPos bp = new BlockPos(handlePlayer.prevPosX, handlePlayer.prevPosY - 0.25, handlePlayer.prevPosZ);
+                AxisAlignedBB aabb = new AxisAlignedBB(handlePlayer.prevPosX - 0.30125, handlePlayer.prevPosY + 0.25, handlePlayer.prevPosZ - 0.30125, handlePlayer.prevPosX + 0.30125, handlePlayer.prevPosY - 0.25, handlePlayer.prevPosZ + 0.30125);
+                if (OtherExtensionsKt.getBlockStatesIncluded(aabb).isEmpty()) { // No block found under the player
+                    if (handlePlayer.hurtTime <= 5 && ++buffer > 5) flag(String.format("glide/fly, d=(%.5f, %.5f)", lastDeltaY, deltaY), 1.3);
                 } else {
                     --buffer;
                 }
@@ -77,5 +81,15 @@ public class FlightCheck extends Check {
     @Override
     public String description() {
         return "move vertical suspiciously";
+    }
+
+    @Override
+    public double getPoint() {
+        return 2.23;
+    }
+
+    @Override
+    public String reportName() {
+        return "fly";
     }
 }
