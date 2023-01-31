@@ -91,6 +91,10 @@ public class S14PacketEntity implements Packet<INetHandlerPlayClient>
         return this.field_149069_g;
     }
 
+    public int getEntityId() {
+        return entityId;
+    }
+
     public boolean getOnGround()
     {
         return this.onGround;

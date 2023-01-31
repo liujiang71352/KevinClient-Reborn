@@ -214,7 +214,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
     private val sameYJumpUp = BooleanValue("SameYJumpUp", false)
     private val safeWalkValue = BooleanValue("SafeWalk", true)
     private val airSafeValue = BooleanValue("AirSafe", false)
-    private val hitableCheck = ListValue("HitableCheck", arrayOf("Strict", "Simple", "Normal"), "Normal")
+    private val hitableCheck = ListValue("HitableCheck", arrayOf("Strict", "Simple", "Normal", "None"), "Normal")
     private val invalidPlaceFacingMode = ListValue("WhenPlaceFacingInvalid", arrayOf("CancelIt", "FixIt", "IgnoreIt"), "FixIt")
 
     // Visuals
@@ -525,6 +525,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
                 placedBlocksWithoutEagle++
             }
         }
+        update()
     }
 
     @EventTarget
@@ -538,10 +539,10 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
 
     @EventTarget
     fun onStrafe(event: StrafeEvent) {
-        if (strafeMode.get().equals("Off", true))
+        if (strafeMode.get().equals("Off", true) || event.isCancelled)
             return
 
-        update()
+//        update()
         if (rotationsOn
             && (keepRotationValue.get() || !lockRotationTimer.hasTimePassed(keepLengthValue.get()))
             && lockRotation != null
@@ -569,7 +570,24 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
             if (strafeMode.get().equals("AAC", true)) {
                 it.applyStrafeToPlayer(event)
             } else { // strafeMode.get().equals("Strict", true)
-                it.applyVanillaStrafeToPlayer(event)
+                var strafe: Float = -event.strafe
+                var forward: Float = -event.forward
+                val friction: Float = event.friction
+                var f = strafe * strafe + forward * forward
+
+                if (f >= 1.0E-4f) {
+                    f = MathHelper.sqrt_float(f)
+                    if (f < 1.0f) {
+                        f = 1.0f
+                    }
+                    f = friction / f
+                    strafe *= f
+                    forward *= f
+                    val f1 = MathHelper.sin(RotationUtils.targetRotation.yaw * Math.PI.toFloat() / 180.0f)
+                    val f2 = MathHelper.cos(RotationUtils.targetRotation.yaw * Math.PI.toFloat() / 180.0f)
+                    mc.thePlayer.motionX += (strafe * f2 - forward * f1).toDouble()
+                    mc.thePlayer.motionZ += (forward * f2 + strafe * f1).toDouble()
+                }
             }
             event.cancelEvent()
         }
@@ -608,7 +626,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
         }
 
         // Face block
-        if ((facesBlock || !rotationsOn) && placeModeValue.get()
+        if ((facesBlock || !rotationsOn || hitableCheck equal "None") && placeModeValue.get()
                 .equals(eventState.stateName, true)
         )
             place()
@@ -625,7 +643,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
 
         // Update and search for a new block
         if (eventState == EventState.PRE && strafeMode.get().equals("Off", true))
-            update()
+//            update()
 
         // Reset placeable delay
         if (targetPlace == null && placeDelay.get())
@@ -963,7 +981,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
         }
 
         // HitableCheck
-        if (!(hitableCheck equal "Normal")) {
+        if (hitableCheck.get() !in arrayOf("None", "Normal")) {
             val eyesVec: Vec3 = if (placeModeValue equal "Pre") { // we aren't tell server our position in pre MotionEvent, so...
                 Vec3(mc.thePlayer.lastReportedPosX, mc.thePlayer.lastReportedPosY, mc.thePlayer.lastReportedPosZ)
             } else {

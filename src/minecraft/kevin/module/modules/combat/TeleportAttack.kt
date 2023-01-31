@@ -44,6 +44,7 @@ class TeleportAttack : Module("TeleportAttack","Attack the target over a long di
     private val moveDistanceV = FloatValue("MoveDistance",5F,2F,15F)
     private val swingV = BooleanValue("Swing",true)
     private val pathV = BooleanValue("DrawPath",true)
+    private val pathMode = ListValue("PathMode", arrayOf("Box", "Line"), "Box")
     private val noRegen = BooleanValue("NoRegen",true)
     private val aliveTicks = IntegerValue("AliveTicks",20,10,50)
     private val glLineWidthValue = FloatValue("LineWidth",2F,1F,4F)
@@ -179,40 +180,52 @@ class TeleportAttack : Module("TeleportAttack","Attack the target over a long di
 
             val colorD = if (colorModeV.get() == "Custom") Color(colorR.get(),colorG.get(),colorB.get()) else ColorUtils.rainbow()
 
-            for (vec in points){
-                val x = vec.xCoord - renderPosX
-                val y = vec.yCoord - renderPosY
-                val z = vec.zCoord - renderPosZ
-                val width = 0.3
-                val height = mc.thePlayer!!.eyeHeight.toDouble()
+            if (pathMode equal "Box") {
+                for (vec in points){
+                    val x = vec.xCoord - renderPosX
+                    val y = vec.yCoord - renderPosY
+                    val z = vec.zCoord - renderPosZ
+                    val width = 0.3
+                    val height = mc.thePlayer!!.eyeHeight.toDouble()
+                    GL11.glLoadIdentity()
+                    mc.entityRenderer.setupCameraTransform(mc.timer.renderPartialTicks, 2)
+                    RenderUtils.glColor(colorD)
+                    GL11.glLineWidth(glLineWidthValue.get())
+                    GL11.glBegin(GL11.GL_LINE_STRIP)
+                    GL11.glVertex3d(x - width, y, z - width)
+                    GL11.glVertex3d(x - width, y, z - width)
+                    GL11.glVertex3d(x - width, y + height, z - width)
+                    GL11.glVertex3d(x + width, y + height, z - width)
+                    GL11.glVertex3d(x + width, y, z - width)
+                    GL11.glVertex3d(x - width, y, z - width)
+                    GL11.glVertex3d(x - width, y, z + width)
+                    GL11.glEnd()
+                    GL11.glBegin(GL11.GL_LINE_STRIP)
+                    GL11.glVertex3d(x + width, y, z + width)
+                    GL11.glVertex3d(x + width, y + height, z + width)
+                    GL11.glVertex3d(x - width, y + height, z + width)
+                    GL11.glVertex3d(x - width, y, z + width)
+                    GL11.glVertex3d(x + width, y, z + width)
+                    GL11.glVertex3d(x + width, y, z - width)
+                    GL11.glEnd()
+                    GL11.glBegin(GL11.GL_LINE_STRIP)
+                    GL11.glVertex3d(x + width, y + height, z + width)
+                    GL11.glVertex3d(x + width, y + height, z - width)
+                    GL11.glEnd()
+                    GL11.glBegin(GL11.GL_LINE_STRIP)
+                    GL11.glVertex3d(x - width, y + height, z + width)
+                    GL11.glVertex3d(x - width, y + height, z - width)
+                    GL11.glEnd()
+                }
+            } else {
                 GL11.glLoadIdentity()
                 mc.entityRenderer.setupCameraTransform(mc.timer.renderPartialTicks, 2)
                 RenderUtils.glColor(colorD)
                 GL11.glLineWidth(glLineWidthValue.get())
                 GL11.glBegin(GL11.GL_LINE_STRIP)
-                GL11.glVertex3d(x - width, y, z - width)
-                GL11.glVertex3d(x - width, y, z - width)
-                GL11.glVertex3d(x - width, y + height, z - width)
-                GL11.glVertex3d(x + width, y + height, z - width)
-                GL11.glVertex3d(x + width, y, z - width)
-                GL11.glVertex3d(x - width, y, z - width)
-                GL11.glVertex3d(x - width, y, z + width)
-                GL11.glEnd()
-                GL11.glBegin(GL11.GL_LINE_STRIP)
-                GL11.glVertex3d(x + width, y, z + width)
-                GL11.glVertex3d(x + width, y + height, z + width)
-                GL11.glVertex3d(x - width, y + height, z + width)
-                GL11.glVertex3d(x - width, y, z + width)
-                GL11.glVertex3d(x + width, y, z + width)
-                GL11.glVertex3d(x + width, y, z - width)
-                GL11.glEnd()
-                GL11.glBegin(GL11.GL_LINE_STRIP)
-                GL11.glVertex3d(x + width, y + height, z + width)
-                GL11.glVertex3d(x + width, y + height, z - width)
-                GL11.glEnd()
-                GL11.glBegin(GL11.GL_LINE_STRIP)
-                GL11.glVertex3d(x - width, y + height, z + width)
-                GL11.glVertex3d(x - width, y + height, z - width)
+                for (vec in points) {
+                    GL11.glVertex3d(vec.xCoord, vec.yCoord, vec.zCoord)
+                }
                 GL11.glEnd()
             }
             GL11.glDepthMask(true)

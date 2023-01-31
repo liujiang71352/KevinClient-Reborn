@@ -57,7 +57,7 @@ import net.minecraft.world.WorldServer;
 public abstract class EntityLivingBase extends Entity
 {
     private static final UUID sprintingSpeedBoostModifierUUID = UUID.fromString("662A6B8D-DA3E-4C1C-8813-96EA6097278D");
-    private static final AttributeModifier sprintingSpeedBoostModifier = (new AttributeModifier(sprintingSpeedBoostModifierUUID, "Sprinting speed boost", (double)0.3F, 2)).setSaved(false);
+    private static final AttributeModifier sprintingSpeedBoostModifier = (new AttributeModifier(sprintingSpeedBoostModifierUUID, "Sprinting speed boost", 0.3F, 2)).setSaved(false);
     private BaseAttributeMap attributeMap;
     private final CombatTracker _combatTracker = new CombatTracker(this);
     private final Map<Integer, PotionEffect> activePotionsMap = Maps.newHashMap();
@@ -241,7 +241,7 @@ public abstract class EntityLivingBase extends Entity
 
             if (block.getMaterial() != Material.air)
             {
-                double d0 = (double)Math.min(0.2F + f / 15.0F, 10.0F);
+                double d0 = Math.min(0.2F + f / 15.0F, 10.0F);
 
                 if (d0 > 2.5D)
                 {
@@ -249,7 +249,7 @@ public abstract class EntityLivingBase extends Entity
                 }
 
                 int i = (int)(150.0D * d0);
-                ((WorldServer)this.worldObj).spawnParticle(EnumParticleTypes.BLOCK_DUST, this.posX, this.posY, this.posZ, i, 0.0D, 0.0D, 0.0D, (double)0.15F, Block.getStateId(iblockstate));
+                ((WorldServer)this.worldObj).spawnParticle(EnumParticleTypes.BLOCK_DUST, this.posX, this.posY, this.posZ, i, 0.0D, 0.0D, 0.0D, 0.15F, Block.getStateId(iblockstate));
             }
         }
 
@@ -321,7 +321,7 @@ public abstract class EntityLivingBase extends Entity
 
                 if (!this.worldObj.isRemote && this.isRiding() && this.ridingEntity instanceof EntityLivingBase)
                 {
-                    this.mountEntity((Entity)null);
+                    this.mountEntity(null);
                 }
             }
             else
@@ -370,11 +370,11 @@ public abstract class EntityLivingBase extends Entity
         {
             if (!this.entityLivingToAttack.isEntityAlive())
             {
-                this.setRevengeTarget((EntityLivingBase)null);
+                this.setRevengeTarget(null);
             }
             else if (this.ticksExisted - this.revengeTimer > 100)
             {
-                this.setRevengeTarget((EntityLivingBase)null);
+                this.setRevengeTarget(null);
             }
         }
 
@@ -517,7 +517,7 @@ public abstract class EntityLivingBase extends Entity
     public void writeEntityToNBT(NBTTagCompound tagCompound)
     {
         tagCompound.setFloat("HealF", this.getHealth());
-        tagCompound.setShort("Health", (short)((int)Math.ceil((double)this.getHealth())));
+        tagCompound.setShort("Health", (short)((int)Math.ceil(this.getHealth())));
         tagCompound.setShort("HurtTime", (short)this.hurtTime);
         tagCompound.setInteger("HurtByTimestamp", this.revengeTimer);
         tagCompound.setShort("DeathTime", (short)this.deathTime);
@@ -600,7 +600,7 @@ public abstract class EntityLivingBase extends Entity
             }
             else if (nbtbase.getId() == 2)
             {
-                this.setHealth((float)((NBTTagShort)nbtbase).getShort());
+                this.setHealth(((NBTTagShort)nbtbase).getShort());
             }
         }
 
@@ -1090,12 +1090,12 @@ public abstract class EntityLivingBase extends Entity
             this.motionY /= 2.0D;
             this.motionZ /= 2.0D;
             this.motionX -= p_70653_3_ / (double)f * (double)f1;
-            this.motionY += (double)f1;
+            this.motionY += f1;
             this.motionZ -= p_70653_5_ / (double)f * (double)f1;
 
             if (this.motionY > (double)0.4F)
             {
-                this.motionY = (double)0.4F;
+                this.motionY = 0.4F;
             }
         }
     }
@@ -1553,7 +1553,7 @@ public abstract class EntityLivingBase extends Entity
                 {
                     int l = (int)(this.posX + (double)j);
                     int i1 = (int)(this.posZ + (double)k);
-                    AxisAlignedBB axisalignedbb = this.getEntityBoundingBox().offset((double)j, 1.0D, (double)k);
+                    AxisAlignedBB axisalignedbb = this.getEntityBoundingBox().offset(j, 1.0D, k);
 
                     if (this.worldObj.getCollisionBoxes(axisalignedbb).isEmpty())
                     {
@@ -1596,20 +1596,20 @@ public abstract class EntityLivingBase extends Entity
         KevinClient.eventManager.callEvent(jumpEvent);
         if (jumpEvent.isCancelled()) return;
 
-        this.motionY = (double)jumpEvent.getMotion();
+        this.motionY = jumpEvent.getMotion();
 
         this.motionY = getJumpUpwardsMotion(); // 0.42F
 
         if (this.isPotionActive(Potion.jump))
         {
-            this.motionY += (double)((float)(this.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F);
+            this.motionY += (float)(this.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F;
         }
 
         if (this.isSprinting())
         {
             float f = this.rotationYaw * ((float)Math.PI / 180F);
-            this.motionX -= (double)(MathHelper.sin(f) * 0.2F);
-            this.motionZ += (double)(MathHelper.cos(f) * 0.2F);
+            this.motionX -= MathHelper.sin(f) * 0.2F;
+            this.motionZ += MathHelper.cos(f) * 0.2F;
         }
 
         this.isAirBorne = true;
@@ -1620,12 +1620,12 @@ public abstract class EntityLivingBase extends Entity
      */
     protected void updateAITick()
     {
-        this.motionY += (double)0.04F;
+        this.motionY += 0.04F;
     }
 
     protected void handleJumpLava()
     {
-        this.motionY += (double)0.04F;
+        this.motionY += 0.04F;
     }
 
     /**
@@ -1669,8 +1669,8 @@ public abstract class EntityLivingBase extends Entity
                     if (this.isOnLadder())
                     {
                         float f6 = 0.15F;
-                        this.motionX = MathHelper.clamp_double(this.motionX, (double)(-f6), (double)f6);
-                        this.motionZ = MathHelper.clamp_double(this.motionZ, (double)(-f6), (double)f6);
+                        this.motionX = MathHelper.clamp_double(this.motionX, -f6, f6);
+                        this.motionZ = MathHelper.clamp_double(this.motionZ, -f6, f6);
                         this.fallDistance = 0.0F;
 
                         if (this.motionY < -0.15D)
@@ -1709,9 +1709,9 @@ public abstract class EntityLivingBase extends Entity
                         this.motionY -= 0.08D;
                     }
 
-                    this.motionY *= (double)0.98F;
-                    this.motionX *= (double)f4;
-                    this.motionZ *= (double)f4;
+                    this.motionY *= 0.98F;
+                    this.motionX *= f4;
+                    this.motionZ *= f4;
                 }
                 else
                 {
@@ -1725,7 +1725,7 @@ public abstract class EntityLivingBase extends Entity
 
                     if (this.isCollidedHorizontally && this.isOffsetPositionInLiquid(this.motionX, this.motionY + (double)0.6F - this.posY + d1, this.motionZ))
                     {
-                        this.motionY = (double)0.3F;
+                        this.motionY = 0.3F;
                     }
                 }
             }
@@ -1754,14 +1754,14 @@ public abstract class EntityLivingBase extends Entity
 
                 this.moveFlying(strafe, forward, f2);
                 this.moveEntity(this.motionX, this.motionY, this.motionZ);
-                this.motionX *= (double)f1;
-                this.motionY *= (double)0.8F;
-                this.motionZ *= (double)f1;
+                this.motionX *= f1;
+                this.motionY *= 0.8F;
+                this.motionZ *= f1;
                 this.motionY -= 0.02D;
 
                 if (this.isCollidedHorizontally && this.isOffsetPositionInLiquid(this.motionX, this.motionY + (double)0.6F - this.posY + d0, this.motionZ))
                 {
-                    this.motionY = (double)0.3F;
+                    this.motionY = 0.3F;
                 }
             }
         }
@@ -1877,7 +1877,7 @@ public abstract class EntityLivingBase extends Entity
         if (f > 0.0025000002F)
         {
             f3 = 1.0F;
-            f2 = (float)Math.sqrt((double)f) * 3.0F;
+            f2 = (float)Math.sqrt(f) * 3.0F;
             f1 = (float)MathHelper.atan2(d1, d0) * 180.0F / (float)Math.PI - 90.0F;
         }
 
@@ -2086,7 +2086,7 @@ public abstract class EntityLivingBase extends Entity
 
     protected void collideWithNearbyEntities()
     {
-        List<Entity> list = this.worldObj.getEntitiesInAABBexcluding(this, this.getEntityBoundingBox().expand((double)0.2F, 0.0D, (double)0.2F), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>()
+        List<Entity> list = this.worldObj.getEntitiesInAABBexcluding(this, this.getEntityBoundingBox().expand(0.2F, 0.0D, 0.2F), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>()
         {
             public boolean apply(Entity p_apply_1_)
             {
@@ -2150,8 +2150,8 @@ public abstract class EntityLivingBase extends Entity
         this.newPosX = x;
         this.newPosY = y;
         this.newPosZ = z;
-        this.newRotationYaw = (double)yaw;
-        this.newRotationPitch = (double)pitch;
+        this.newRotationYaw = yaw;
+        this.newRotationPitch = pitch;
         this.newPosRotationIncrements = posRotationIncrements;
     }
 

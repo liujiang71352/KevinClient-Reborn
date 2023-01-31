@@ -132,7 +132,7 @@ public class AutoArmor extends Module {
     }
 
     /**
-     * Shift+Left clicks the specified item
+     * Shift+Left-clicks the specified item
      *
      * @param item        Slot of the item to click
      * @param isArmorSlot

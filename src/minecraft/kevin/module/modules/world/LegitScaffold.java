@@ -475,7 +475,7 @@ public class LegitScaffold extends Module {
         }
 
         if(!blockPoses.isEmpty()) {
-            blockPoses.sort(Comparator.comparingDouble((blockPos) -> mc.thePlayer.getDistance((double)blockPos.getX() + 0.5D, (double)blockPos.getY() + 0.5D, (double)blockPos.getZ() + 0.5D)));
+            blockPoses.sort(Comparator.comparingDouble((blockPos) -> mc.thePlayer.getDistanceSq((double)blockPos.getX() + 0.5D, (double)blockPos.getY() + 0.5D, (double)blockPos.getZ() + 0.5D)));
         }
 
         return blockPoses;
@@ -487,7 +487,7 @@ public class LegitScaffold extends Module {
         for(float x = (float)blockPos.getX(); x <= (float)(blockPos.getX() + 1); x = (float)((double)x + 0.2D)) {
             for(float y = (float)blockPos.getY(); y <= (float)(blockPos.getY() + 1); y = (float)((double)y + 0.2D)) {
                 for(float z = (float)blockPos.getZ(); z <= (float)(blockPos.getZ() + 1); z = (float)((double)z + 0.2D)) {
-                    double d0 = mc.thePlayer.getDistance(x, y, z);
+                    double d0 = mc.thePlayer.getDistanceSq(x, y, z);
                     if(d0 < distance) {
                         distance = d0;
                     }
