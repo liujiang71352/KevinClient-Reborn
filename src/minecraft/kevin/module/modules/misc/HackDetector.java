@@ -117,11 +117,11 @@ public class HackDetector extends Module {
         return value;
     }
 
-    public boolean shouldReport(int vl) {
+    public boolean shouldReport(double vl) {
         return autoReportValue.get() && vl >= reportVLValue.get();
     }
 
-    public static void catchPlayer(String player, String module, int totalVL) {
+    public static void catchPlayer(String player, String module, double totalVL) {
         if (INSTANCE.shouldReport(totalVL)) {
             mc.thePlayer.sendChatMessage(INSTANCE.completeCommand(player, module));
         }

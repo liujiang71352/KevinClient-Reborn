@@ -4,6 +4,7 @@ import kevin.hackChecks.checks.combat.AutoBlockCheck;
 import kevin.hackChecks.checks.combat.KillAuraCheck;
 import kevin.hackChecks.checks.move.FlightCheck;
 import kevin.hackChecks.checks.move.NoSlowCheck;
+import kevin.module.modules.misc.HackDetector;
 import kevin.utils.ChatUtils;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 
@@ -38,15 +39,16 @@ public class CheckManager {
                 if (check.wasFailed()) {
                     ChatUtils.INSTANCE.message(String.format("§l§7[§l§9HackDetector§l§7]§r §4%s§7 maybe using §c%s§7 hack§8: §7%s", check.handlePlayer.getName(), check.name, check.description()));
                     totalVL += check.getPoint();
-
-                    addedTicks = 30;
+                    HackDetector.catchPlayer(check.handlePlayer.getName(), check.reportName(), totalVL);
+                    addedTicks = 40;
                     check.reset();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        if (--addedTicks <= 0) totalVL -= totalVL > 0 ? 0.05 : 0;
+        // reduce 0.1 per second
+        if (--addedTicks <= 0) totalVL -= totalVL > 0 ? 0.005 : 0;
     }
 
     public void positionUpdate(double x, double y, double z) {

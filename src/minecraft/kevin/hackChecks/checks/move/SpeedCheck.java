@@ -87,4 +87,9 @@ public class SpeedCheck extends Check {
         buffer = 0;
         strafeBuffer = 0;
     }
+
+    @Override
+    public String reportName() {
+        return "speed";
+    }
 }

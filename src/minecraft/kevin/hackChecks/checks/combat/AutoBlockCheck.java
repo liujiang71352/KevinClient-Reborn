@@ -25,4 +25,9 @@ public class AutoBlockCheck extends Check {
     public String description() {
         return "Swing when blocking";
     }
+
+    @Override
+    public String reportName() {
+        return "killAura";
+    }
 }
