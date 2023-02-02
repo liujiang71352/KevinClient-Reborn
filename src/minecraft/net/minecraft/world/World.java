@@ -74,6 +74,9 @@ public abstract class World implements IBlockAccess
     protected final IntHashMap<Entity> entitiesById = new IntHashMap<>();
     private long cloudColour = 16777215L;
 
+    /** RNG for World. */
+    public final Random rand = new Random();
+
     /** How much light is subtracted from full daylight */
     private int skylightSubtracted;
 
@@ -82,7 +85,7 @@ public abstract class World implements IBlockAccess
      * value of 0x3c6ef35f, producing a highly planar series of values ill-suited for choosing random blocks in a
      * 16x128x16 field.
      */
-    protected int updateLCG = (new Random()).nextInt();
+    protected int updateLCG = rand.nextInt();
 
     /**
      * magic number used to generate fast random numbers for 3d distribution within a chunk
@@ -98,9 +101,6 @@ public abstract class World implements IBlockAccess
      * unused.
      */
     private int lastLightningBolt;
-
-    /** RNG for World. */
-    public final Random rand = new Random();
 
     /** The WorldProvider instance that World uses. */
     public final WorldProvider provider;
@@ -1788,14 +1788,12 @@ public abstract class World implements IBlockAccess
 
     public boolean addTileEntity(TileEntity tile)
     {
-        boolean flag = this.loadedTileEntityList.add(tile);
-
-        if (flag && tile instanceof ITickable)
+        if (tile instanceof ITickable)
         {
             this.tickableTileEntities.add(tile);
         }
 
-        return flag;
+        return true;
     }
 
     public void addTileEntities(Collection<TileEntity> tileEntityCollection)

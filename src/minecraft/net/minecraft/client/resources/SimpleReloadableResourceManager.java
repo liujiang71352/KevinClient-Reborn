@@ -23,11 +23,14 @@ public class SimpleReloadableResourceManager implements IReloadableResourceManag
     private final Map<String, FallbackResourceManager> domainResourceManagers = Maps.newHashMap();
     private final List<IResourceManagerReloadListener> reloadListeners = Lists.newArrayList();
     private final Set<String> setResourceDomains = Sets.newLinkedHashSet();
-    private final IMetadataSerializer rmMetadataSerializer;
+    // Modified by Kevin
+//    private final IMetadataSerializer rmMetadataSerializer;
+    private final FallbackResourceManager fallbackResourceManagerDupe;
 
     public SimpleReloadableResourceManager(IMetadataSerializer rmMetadataSerializerIn)
     {
-        this.rmMetadataSerializer = rmMetadataSerializerIn;
+//        this.rmMetadataSerializer = rmMetadataSerializerIn;
+        fallbackResourceManagerDupe = new FallbackResourceManager(rmMetadataSerializerIn);
     }
 
     public void reloadResourcePack(IResourcePack resourcePack)
@@ -35,13 +38,7 @@ public class SimpleReloadableResourceManager implements IReloadableResourceManag
         for (String s : resourcePack.getResourceDomains())
         {
             this.setResourceDomains.add(s);
-            FallbackResourceManager fallbackresourcemanager = this.domainResourceManagers.get(s);
-
-            if (fallbackresourcemanager == null)
-            {
-                fallbackresourcemanager = new FallbackResourceManager(this.rmMetadataSerializer);
-                this.domainResourceManagers.put(s, fallbackresourcemanager);
-            }
+            FallbackResourceManager fallbackresourcemanager = this.domainResourceManagers.computeIfAbsent(s, k -> fallbackResourceManagerDupe);
 
             fallbackresourcemanager.addResourcePack(resourcePack);
         }

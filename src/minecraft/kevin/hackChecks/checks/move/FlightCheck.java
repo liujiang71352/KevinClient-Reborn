@@ -20,7 +20,6 @@ public class FlightCheck extends Check {
     // it likes VerusAC, work silent and accurate.
     // there is no meaningful of this check if we have lots of false
     short buffer = 0, jumpBuffer = 0;
-    boolean updated = false;
     public FlightCheck(EntityOtherPlayerMP playerMP) {
         super(playerMP);
         name = "Flight";
@@ -29,53 +28,45 @@ public class FlightCheck extends Check {
     private double lastDeltaY = 0;
 
     @Override
-    public void onLivingUpdate() {
-        double deltaY = handlePlayer.posY - handlePlayer.prevPosY;
+    public void positionUpdate(double x, double y, double z) {
         if (handlePlayer.capabilities.isFlying) {
-            lastDeltaY = deltaY;
+            lastDeltaY = y;
             return;
         }
-        if (updated) {
-            // Float
-            if (deltaY >= lastDeltaY && !(handlePlayer.isInWater() || handlePlayer.isInLava())) {
+        // Float
+        if (y >= lastDeltaY && !(handlePlayer.isInWater() || handlePlayer.isInLava())) {
 //                BlockPos bp = new BlockPos(handlePlayer.prevPosX, handlePlayer.prevPosY - 0.25, handlePlayer.prevPosZ);
-                AxisAlignedBB aabb = new AxisAlignedBB(handlePlayer.prevPosX - 0.30125, handlePlayer.prevPosY + 0.25, handlePlayer.prevPosZ - 0.30125, handlePlayer.prevPosX + 0.30125, handlePlayer.prevPosY - 0.25, handlePlayer.prevPosZ + 0.30125);
-                if (OtherExtensionsKt.getBlockStatesIncluded(aabb).isEmpty()) { // No block found under the player
-                    if (handlePlayer.hurtTime <= 5 && ++buffer > 5) flag(String.format("glide/fly, d=(%.5f, %.5f)", lastDeltaY, deltaY), 1.3);
-                } else {
-                    --buffer;
-                }
+            AxisAlignedBB aabb = new AxisAlignedBB((handlePlayer.serverPosX / 32.0) - 0.30125, (handlePlayer.serverPosY / 32.0) + 0.25, (handlePlayer.serverPosZ / 32.0) - 0.30125, (handlePlayer.serverPosX / 32.0) + 0.30125, (handlePlayer.serverPosY / 32.0) - 0.25, (handlePlayer.serverPosZ / 32.0) + 0.30125);
+            if (OtherExtensionsKt.getBlockStatesIncluded(aabb).isEmpty()) { // No block found under the player
+                if (handlePlayer.hurtTime <= 5 && ++buffer > 5) flag(String.format("glide/fly, d=(%.5f, %.5f)", lastDeltaY, y), 1.3);
+            } else {
+                --buffer;
             }
-
-            // Fast down
-            if (deltaY < -3.2 && lastDeltaY > -3.2) {
-                flag("fast down, mY=" + deltaY, 5);
-            }
-
-            // High jump
-            double jumpMotion = 0.42;
-            if (handlePlayer.isPotionActive(Potion.jump)) {
-                jumpMotion += (handlePlayer.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1;
-            }
-            if (deltaY > jumpMotion) {
-                // A buffer to prevent false
-                // yes, it will only flag which player is over 0.5 motion jump or 0.42 jump but slow down,
-                // so it will no false any player unless the connection is trash
-                // false when step? yes if we don't use buffer, but we buffer it
-                if (++jumpBuffer > 1) {
-                    flag("high jump, p=(" + jumpMotion + "," + deltaY + ")", 4.5);
-                    jumpBuffer = 0;
-                }
-            } else jumpBuffer = 0;
-            reward(0.1);
-            updated = false;
         }
-        lastDeltaY = deltaY;
-    }
 
-    @Override
-    public void positionUpdate(double x, double y, double z) {
-        updated = true;
+        // Fast down
+        if (y < -3.2 && lastDeltaY > -3.2) {
+            flag("fast down, mY=" + y, 5);
+        }
+
+        // High jump
+        double jumpMotion = 0.42;
+        if (handlePlayer.isPotionActive(Potion.jump)) {
+            jumpMotion += (handlePlayer.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1;
+        }
+        if (y > jumpMotion) {
+            // A buffer to prevent false
+            // yes, it will only flag which player is over 0.5 motion jump or 0.42 jump but slow down,
+            // so it will no false any player unless the connection is trash
+            // false when step? yes if we don't use buffer, but we buffer it
+            if (++jumpBuffer > 1) {
+                flag("high jump, p=(" + jumpMotion + "," + y + ")", 4.5);
+                jumpBuffer = 0;
+            }
+        } else jumpBuffer = 0;
+
+        reward(0.1);
+        lastDeltaY = y;
     }
 
     @Override

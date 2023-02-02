@@ -335,8 +335,7 @@ public class ConnectedTextures
 
             for (int i = 0; i < list.size(); ++i)
             {
-                BakedQuad bakedquad = list.get(i);
-                BakedQuad bakedquad1 = bakedquad;
+                BakedQuad bakedquad1 = list.get(i);
 
                 for (int j = 0; j < 3; ++j)
                 {
@@ -366,37 +365,24 @@ public class ConnectedTextures
     {
         Block block = blockState.getBlock();
 
-        if (!(blockState instanceof BlockStateBase))
-        {
-            return renderEnv.getArrayQuadsCtm(quad);
-        }
-        else
-        {
-            BlockStateBase blockstatebase = (BlockStateBase)blockState;
+        if (blockState instanceof BlockStateBase) {
+            BlockStateBase blockstatebase = (BlockStateBase) blockState;
             TextureAtlasSprite textureatlassprite = quad.getSprite();
 
-            if (tileProperties != null)
-            {
+            if (tileProperties != null) {
                 int i = textureatlassprite.getIndexInMap();
 
-                if (i >= 0 && i < tileProperties.length)
-                {
+                if (i >= 0 && i < tileProperties.length) {
                     ConnectedProperties[] aconnectedproperties = tileProperties[i];
 
-                    if (aconnectedproperties != null)
-                    {
+                    if (aconnectedproperties != null) {
                         int j = getSide(facing);
 
-                        for (int k = 0; k < aconnectedproperties.length; ++k)
-                        {
-                            ConnectedProperties connectedproperties = aconnectedproperties[k];
-
-                            if (connectedproperties != null && connectedproperties.matchesBlockId(blockstatebase.getBlockId()))
-                            {
+                        for (ConnectedProperties connectedproperties : aconnectedproperties) {
+                            if (connectedproperties != null && connectedproperties.matchesBlockId(blockstatebase.getBlockId())) {
                                 BakedQuad[] abakedquad = getConnectedTexture(connectedproperties, blockAccess, blockstatebase, blockPos, j, quad, pass, renderEnv);
 
-                                if (abakedquad != null)
-                                {
+                                if (abakedquad != null) {
                                     return abakedquad;
                                 }
                             }
@@ -405,28 +391,20 @@ public class ConnectedTextures
                 }
             }
 
-            if (blockProperties != null && checkBlocks)
-            {
+            if (blockProperties != null && checkBlocks) {
                 int l = renderEnv.getBlockId();
 
-                if (l >= 0 && l < blockProperties.length)
-                {
+                if (l >= 0 && l < blockProperties.length) {
                     ConnectedProperties[] aconnectedproperties1 = blockProperties[l];
 
-                    if (aconnectedproperties1 != null)
-                    {
+                    if (aconnectedproperties1 != null) {
                         int i1 = getSide(facing);
 
-                        for (int j1 = 0; j1 < aconnectedproperties1.length; ++j1)
-                        {
-                            ConnectedProperties connectedproperties1 = aconnectedproperties1[j1];
-
-                            if (connectedproperties1 != null && connectedproperties1.matchesIcon(textureatlassprite))
-                            {
+                        for (ConnectedProperties connectedproperties1 : aconnectedproperties1) {
+                            if (connectedproperties1 != null && connectedproperties1.matchesIcon(textureatlassprite)) {
                                 BakedQuad[] abakedquad1 = getConnectedTexture(connectedproperties1, blockAccess, blockstatebase, blockPos, i1, quad, pass, renderEnv);
 
-                                if (abakedquad1 != null)
-                                {
+                                if (abakedquad1 != null) {
                                     return abakedquad1;
                                 }
                             }
@@ -435,8 +413,8 @@ public class ConnectedTextures
                 }
             }
 
-            return renderEnv.getArrayQuadsCtm(quad);
         }
+        return renderEnv.getArrayQuadsCtm(quad);
     }
 
     public static int getSide(EnumFacing facing)

@@ -215,10 +215,7 @@ public class WorldClient extends World
     {
         super.onEntityAdded(entityIn);
 
-        if (this.entitySpawnQueue.contains(entityIn))
-        {
-            this.entitySpawnQueue.remove(entityIn);
-        }
+        this.entitySpawnQueue.remove(entityIn);
     }
 
     protected void onEntityRemoved(Entity entityIn)
@@ -509,5 +506,17 @@ public class WorldClient extends World
     public boolean isPlayerUpdate()
     {
         return this.playerUpdate;
+    }
+
+    public void end() {
+        loadedEntityList.forEach(Entity::setDead);
+        removeAllEntities();
+        unloadedEntityList.clear();
+        loadedEntityList.clear();
+        entityList.clear();
+        playerEntities.clear();
+        loadedTileEntityList.clear();
+        tickableTileEntities.clear();
+        entitiesById.clearMap();
     }
 }

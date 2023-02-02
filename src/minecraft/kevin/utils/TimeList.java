@@ -33,6 +33,21 @@ public class TimeList<T> {
         map.put(t, value);
     }
 
+    public T getNearestAlive(long time) {
+        long current = System.currentTimeMillis() + keepTime - time;
+        long nearest = Long.MAX_VALUE;
+        T value = null;
+        if (autoUpdate) update();
+        for (Map.Entry<Long, T> entry : map.entrySet()) {
+            long dif = current - entry.getKey();
+            if (dif >= 0 && dif <= nearest) {
+                nearest = dif;
+                value = entry.getValue();
+            }
+        }
+        return value;
+    }
+
     public int size() {
         if (autoUpdate) update();
         return map.size();
@@ -52,5 +67,9 @@ public class TimeList<T> {
         for (Long l : waiting) {
             map.remove(l);
         }
+    }
+
+    public void clear() {
+        map.clear();
     }
 }

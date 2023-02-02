@@ -5,7 +5,11 @@ import kevin.event.PacketEvent;
 import kevin.event.UpdateEvent;
 import kevin.hackChecks.Check;
 import kevin.hackChecks.CheckManager;
+import kevin.hud.element.elements.ConnectNotificationType;
+import kevin.hud.element.elements.Notification;
+import kevin.main.KevinClient;
 import kevin.module.*;
+import kevin.utils.ChatUtils;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -24,8 +28,11 @@ public class HackDetector extends Module {
     public final ConcurrentHashMap<Integer, CheckManager> playersChecks = new ConcurrentHashMap<>();
     public ExecutorService es = Executors.newCachedThreadPool();
 
-    private final BooleanValue autoReportValue = new BooleanValue("AutoReport", false);
-    private final IntegerValue reportVLValue = new IntegerValue("ReportVL", 50, 10, 1000);
+    private final BooleanValue warningValue = new BooleanValue("Warning", true);
+    private final ListValue warningMode = new ListValue("WarningMode", new String[]{"Chat", "Notification"}, "Notification");
+    private final IntegerValue warningVLValue = new IntegerValue("WarningVL", 30, 20, 400);
+    private final TextValue warningMessageValue = new TextValue("WarningMessage", "%player% is using %module% hack!");
+    private final BooleanValue autoReportValue = new BooleanValue("AutoReportWhenWarning", false);
     private final TextValue reportCommandValue = new TextValue("ReportCommand", "/report %player% %module%");
     private final BooleanValue debugValue = new BooleanValue("Debug", false) {
         @Override
@@ -110,20 +117,46 @@ public class HackDetector extends Module {
         INSTANCE.playersChecks.remove(id);
     }
 
-    public String completeCommand(String player, String module) {
-        String value = reportCommandValue.get();
+    public String completeMessage(String player, String module, String value) {
         value = value.replaceAll("%player%", player);
         value = value.replaceAll("%module%", module);
         return value;
     }
 
-    public boolean shouldReport(double vl) {
-        return autoReportValue.get() && vl >= reportVLValue.get();
+    public void report(String player, String module) {
+        mc.thePlayer.sendChatMessage(completeMessage(player, module, reportCommandValue.get()));
     }
 
-    public static void catchPlayer(String player, String module, double totalVL) {
-        if (INSTANCE.shouldReport(totalVL)) {
-            mc.thePlayer.sendChatMessage(INSTANCE.completeCommand(player, module));
+    public void warning(String player, String module) {
+        if (warningMode.equal("Chat")) {
+            ChatUtils.INSTANCE.message("§l§7[§l§9HackDetector§l§7]§r " + completeMessage(player, module, warningMessageValue.get()));
+        } else {
+            KevinClient.hud.addNotification(new Notification(completeMessage(player, module, warningMessageValue.get()), "HackerDetector", ConnectNotificationType.Warn));
         }
+    }
+
+    public boolean shouldReport() {
+        return autoReportValue.get();
+    }
+
+    public boolean shouldWarning() {
+        return warningValue.get();
+    }
+
+    public boolean reachedVL(double totalVL) {
+        return totalVL >= warningVLValue.get();
+    }
+
+    public static boolean catchPlayer(String player, String module, double totalVL) {
+        if (INSTANCE.reachedVL(totalVL)) {
+            if (INSTANCE.shouldWarning()) {
+                INSTANCE.warning(player, module);
+            }
+            if (INSTANCE.shouldReport()) {
+                INSTANCE.report(player, module);
+            }
+            return true;
+        }
+        return false;
     }
 }

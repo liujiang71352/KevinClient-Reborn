@@ -24,8 +24,11 @@ object MiniMapRegister : MinecraftInstance() {
     private val queuedChunkUpdates = HashSet<Chunk>(256)
     private val queuedChunkDeletions = HashSet<ChunkLocation>(256)
     private val deleteAllChunks = AtomicBoolean(false)
+    // 不知道杰哥有没有想过：如果玩家不用Radar,那么储存在queuedChunkUpdates的区块可能会导致OutOfMemory
+    var radarEnabled = false
 
     fun updateChunk(chunk: Chunk) {
+        if (!radarEnabled) return
         synchronized(queuedChunkUpdates) {
             queuedChunkUpdates.add(chunk)
         }
@@ -79,6 +82,17 @@ object MiniMapRegister : MinecraftInstance() {
 
     fun unloadAllChunks() {
         deleteAllChunks.set(true)
+        if (!radarEnabled) {
+            synchronized(queuedChunkDeletions) {
+                queuedChunkDeletions.clear()
+            }
+            synchronized(queuedChunkUpdates) {
+                queuedChunkUpdates.clear()
+            }
+            chunkTextureMap.forEach { it.value.delete() }
+            chunkTextureMap.clear()
+        }
+        radarEnabled = false
     }
 
     class MiniMapTexture {

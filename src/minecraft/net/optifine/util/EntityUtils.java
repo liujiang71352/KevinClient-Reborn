@@ -8,16 +8,16 @@ import net.minecraft.src.Config;
 
 public class EntityUtils
 {
-    private static final Map<Class, Integer> mapIdByClass = new HashMap<>();
+    private static final Map<Class<?>, Integer> mapIdByClass = new HashMap<>();
     private static final Map<String, Integer> mapIdByName = new HashMap<>();
-    private static final Map<String, Class> mapClassByName = new HashMap<>();
+    private static final Map<String, Class<?>> mapClassByName = new HashMap<>();
 
     public static int getEntityIdByClass(Entity entity)
     {
         return entity == null ? -1 : getEntityIdByClass(entity.getClass());
     }
 
-    public static int getEntityIdByClass(Class cls)
+    public static int getEntityIdByClass(Class<?> cls)
     {
         Integer integer = mapIdByClass.get(cls);
         return integer == null ? -1 : integer;
@@ -29,17 +29,16 @@ public class EntityUtils
         return integer == null ? -1 : integer;
     }
 
-    public static Class getEntityClassByName(String name)
+    public static Class<?> getEntityClassByName(String name)
     {
-        Class oclass = mapClassByName.get(name);
-        return oclass;
+        return mapClassByName.get(name);
     }
 
     static
     {
         for (int i = 0; i < 1000; ++i)
         {
-            Class oclass = EntityList.getClassFromID(i);
+            Class<? extends Entity> oclass = EntityList.getClassFromID(i);
 
             if (oclass != null)
             {

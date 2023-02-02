@@ -196,6 +196,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     private val limitedMultiTargetsValue = IntegerValue("LimitedMultiTargets", 0, 0, 50)
 
     // Advanced
+    private val delayRotationTick = IntegerValue("DelayRotationTick", 0, 0, 20)
     private val hitBoxMode = ListValue("HitBoxMode", arrayOf("1.8", "HigherVersion"), "1.8")
     private val reachCalculateMode = ListValue("ReachCalculateMode", arrayOf("Look", "DirectionDistance"), "Look")
 
@@ -227,6 +228,9 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     // Fake block status
     var blockingStatus = false
     var lastBlocking = false
+
+    // Rotation delay
+    private val delayedRotations = TimeList<Rotation>(1200)
 
     private val expandHitBox: Boolean
     get() = hitBoxMode equal "1.8"
@@ -827,7 +831,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 (entity.posZ - entity.prevPosZ - (mc.thePlayer!!.posZ - mc.thePlayer!!.prevPosZ)) * RandomUtils.nextFloat(minPredictSize.get(), maxPredictSize.get())
             )
 
-        val limitedRotation: Rotation = if (rotationModeValue.get().contains("LiquidBounce", true)) {
+        var limitedRotation: Rotation = if (rotationModeValue.get().contains("LiquidBounce", true)) {
             val (_, rotation) = RotationUtils.searchCenter(
                 boundingBox,
                 outborderValue.get() && !attackTimer.hasTimePassed(attackDelay / 2),
@@ -890,6 +894,11 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 (Math.random() * (yawMaxTurnSpeed.get() - yawMinTurnSpeed.get()) + yawMinTurnSpeed.get()).toFloat(),
                 (Math.random() * (pitchMaxTurnSpeed.get() - pitchMinTurnSpeed.get()) + pitchMinTurnSpeed.get()).toFloat()
             )
+        }
+        if (delayRotationTick.get() > 0) {
+            delayedRotations.add(limitedRotation)
+            val rot = delayedRotations.getNearestAlive(delayRotationTick.get() * 50L) ?: limitedRotation
+            limitedRotation = rot
         }
 
         when (silentRotationValue.get()) {
