@@ -33,6 +33,7 @@ class Fly : Module("Fly","Allow you fly", Keyboard.KEY_F,ModuleCategory.MOVEMENT
         Vanilla,
         Creative,
         AAC5,
+        ACD,
         Teleport,
         VerusAuto,
         NCPPacket,

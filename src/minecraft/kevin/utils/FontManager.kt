@@ -17,6 +17,7 @@ package kevin.utils
 import com.google.gson.*
 import kevin.event.TextEvent
 import kevin.main.KevinClient
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.FontRenderer
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.texture.TextureUtil
@@ -813,7 +814,7 @@ class FontManager : MinecraftInstance(){
                     createShader(IOUtils.toString(fragmentStream), ARBFragmentShader.GL_FRAGMENT_SHADER_ARB)
                 IOUtils.closeQuietly(fragmentStream)
             } catch (e: java.lang.Exception) {
-                e.printStackTrace()
+                Minecraft.logger.error("An exception occluding when shader init:\n${e.stackTraceToString()}")
                 con = false
             }
             if (con) if (vertexShaderID == 0 || fragmentShaderID == 0) con = false

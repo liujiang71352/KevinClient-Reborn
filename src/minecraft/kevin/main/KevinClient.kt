@@ -41,7 +41,7 @@ import org.lwjgl.opengl.Display
 
 object KevinClient {
     var name = "Kevin"
-    var version = "u2.4.1" // u - updated
+    var version = "u2.4.2" // u - updated
 
     var isStarting = true
 
