@@ -2298,7 +2298,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
             }
 
             try {
-                wait(200L);
+                Thread.sleep(200);
             } catch (InterruptedException ignored) {}
         }
 
