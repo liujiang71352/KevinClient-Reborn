@@ -62,6 +62,7 @@ object AntiBot : Module("AntiBot","Prevents KillAura from attacking AntiCheat bo
     private val czechHekGMCheckValue = BooleanValue("GamemodeCheck", true)
     private val reusedEntityIdValue = BooleanValue("ReusedEntityId", false)
     private val spawnInCombatValue = BooleanValue("SpawnInCombat", false)
+    private val skinValue = BooleanValue("SkinCheck", false)
     private val duplicateInWorldValue = BooleanValue("DuplicateInWorld", false)
     private val duplicateInTabValue = BooleanValue("DuplicateInTab", false)
     private val duplicateCompareModeValue = ListValue("DuplicateCompareMode", arrayOf("OnTime", "WhenSpawn"), "OnTime")
@@ -348,6 +349,11 @@ object AntiBot : Module("AntiBot","Prevents KillAura from attacking AntiCheat bo
 
         if (alwaysInRadiusValue.get() && !notAlwaysInRadius.contains(entity.entityId)) {
             return true
+        }
+
+        if (skinValue.get()) {
+            val info = mc.netHandler.getPlayerInfo(entity.uniqueID) ?: return true
+            if (!info.hasLocationSkin()) return true
         }
 
         return entity.name.isEmpty() || entity.name == mc.thePlayer.name

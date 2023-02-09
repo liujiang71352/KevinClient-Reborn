@@ -487,7 +487,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         targetRotation = null;
     }
 
-    @EventTarget(ignoreCondition = true)
+//    @EventTarget(ignoreCondition = true)
     public void onPacket(final PacketEvent event){
         Packet<?> packet = event.getPacket();
 

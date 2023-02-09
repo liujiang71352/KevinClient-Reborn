@@ -80,36 +80,6 @@ public class LegitScaffold extends Module {
         if (this.blockPos != null) this.setRotation();
         if(mc.thePlayer != null && mc.theWorld != null) {
             mc.thePlayer.setSprinting(false);
-            if(this.adStrafe.get()) {
-                BlockPos b = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 0.5D, mc.thePlayer.posZ);
-                if(mc.theWorld.getBlockState(b).getBlock().getMaterial() == Material.air && mc.currentScreen == null && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCodeDefault()) && this.buildForward() && mc.thePlayer.movementInput.moveForward != 0.0F) {
-                    if(mc.thePlayer.getHorizontalFacing(this.rots.getYaw()) == EnumFacing.EAST) {
-                        if((double)b.getZ() + 0.5D > mc.thePlayer.posZ) {
-                            mc.thePlayer.movementInput.moveStrafe = 1.0F;
-                        } else {
-                            mc.thePlayer.movementInput.moveStrafe = -1.0F;
-                        }
-                    } else if(mc.thePlayer.getHorizontalFacing(this.rots.getYaw()) == EnumFacing.WEST) {
-                        if((double)b.getZ() + 0.5D < mc.thePlayer.posZ) {
-                            mc.thePlayer.movementInput.moveStrafe = 1.0F;
-                        } else {
-                            mc.thePlayer.movementInput.moveStrafe = -1.0F;
-                        }
-                    } else if(mc.thePlayer.getHorizontalFacing(this.rots.getYaw()) == EnumFacing.SOUTH) {
-                        if((double)b.getX() + 0.5D < mc.thePlayer.posX) {
-                            mc.thePlayer.movementInput.moveStrafe = 1.0F;
-                        } else {
-                            mc.thePlayer.movementInput.moveStrafe = -1.0F;
-                        }
-                    } else if((double)b.getX() + 0.5D > mc.thePlayer.posX) {
-                        mc.thePlayer.movementInput.moveStrafe = 1.0F;
-                    } else {
-                        mc.thePlayer.movementInput.moveStrafe = -1.0F;
-                    }
-
-                    this.adTimeHelper.reset();
-                }
-            }
 
             if (extraClick.get()) click();
         }
@@ -394,6 +364,39 @@ public class LegitScaffold extends Module {
             strafe = -event.getStrafe();
             forward = -event.getForward();
             friction = event.getFriction();
+            if(this.adStrafe.get() && strafe == 0) {
+                BlockPos b = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 0.5D, mc.thePlayer.posZ);
+                if(mc.theWorld.getBlockState(b).getBlock().getMaterial() == Material.air && mc.currentScreen == null && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCodeDefault()) && this.buildForward() && mc.thePlayer.movementInput.moveForward != 0.0F) {
+                    if(mc.thePlayer.getHorizontalFacing(this.rots.getYaw()) == EnumFacing.EAST) {
+                        if((double)b.getZ() + 0.5D > mc.thePlayer.posZ) {
+                            strafe = 0.98F;
+                        } else {
+                            strafe = -0.98F;
+                        }
+                    } else if(mc.thePlayer.getHorizontalFacing(this.rots.getYaw()) == EnumFacing.WEST) {
+                        if((double)b.getZ() + 0.5D < mc.thePlayer.posZ) {
+                            strafe = 0.98F;
+                        } else {
+                            strafe = -0.98F;
+                        }
+                    } else if(mc.thePlayer.getHorizontalFacing(this.rots.getYaw()) == EnumFacing.SOUTH) {
+                        if((double)b.getX() + 0.5D < mc.thePlayer.posX) {
+                            strafe = 0.98F;
+                        } else {
+                            strafe = -0.98F;
+                        }
+                    } else if((double)b.getX() + 0.5D > mc.thePlayer.posX) {
+                        strafe = 0.98F;
+                    } else {
+                        strafe = -0.98F;
+                    }
+                    if (mc.thePlayer.movementInput.sneak) {
+                        strafe *= 0.3D;
+                    }
+
+                    this.adTimeHelper.reset();
+                }
+            }
             float f = strafe * strafe + forward * forward;
 
             if (!(f < 1.0E-4F))
