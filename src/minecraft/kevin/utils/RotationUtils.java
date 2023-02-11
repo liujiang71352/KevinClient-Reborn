@@ -487,17 +487,17 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         targetRotation = null;
     }
 
-//    @EventTarget(ignoreCondition = true)
+    @EventTarget(ignoreCondition = true)
     public void onPacket(final PacketEvent event){
         Packet<?> packet = event.getPacket();
 
         if (packet instanceof C03PacketPlayer) {
             C03PacketPlayer c03 = (C03PacketPlayer) packet;
-            if (targetRotation != null && !keepCurrentRotation && (targetRotation.getYaw() != serverRotation.getYaw() || targetRotation.getPitch() != serverRotation.getPitch())) {
-                c03.setYaw(targetRotation.getYaw());
-                c03.setPitch(targetRotation.getPitch());
-                c03.setRotating(true);
-            }
+//            if (targetRotation != null && !keepCurrentRotation && (targetRotation.getYaw() != serverRotation.getYaw() || targetRotation.getPitch() != serverRotation.getPitch())) {
+//                c03.setYaw(targetRotation.getYaw());
+//                c03.setPitch(targetRotation.getPitch());
+//                c03.setRotating(true);
+//            }
             if (c03.getRotating()) serverRotation = new Rotation(c03.getYaw(), c03.getPitch());
         }
     }
