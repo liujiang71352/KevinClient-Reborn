@@ -18,8 +18,6 @@ import kevin.event.StrafeEvent
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.MathHelper
 import net.minecraft.util.Vec3
-import net.minecraft.util.Vec3i
-import net.minecraft.util.Vector3d
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -61,6 +59,8 @@ data class Rotation(var yaw: Float, var pitch: Float) : MinecraftInstance() {
         deltaPitch -= deltaPitch % gcd
         pitch = rotation.pitch + deltaPitch
     }
+
+    fun fixedSensitivity() = fixedSensitivity(mc.gameSettings.mouseSensitivity)
 
     /**
      * Apply strafe to player

@@ -117,7 +117,7 @@ public class HackDetector extends Module {
         INSTANCE.playersChecks.remove(id);
     }
 
-    public String completeMessage(String player, String module, String value) {
+    public static String completeMessage(String player, String module, String value) {
         value = value.replaceAll("%player%", player);
         value = value.replaceAll("%module%", module);
         return value;

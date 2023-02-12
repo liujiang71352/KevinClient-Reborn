@@ -487,6 +487,13 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         targetRotation = null;
     }
 
+    /**
+     * reset your target rotation smooth
+     */
+    public static void smoothReset() {
+        keepLength = 0;
+    }
+
     @EventTarget(ignoreCondition = true)
     public void onPacket(final PacketEvent event){
         Packet<?> packet = event.getPacket();

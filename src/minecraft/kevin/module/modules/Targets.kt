@@ -15,7 +15,8 @@
 package kevin.module.modules
 
 import kevin.event.EventTarget
-import kevin.event.UpdateEvent
+import kevin.event.TickEvent
+//import kevin.event.UpdateEvent
 import kevin.module.BooleanValue
 import kevin.module.Module
 import kevin.utils.EntityUtils
@@ -27,7 +28,7 @@ class Targets : Module("Targets") {
     private val invisible = BooleanValue("Invisible",true)
     private val death = BooleanValue("Death",false)
     @EventTarget(true)
-    fun onUpdate(event: UpdateEvent){
+    fun onUpdate(event: TickEvent){
         EntityUtils.targetPlayer = players.get()
         EntityUtils.targetMobs = mobs.get()
         EntityUtils.targetAnimals = animals.get()

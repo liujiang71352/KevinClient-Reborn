@@ -35,7 +35,7 @@ public class SpeedCheck extends Check {
                 if (diff > 30 && diff < 330 /* 360 - 30 */) {
                     if (xz >= 0.375) strafeBuffer += 20;
                     if (strafeBuffer >= 120) {
-                        flag(String.format("invalid strafe movement, ad,d,dg=(%.3f,%.3f,%.3f) b: %s", diff, dir, gDir, strafeBuffer), 2.5);
+                        flag(String.format("invalid strafe movement, ad,d,dg=(%.3f,%.3f,%.3f) buffer=%s", diff, dir, gDir, strafeBuffer), 2.5);
                         strafeBuffer -= 10;
                     }
                 } else strafeBuffer -= strafeBuffer > 0 ? 1 : 0;
@@ -58,7 +58,7 @@ public class SpeedCheck extends Check {
                     buffer += 5;
                 }
                 if (buffer > 40) {
-                    flag("speed up movement, o=" + outed + ",b=" + buffer + ",r=" + ratio, 1.125);
+                    flag("speed up movement, o=" + outed + ",b=" + buffer + ",r=" + ratio, 1.2);
                     buffer -= 3;
                 }
             } else {

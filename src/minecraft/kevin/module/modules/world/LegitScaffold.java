@@ -14,6 +14,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C09PacketHeldItemChange;
 import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.network.play.server.S09PacketHeldItemChange;
+import net.minecraft.stats.StatList;
 import net.minecraft.util.*;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
@@ -34,6 +35,7 @@ public class LegitScaffold extends Module {
     public final BooleanValue adStrafe = new BooleanValue("AdStrafe", true);
     public final BooleanValue swing = new BooleanValue("Swing", false);
     public final BooleanValue extraClick = new BooleanValue("ExtraClickTime", true);
+    public final BooleanValue sameY = new BooleanValue("SameY", false);
     public final BooleanValue preMotionClick = new BooleanValue("PreMotionClick", false);
     public final ListValue silentMode = new ListValue("SilentMode", new String[]{"Switch", "Spoof", "None"}, "Spoof");
     ArrayList<double[]> hitpoints = new ArrayList<>();
@@ -70,7 +72,8 @@ public class LegitScaffold extends Module {
         if(mc.thePlayer.inventory.currentItem != this.slotID) {
             mc.getNetHandler().addToSendQueue(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
         }
-        RotationUtils.setTargetRotation(new Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch));
+        RotationUtils.setTargetRotation(new Rotation(mc.thePlayer.rotationYaw + rots.getYaw() / 2, mc.thePlayer.rotationPitch + rots.getPitch() / 2));
+        mc.thePlayer.setSprinting(false);
 
         this.slotID = mc.thePlayer.inventory.currentItem;
     }
@@ -132,7 +135,9 @@ public class LegitScaffold extends Module {
     public void onPacket(PacketEvent event) {
         Packet<?> packet = event.getPacket();
         if (packet instanceof C09PacketHeldItemChange) {
-            lastSlotID = ((C09PacketHeldItemChange) packet).getSlotId();
+            int id = ((C09PacketHeldItemChange) packet).getSlotId();
+            if (id == lastSlotID) event.cancelEvent();
+            lastSlotID = id;
         } else if (packet instanceof S09PacketHeldItemChange) {
             lastSlotID = ((S09PacketHeldItemChange) packet).getHeldItemHotbarIndex();
         }
@@ -146,10 +151,10 @@ public class LegitScaffold extends Module {
         if(this.start) {
             rot.setPitch(80.34F);
             rot.setYaw(mc.thePlayer.rotationYaw - 180F);
-            rot = RotationUtils.limitAngleChange(RotationUtils.serverRotation, rot, yawSpeed.get(), pitchSpeed.get());
+            rot = RotationUtils.limitAngleChange(RotationUtils.serverRotation, rot, yawSpeed.get() + RandomUtils.INSTANCE.nextFloat(0, 2), pitchSpeed.get() - RandomUtils.INSTANCE.nextFloat(0, 2));
         } else {
             rot.setYaw(mc.thePlayer.rotationYaw - 180F);
-            rot = RotationUtils.limitAngleChange(RotationUtils.serverRotation, rot, yawSpeed.get(), pitchSpeed.get());
+            rot = RotationUtils.limitAngleChange(RotationUtils.serverRotation, rot, yawSpeed.get() + RandomUtils.INSTANCE.nextFloat(0, 2), pitchSpeed.get() + RandomUtils.INSTANCE.nextFloat(0, 2));
             double x = mc.thePlayer.posX;
             double z = mc.thePlayer.posZ;
             double add1 = 1.288D;
@@ -172,13 +177,14 @@ public class LegitScaffold extends Module {
                 Vec3 vec3 = mc.thePlayer.getPositionEyes(1f);
                 for(float mm = Math.max(rots.getPitch() - 20.0F, -90.0F); mm < Math.min(rots.getPitch() + 20.0F, 90.0F); mm += 0.02F) {
                     rot.setPitch(mm);
-                    rot.fixedSensitivity(mc.gameSettings.mouseSensitivity);
+                    rot.fixedSensitivity();
                     Vec3 vec31 = OtherExtensionsKt.multiply(rot.toDirection(), 4.5f).add(vec3);
                     final MovingObjectPosition m4 = mc.theWorld.rayTraceBlocks(vec3, vec31, false, false, true);
-                    if(m4.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && this.isOkBlock(m4.getBlockPos()) && !movingObjectPositions.contains(m4) && m4.getBlockPos().equals(this.blockPos) && m4.sideHit != EnumFacing.DOWN && m4.sideHit != EnumFacing.UP && m4.getBlockPos().getY() <= b.getY()) {
+                    if(m4.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && this.isOkBlock(m4.getBlockPos()) && /*!movingObjectPositions.contains(m4) && */m4.getBlockPos().equals(this.blockPos) && m4.sideHit != EnumFacing.DOWN && (m4.sideHit != EnumFacing.UP || (!sameY.get() && mc.gameSettings.keyBindJump.isKeyDown())) && m4.getBlockPos().getY() <= b.getY()) {
                         movingObjectPositions.add(m4);
-                        this.hashMap.put(rot.getPitch(), m4);
-                        pitches.add(rot.getPitch());
+                        float rotPitch = rot.getPitch();
+                        this.hashMap.put(rotPitch, m4);
+                        pitches.add(rotPitch);
                     }
                 }
 
@@ -191,8 +197,9 @@ public class LegitScaffold extends Module {
                 if(mm1 != null) {
                     pitches.sort(Comparator.comparingDouble(this::distanceToLastPitch));
                     if(!pitches.isEmpty()) {
-                        rot.setPitch(pitches.get(0));
-                        this.objectPosition = this.hashMap.get(rot.getPitch());
+                        float rotPitch = pitches.get(0);
+                        rot.setPitch(rotPitch);
+                        this.objectPosition = this.hashMap.get(rotPitch);
                         this.blockPos = this.objectPosition.getBlockPos();
                     }
 
@@ -361,12 +368,12 @@ public class LegitScaffold extends Module {
         if(this.moveFix.get() && !event.isCancelled()) {
             event.cancelEvent();
             float strafe, forward, friction;
-            strafe = -event.getStrafe();
+            strafe = event.getStrafe();
             forward = -event.getForward();
             friction = event.getFriction();
             if(this.adStrafe.get() && strafe == 0) {
                 BlockPos b = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 0.5D, mc.thePlayer.posZ);
-                if(mc.theWorld.getBlockState(b).getBlock().getMaterial() == Material.air && mc.currentScreen == null && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCodeDefault()) && this.buildForward() && mc.thePlayer.movementInput.moveForward != 0.0F) {
+                if(mc.theWorld.getBlockState(b).getBlock().getMaterial() == Material.air && mc.currentScreen == null && /*!Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCodeDefault()) && */this.buildForward() && mc.thePlayer.movementInput.moveForward != 0.0F) {
                     if(mc.thePlayer.getHorizontalFacing(this.rots.getYaw()) == EnumFacing.EAST) {
                         if((double)b.getZ() + 0.5D > mc.thePlayer.posZ) {
                             strafe = 0.98F;
@@ -397,6 +404,7 @@ public class LegitScaffold extends Module {
                     this.adTimeHelper.reset();
                 }
             }
+            strafe = -strafe;
             float f = strafe * strafe + forward * forward;
 
             if (!(f < 1.0E-4F))
@@ -423,8 +431,10 @@ public class LegitScaffold extends Module {
     public void onEventJump(JumpEvent event) {
         if (event.isCancelled()) return;
         if(this.moveFix.get()) {
+            // no sprint jump
             event.cancelEvent();
             mc.thePlayer.motionY = event.getMotion();
+            mc.thePlayer.triggerAchievement(StatList.jumpStat);
         }
 
     }

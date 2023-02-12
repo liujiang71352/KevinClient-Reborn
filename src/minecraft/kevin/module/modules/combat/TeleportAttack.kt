@@ -224,7 +224,7 @@ class TeleportAttack : Module("TeleportAttack","Attack the target over a long di
                 GL11.glLineWidth(glLineWidthValue.get())
                 GL11.glBegin(GL11.GL_LINE_STRIP)
                 for (vec in points) {
-                    GL11.glVertex3d(vec.xCoord, vec.yCoord, vec.zCoord)
+                    GL11.glVertex3d(vec.xCoord - renderPosX, vec.yCoord - renderPosY, vec.zCoord - renderPosZ)
                 }
                 GL11.glEnd()
             }

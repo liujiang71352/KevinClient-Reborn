@@ -31,7 +31,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.*;
 import net.minecraft.util.*;
-import net.optifine.util.MathUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.glu.GLUtessellator;
@@ -300,6 +299,10 @@ public final class RenderUtils extends MinecraftInstance{
 
         tess.gluEndPolygon();
         tess.gluDeleteTess();
+    }
+
+    public static void glVertex3dVec3D(Vec3 vec) {
+        GL11.glVertex3d(vec.xCoord, vec.yCoord, vec.zCoord);
     }
 
     public static void tessVertex(GLUtessellator tessellator, double[] coords) {

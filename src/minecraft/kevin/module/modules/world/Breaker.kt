@@ -205,16 +205,16 @@ class Breaker : Module("Breaker",description = "Destroys selected blocks around 
                     thePlayer.swingItem()
 
                 currentDamage += block.getPlayerRelativeBlockHardness(thePlayer, mc.theWorld!!, currentPos)
-                mc.theWorld!!.sendBlockBreakProgress(thePlayer.entityId, currentPos, (currentDamage * 10F).toInt() - 1)
-
                 if (currentDamage >= 1F) {
                     mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK,
                         currentPos, facing))
                     mc.playerController.onPlayerDestroyBlock(currentPos, facing)
-                    blockHitDelay = 4
+                    blockHitDelay = 5
                     currentDamage = 0F
                     pos = null
                 }
+
+                mc.theWorld!!.sendBlockBreakProgress(thePlayer.entityId, currentPos, (currentDamage * 10F).toInt() - 1)
             }
 
             // Use block

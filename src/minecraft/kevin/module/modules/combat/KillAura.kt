@@ -36,13 +36,10 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemSword
 import net.minecraft.network.play.client.*
 import net.minecraft.potion.Potion
-import net.minecraft.util.AxisAlignedBB
-import net.minecraft.util.BlockPos
-import net.minecraft.util.EnumFacing
-import net.minecraft.util.MathHelper
-import net.minecraft.util.Vec3
+import net.minecraft.util.*
 import net.minecraft.world.WorldSettings
 import org.lwjgl.input.Keyboard
+import org.lwjgl.opengl.GL11
 import java.awt.Color
 import java.util.*
 import kotlin.math.*
@@ -202,6 +199,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
 
     // Visuals
     private val markValue = ListValue("Mark", arrayOf("Off", "LiquidBounce", "Box", "Jello"), "LiquidBounce")
+    private val renderViewLine = BooleanValue("RenderViewLine", false)
     private val fakeSharpValue = BooleanValue("FakeSharp", true)
 
     /**
@@ -266,6 +264,8 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
         clicks = 0
 
         stopBlocking()
+        // need check scaffold?
+        RotationUtils.reset()
     }
 
     private val afterTick
@@ -559,26 +559,78 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
             return
         }
 
-        if (sTarget != null) when(markValue.get()) {
-            "LiquidBounce" -> {
-                if (targetModeValue.get().equals("Multi", ignoreCase = true))
-                    discoveredTargets.forEach { RenderUtils.drawPlatform(it, Color(37, 126, 255, 70)) }
-                else
-                    RenderUtils.drawPlatform(sTarget, if (hitable) Color(37, 126, 255, 70) else Color(255, 0, 0, 70))
+        if (sTarget != null) {
+            when (markValue.get()) {
+                "LiquidBounce" -> {
+                    if (targetModeValue.get().equals("Multi", ignoreCase = true))
+                        discoveredTargets.forEach { RenderUtils.drawPlatform(it, Color(37, 126, 255, 70)) }
+                    else
+                        RenderUtils.drawPlatform(sTarget, if (hitable) Color(37, 126, 255, 70) else Color(255, 0, 0, 70))
+                }
+                "Box" -> {
+                    if (targetModeValue.get().equals("Multi", ignoreCase = true))
+                        discoveredTargets.forEach { RenderUtils.drawEntityBox(it, Color(37, 126, 255, 120), false) }
+                    else
+                        RenderUtils.drawEntityBox(
+                            sTarget, if (hitable) {
+                                if (sTarget !is EntityLivingBase || (sTarget as EntityLivingBase).hurtTime > 0) Color(255, 0, 0, 120) else Color(37, 126, 255, 120)
+                            } else Color(37, 255, 126, 120), false
+                        )
+                }
+                "Jello" -> {
+                    if (targetModeValue.get().equals("Multi", ignoreCase = true))
+                        discoveredTargets.forEach { RenderUtils.drawCircle(it, -1.0, Color(255, 255, 255), true) }
+                    else
+                        RenderUtils.drawCircle(sTarget, -1.0, Color(255, 255, 255), true)
+                }
             }
-            "Box" -> {
-                if (targetModeValue.get().equals("Multi", ignoreCase = true))
-                    discoveredTargets.forEach { RenderUtils.drawEntityBox(it, Color(37, 126, 255, 120), false) }
-                else
-                    RenderUtils.drawEntityBox(sTarget, if (hitable) {
-                        if (sTarget !is EntityLivingBase || (sTarget as EntityLivingBase).hurtTime > 0) Color(255, 0, 0, 120) else Color(37, 126, 255, 120)
-                    } else Color(37, 255, 126, 120), false)
-            }
-            "Jello" -> {
-                if (targetModeValue.get().equals("Multi", ignoreCase = true))
-                    discoveredTargets.forEach { RenderUtils.drawCircle(it, -1.0, Color(255,255,255), true) }
-                else
-                    RenderUtils.drawCircle(sTarget, -1.0, Color(255,255,255), true)
+            if (renderViewLine.get()) {
+                val targetEntity = sTarget!!
+                val partialTicks = mc.timer.renderPartialTicks
+                val box = targetEntity.entityBoundingBox.expands(targetEntity.collisionBorderSize.toDouble())
+                val lastRot = RotationUtils.serverRotation
+                val rot = RotationUtils.targetRotation ?: lastRot
+//                val dYaw = rot.yaw - lastRot.yaw
+//                val dPitch = rot.pitch - lastRot.pitch
+                var vecEyes = mc.thePlayer.getPositionEyes(partialTicks)
+//                var vecRot = Rotation(lastRot.yaw + dYaw * partialTicks, lastRot.pitch * dPitch * partialTicks).toDirection().multiply(discoverRangeValue.get().toDouble()).add(vecEyes)
+                var vecRot = rot.toDirection().multiply(discoverRangeValue.get().toDouble()).add(vecEyes)
+                val obj = box.calculateIntercept(vecEyes, vecRot)
+                if (obj.typeOfHit != MovingObjectPosition.MovingObjectType.MISS) {
+                    vecRot = obj.hitVec ?: vecRot
+                }
+                val renderPosX = mc.renderManager.viewerPosX
+                val renderPosY = mc.renderManager.viewerPosY
+                val renderPosZ = mc.renderManager.viewerPosZ
+                vecEyes = vecEyes.addVector(-renderPosX, -renderPosY, -renderPosZ)
+                vecRot = vecRot.addVector(-renderPosX, -renderPosY, -renderPosZ)
+                GL11.glPushMatrix()
+                GL11.glEnable(GL11.GL_BLEND)
+                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
+                GL11.glShadeModel(GL11.GL_SMOOTH)
+                GL11.glDisable(GL11.GL_TEXTURE_2D)
+                GL11.glEnable(GL11.GL_LINE_SMOOTH)
+                GL11.glDisable(GL11.GL_DEPTH_TEST)
+                GL11.glDisable(GL11.GL_LIGHTING)
+                GL11.glDepthMask(false)
+                GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST)
+                GL11.glLoadIdentity()
+                mc.entityRenderer.setupCameraTransform(mc.timer.renderPartialTicks, 2)
+                RenderUtils.glColor(Color.WHITE)
+                GL11.glLineWidth(1f)
+
+                GL11.glBegin(GL11.GL_LINE)
+                RenderUtils.glVertex3dVec3D(vecEyes)
+                RenderUtils.glVertex3dVec3D(vecRot)
+                GL11.glEnd()
+
+                GL11.glColor4f(1F, 1F, 1F, 1F)
+                GL11.glDepthMask(true)
+                GL11.glEnable(GL11.GL_DEPTH_TEST)
+                GL11.glDisable(GL11.GL_LINE_SMOOTH)
+                GL11.glEnable(GL11.GL_TEXTURE_2D)
+                GL11.glDisable(GL11.GL_BLEND)
+                GL11.glPopMatrix()
             }
         }
 

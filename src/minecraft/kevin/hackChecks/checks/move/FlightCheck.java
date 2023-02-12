@@ -33,19 +33,20 @@ public class FlightCheck extends Check {
             lastDeltaY = y;
             return;
         }
-        // Float
+        // Float / Fly up
         if (y >= lastDeltaY && !(handlePlayer.isInWater() || handlePlayer.isInLava())) {
 //                BlockPos bp = new BlockPos(handlePlayer.prevPosX, handlePlayer.prevPosY - 0.25, handlePlayer.prevPosZ);
+            // "strict" ground check
             AxisAlignedBB aabb = new AxisAlignedBB((handlePlayer.serverPosX / 32.0) - 0.30125, (handlePlayer.serverPosY / 32.0) + 0.25, (handlePlayer.serverPosZ / 32.0) - 0.30125, (handlePlayer.serverPosX / 32.0) + 0.30125, (handlePlayer.serverPosY / 32.0) - 0.25, (handlePlayer.serverPosZ / 32.0) + 0.30125);
             if (OtherExtensionsKt.getBlockStatesIncluded(aabb).isEmpty()) { // No block found under the player
-                if (handlePlayer.hurtTime <= 5 && ++buffer > 5) flag(String.format("glide/fly, d=(%.5f, %.5f)", lastDeltaY, y), 1.3);
+                if (handlePlayer.hurtTime < 6 && ++buffer > 5) flag(String.format("glide/fly, d=(%.5f, %.5f)", lastDeltaY, y), 1.3);
             } else {
                 --buffer;
             }
         }
 
-        // Fast down
-        if (y < -3.2 && lastDeltaY > -3.2) {
+        // Fast down (code from MedusaAntiCheat and better value for client side)
+        if (y < -3.3) {
             flag("fast down, mY=" + y, 5);
         }
 
@@ -63,7 +64,7 @@ public class FlightCheck extends Check {
                 flag("high jump, p=(" + jumpMotion + "," + y + ")", 4.5);
                 jumpBuffer = 0;
             }
-        } else jumpBuffer = 0;
+        } else jumpBuffer = 0; // --buffer?
 
         reward(0.1);
         lastDeltaY = y;

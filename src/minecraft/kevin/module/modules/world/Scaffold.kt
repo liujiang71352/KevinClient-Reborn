@@ -1093,9 +1093,9 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer!!.inventory.currentItem))
             }
         }
-        if (eagleValue equal "Smart") {
-            mc.gameSettings.keyBindSneak.pressed = false
-        }
+//        if (eagleValue equal "Smart") {
+//            mc.gameSettings.keyBindSneak.pressed = false
+//        }
         targetPlace = null
     }
 
