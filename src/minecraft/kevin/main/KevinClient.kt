@@ -24,20 +24,22 @@ import kevin.file.FileManager
 import kevin.file.ImageManager
 import kevin.file.ResourceManager
 import kevin.font.FontGC
+import kevin.font.FontManager
 import kevin.hud.HUD
 import kevin.hud.HUD.Companion.createDefault
 import kevin.module.ModuleManager
+import kevin.module.modules.misc.ConfigsManager
 import kevin.module.modules.render.ClickGui.ClickGUI
 import kevin.module.modules.render.ClickGui.NewClickGui
 import kevin.module.modules.render.Renderer
 import kevin.script.ScriptManager
 import kevin.skin.SkinManager
 import kevin.utils.CombatManager
-import kevin.font.FontManager
-import kevin.module.modules.misc.ConfigsManager
 import kevin.utils.RotationUtils
 import kevin.via.ViaVersion
 import org.lwjgl.opengl.Display
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 object KevinClient {
     var name = "Kevin"
@@ -57,6 +59,9 @@ object KevinClient {
     lateinit var hud: HUD
     lateinit var capeManager: CapeManager
     lateinit var combatManager: CombatManager
+
+    @JvmStatic
+    val pool: ExecutorService = Executors.newCachedThreadPool()
 
     var cStart = "§l§7[§l§9Kevin§l§7]"
 

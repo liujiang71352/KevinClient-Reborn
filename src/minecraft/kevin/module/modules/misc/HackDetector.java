@@ -20,13 +20,10 @@ import org.lwjgl.input.Keyboard;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class HackDetector extends Module {
     public static final HackDetector INSTANCE = new HackDetector();
     public final ConcurrentHashMap<Integer, CheckManager> playersChecks = new ConcurrentHashMap<>();
-    public ExecutorService es = Executors.newCachedThreadPool();
 
     private final BooleanValue warningValue = new BooleanValue("Warning", true);
     private final ListValue warningMode = new ListValue("WarningMode", new String[]{"Chat", "Notification"}, "Notification");
@@ -47,8 +44,7 @@ public class HackDetector extends Module {
 
     @EventTarget
     public final void onUpdate(UpdateEvent ignored) {
-        // async
-        es.execute(() -> {
+        POOL.execute(() -> {
             // process check
             for (CheckManager manager : playersChecks.values()) {
                 manager.livingUpdate();
@@ -81,8 +77,7 @@ public class HackDetector extends Module {
     public final void onPacket(PacketEvent event) {
         if (event.isCancelled()) return;
         if (event.getPacket() instanceof S14PacketEntity || event.getPacket() instanceof S18PacketEntityTeleport) {
-            // async
-            es.execute(() -> {
+            POOL.execute(() -> {
                 int x, y, z, id;
                 if (event.getPacket() instanceof S14PacketEntity) {
                     S14PacketEntity packet = (S14PacketEntity) event.getPacket();

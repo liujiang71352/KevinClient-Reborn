@@ -29,7 +29,8 @@ public class LegitScaffold extends Module {
     private final MSTimer startTimeHelper2 = new MSTimer();
     private final MSTimer adTimeHelper = new MSTimer();
     public final FloatValue yawSpeed = new FloatValue("YawSpeed", 40.0f, 0.0f, 180.0f);
-    public final FloatValue pitchSpeed =  new FloatValue("PitchSpeed", 40.0f, 0.0f, 180.0f);
+    public final FloatValue pitchSpeed = new FloatValue("PitchSpeed", 40.0f, 0.0f, 180.0f);
+    public final FloatValue yawOffset = new FloatValue("YawOffSet", -180f, -200f, 200f);
     public final BooleanValue moveFix = new BooleanValue("MoveFix", true);
     public final BooleanValue esp = new BooleanValue("ESP", true);
     public final BooleanValue adStrafe = new BooleanValue("AdStrafe", true);
@@ -150,10 +151,10 @@ public class LegitScaffold extends Module {
         this.hashMap.clear();
         if(this.start) {
             rot.setPitch(80.34F);
-            rot.setYaw(mc.thePlayer.rotationYaw - 180F);
+            rot.setYaw(mc.thePlayer.rotationYaw + yawOffset.get());
             rot = RotationUtils.limitAngleChange(RotationUtils.serverRotation, rot, yawSpeed.get() + RandomUtils.INSTANCE.nextFloat(0, 2), pitchSpeed.get() - RandomUtils.INSTANCE.nextFloat(0, 2));
         } else {
-            rot.setYaw(mc.thePlayer.rotationYaw - 180F);
+            rot.setYaw(mc.thePlayer.rotationYaw + yawOffset.get());
             rot = RotationUtils.limitAngleChange(RotationUtils.serverRotation, rot, yawSpeed.get() + RandomUtils.INSTANCE.nextFloat(0, 2), pitchSpeed.get() + RandomUtils.INSTANCE.nextFloat(0, 2));
             double x = mc.thePlayer.posX;
             double z = mc.thePlayer.posZ;

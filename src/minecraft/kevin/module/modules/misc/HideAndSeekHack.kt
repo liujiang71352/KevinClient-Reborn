@@ -32,6 +32,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.entity.item.EntityFallingBlock
 import net.minecraft.item.Item
+import net.minecraft.item.ItemAxe
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.item.ItemSword
@@ -101,7 +102,7 @@ object HideAndSeekHack : Module("HideAndSeekHack","Mark every hider.") {
         for (it in 36..44) {
             val itemStack = mc.thePlayer!!.inventoryContainer.getSlot(it).stack
             val item = itemStack?.item
-            if (itemStack != null && item is ItemSword && item.material == Item.ToolMaterial.EMERALD){
+            if (itemStack != null && item is ItemSword && item.material == Item.ToolMaterial.WOOD){
                 return true
             }
         }
@@ -114,6 +115,10 @@ object HideAndSeekHack : Module("HideAndSeekHack","Mark every hider.") {
             val itemStack = mc.thePlayer!!.inventoryContainer.getSlot(it).stack
             val item = itemStack?.item
             if (itemStack != null && item is ItemSword && item.material == Item.ToolMaterial.EMERALD){
+                return true
+            }
+            // Gamster
+            if (itemStack != null && item is ItemAxe && item.toolMaterial == Item.ToolMaterial.EMERALD) {
                 return true
             }
         }

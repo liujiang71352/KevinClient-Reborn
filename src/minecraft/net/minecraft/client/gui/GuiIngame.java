@@ -375,8 +375,10 @@ public class GuiIngame extends Gui
 
     protected void renderTooltip(ScaledResolution sr, float partialTicks)
     {
+        this.mc.checkGLError("KEVIN pre 2D RENDERER check");
         render2DEvent.setPartialTicks(partialTicks);
         KevinClient.eventManager.callEvent(render2DEvent);
+        this.mc.checkGLError("KEVIN 2D RENDERER");
         if (this.mc.getRenderViewEntity() instanceof EntityPlayer)
         {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);

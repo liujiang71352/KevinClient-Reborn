@@ -108,6 +108,7 @@ import net.optifine.entity.model.CustomEntityModels;
 import net.optifine.player.PlayerItemsLayer;
 import net.optifine.reflect.Reflector;
 
+@SuppressWarnings("unchecked")
 public class RenderManager
 {
     private Map<Class, Render> entityRenderMap = Maps.newHashMap();
@@ -405,7 +406,7 @@ public class RenderManager
                 {
                     if (render instanceof RendererLivingEntity)
                     {
-                        ((RendererLivingEntity)render).setRenderOutlines(this.renderOutlines);
+                        ((RendererLivingEntity<?>)render).setRenderOutlines(this.renderOutlines);
                     }
 
                     if (CustomEntityModels.isActive())

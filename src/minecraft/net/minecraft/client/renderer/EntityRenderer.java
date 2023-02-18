@@ -1931,8 +1931,10 @@ public class EntityRenderer implements IResourceManagerReloadListener
             this.renderCloudsCheck(renderglobal, partialTicks, pass);
         }
 
+        this.mc.checkGLError("KEVIN pre 3D RENDERER check");
         renderEvent.setPartialTicks(partialTicks);
         KevinClient.eventManager.callEvent(renderEvent);
+        this.mc.checkGLError("KEVIN 3D RENDERER");
 
         this.mc.mcProfiler.endStartSection("hand");
 

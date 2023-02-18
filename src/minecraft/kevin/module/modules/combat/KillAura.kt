@@ -616,15 +616,14 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST)
                 GL11.glLoadIdentity()
                 mc.entityRenderer.setupCameraTransform(mc.timer.renderPartialTicks, 2)
-                RenderUtils.glColor(Color.WHITE)
-                GL11.glLineWidth(1f)
+                GL11.glColor4f(1F, 1F, 1F, 1F)
+                GL11.glLineWidth(2f)
 
                 GL11.glBegin(GL11.GL_LINE)
                 RenderUtils.glVertex3dVec3D(vecEyes)
                 RenderUtils.glVertex3dVec3D(vecRot)
                 GL11.glEnd()
-
-                GL11.glColor4f(1F, 1F, 1F, 1F)
+//                GL11.glColor4f(1F, 1F, 1F, 1F)
                 GL11.glDepthMask(true)
                 GL11.glEnable(GL11.GL_DEPTH_TEST)
                 GL11.glDisable(GL11.GL_LINE_SMOOTH)

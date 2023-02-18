@@ -981,7 +981,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     /**
      * Checks for an OpenGL error. If there is one, prints the error ID and error string.
      */
-    private void checkGLError(String message)
+    public void checkGLError(String message)
     {
         if (this.enableGLErrorChecking)
         {

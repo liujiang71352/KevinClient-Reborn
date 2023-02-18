@@ -14,8 +14,12 @@
  */
 package kevin.utils;
 
+import kevin.main.KevinClient;
 import net.minecraft.client.Minecraft;
+
+import java.util.concurrent.ExecutorService;
 
 public class MinecraftInstance {
     public static final Minecraft mc = Minecraft.getMinecraft();
+    public static final ExecutorService POOL = KevinClient.getPool();
 }
