@@ -114,7 +114,7 @@ class SuperKnockback : Module("SuperKnockback", "Increases knockback dealt to ot
     fun onUpdate(event: UpdateEvent) {
         if  (modeValue equal "LegitFast") {
             if (isHit) {
-                mc.thePlayer.sprintingTicksLeft = 1
+                mc.thePlayer.sprintingTicksLeft = 0
                 stopTimer.reset()
             }
         }

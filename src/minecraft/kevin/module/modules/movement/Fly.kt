@@ -17,7 +17,7 @@ package kevin.module.modules.movement
 import kevin.event.*
 import kevin.module.*
 import kevin.module.modules.movement.flys.FlyMode
-import kevin.module.modules.movement.flys.aac.AAC5
+import kevin.module.modules.movement.flys.aac.*
 import kevin.module.modules.movement.flys.matrix.*
 import kevin.module.modules.movement.flys.ncp.*
 import kevin.module.modules.movement.flys.other.*
@@ -39,6 +39,7 @@ class Fly : Module("Fly","Allow you fly", Keyboard.KEY_F,ModuleCategory.MOVEMENT
         NCPPacket,
         NCPFly,
         NCPNew,
+        HypixelFly,
         HypixelVanilla,
         OldNCP,
         Matrix, // from FDP

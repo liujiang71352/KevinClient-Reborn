@@ -33,6 +33,7 @@ class Speed : Module("Speed","Allows you to move faster.", category = ModuleCate
         YPort,
         LegacyNCP, // from Rise
         NCPStable, // from FDP
+        Hypixel, // from IDK where
         AutoJump,
         VerusYPort,
         VerusHop,

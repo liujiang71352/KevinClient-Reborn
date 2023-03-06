@@ -60,9 +60,7 @@ public class FallingPlayer extends MinecraftInstance {
         this.forward = player.moveForward;
     }
 
-    private void calculateForTick() {
-        strafe *= 0.98F;
-        forward *= 0.98F;
+    private void calculateForTick(float strafe, float forward) {
 
         float v = strafe * strafe + forward * forward;
 
@@ -85,10 +83,10 @@ public class FallingPlayer extends MinecraftInstance {
 
         motionY -= 0.08;
 
-        motionX *= 0.91;
+        motionX *= 0.91F;
         motionY *= 0.9800000190734863D;
-        motionY *= 0.91;
-        motionZ *= 0.91;
+//        motionY *= 0.91;
+        motionZ *= 0.91F;
 
         x += motionX;
         y += motionY;
@@ -99,7 +97,7 @@ public class FallingPlayer extends MinecraftInstance {
         for (int i = 0; i < ticks; i++) {
             Vec3 start = new Vec3(x, y, z);
 
-            calculateForTick();
+            calculateForTick(strafe * 0.98F, forward * 0.98F);
 
             Vec3 end = new Vec3(x, y, z);
 

@@ -50,10 +50,10 @@ public class GuiSpectator extends Gui implements ISpectatorMenuRecipient
     public void renderTooltip(ScaledResolution p_175264_1_, float p_175264_2_)
     {
         // field_175268_g -> mc
-        this.field_175268_g.checkGLError("KEVIN pre 2D RENDERER check");
+        this.field_175268_g.checkGLError("KEVIN pre 2D RENDERER SPEC");
         render2DEvent.setPartialTicks(p_175264_2_);
         KevinClient.eventManager.callEvent(render2DEvent);
-        this.field_175268_g.checkGLError("KEVIN 2D RENDERER");
+        this.field_175268_g.checkGLError("KEVIN 2D RENDERER SPEC");
         if (this.field_175271_i != null)
         {
             float f = this.func_175265_c();

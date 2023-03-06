@@ -9,6 +9,7 @@ import java.util.*;
 import kevin.event.JumpEvent;
 import kevin.main.KevinClient;
 import kevin.module.modules.movement.AirJump;
+import kevin.module.modules.movement.NoJumpDelay;
 import kevin.module.modules.render.Animations;
 import kevin.module.modules.render.AntiBlind;
 import net.minecraft.block.Block;
@@ -1597,8 +1598,7 @@ public abstract class EntityLivingBase extends Entity
         if (jumpEvent.isCancelled()) return;
 
         this.motionY = jumpEvent.getMotion();
-
-        this.motionY = getJumpUpwardsMotion(); // 0.42F
+//        this.motionY = getJumpUpwardsMotion(); // 0.42F
 
         if (this.isPotionActive(Potion.jump))
         {
@@ -2050,7 +2050,7 @@ public abstract class EntityLivingBase extends Entity
             else if (this.onGround && this.jumpTicks == 0)
             {
                 this.jump();
-                this.jumpTicks = 10;
+                if (!NoJumpDelay.INSTANCE.getState()) this.jumpTicks = 10;
             }
         }
         else

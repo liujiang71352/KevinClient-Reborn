@@ -36,8 +36,8 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
     private val horizontalValue = FloatValue("Horizontal", 0F, -1F, 1F)
     private val verticalValue = FloatValue("Vertical", 0F, -1F, 1F)
     private val modeValue = ListValue("Mode", arrayOf("Simple", "AAC", "AACPush", "AACZero", "AACv4",
-        "Reverse", "SmoothReverse", "Jump", "Glitch", "AAC5Packet", "MatrixReduce", "MatrixSimple", "MatrixReverse",
-        "Vulcan", "AllowFirst", "Click", "LegitSmart", "IntaveJump", "TestBuzzReverse", "PikaStable", "TestIntave"), "Simple")
+        "Reverse", "SmoothReverse", "HypixelReverse", "Jump", "Glitch", "AAC5Packet", "MatrixReduce", "MatrixSimple", "MatrixReverse",
+        "Vulcan", "VulcanSmart", "VulcanS", "AllowFirst", "Click", "LegitSmart", "IntaveJump", "TestBuzzReverse", "PikaStable", "TestIntave"), "Simple")
 
     // Reverse
     private val reverseStrengthValue = FloatValue("ReverseStrength", 1F, 0.1F, 1F)
@@ -118,6 +118,16 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                 if (!thePlayer.onGround) {
                     MovementUtils.strafe(MovementUtils.speed * reverseStrengthValue.get())
                 } else if (velocityTimer.hasTimePassed(80L))
+                    velocityInput = false
+            }
+
+            "hypixelreverse" -> {
+                if (!velocityInput)
+                    return
+
+                if (!thePlayer.onGround) {
+                    MovementUtils.strafe(MovementUtils.speed * reverseStrengthValue.get())
+                } else if (velocityTimer.hasTimePassed(120L))
                     velocityInput = false
             }
 
@@ -293,6 +303,15 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
 
                 "aac", "reverse", "smoothreverse", "aaczero", "allowfirst", "testintave", "pikastable", "intavejump" -> velocityInput = true
 
+                "hypixelreverse" -> {
+                    if (MovementUtils.isMoving) {
+                        velocityInput = true
+                    } else {
+                        packet.motionX = 0
+                        packet.motionZ = 0
+                    }
+                }
+
                 "legitsmart" -> {
                     if (packet.motionX * packet.motionX + packet.motionZ * packet.motionZ + packet.motionY * packet.motionY > 640000) velocityInput = true
                 }
@@ -336,7 +355,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                     packet.motionX = -packet.motionX
                     packet.motionZ = -packet.motionZ
                 }
-                "vulcan" -> event.cancelEvent()
+                "vulcan", "vulcansmart" -> event.cancelEvent()
                 "click" -> {
                     if (packet.motionX == 0 && packet.motionZ == 0) return
                     if (attackRayTrace(
@@ -353,8 +372,9 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                 packet.func_149144_d() != 0F ||
                 packet.func_149147_e() != 0F) explosion = true
             if (cancelExplosionPacket.get()) event.cancelEvent()
-        } else if (packet is C0FPacketConfirmTransaction && modeValue equal "vulcan") {
-            if (mc.thePlayer.hurtTime > 0) event.cancelEvent()
+        } else if (packet is C0FPacketConfirmTransaction) {
+            if (modeValue equal "vulcan" && mc.thePlayer.hurtTime > 0) event.cancelEvent()
+            else if (modeValue equal "VulcanSmart" && packet.uid  >= -31767 && packet.uid  <= -30769) event.cancelEvent()
         }
     }
 

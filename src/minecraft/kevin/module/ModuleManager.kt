@@ -126,6 +126,7 @@ class ModuleManager : Listenable {
             LiquidWalk(),
             LongJump(),
             NoClip(),
+            NoJumpDelay,
             NoSlow(),
             NoWeb(),
             Parkour(),

@@ -220,7 +220,7 @@ class StorageESP : Module("StorageESP", "Allows you to see chests, dispensers, e
                 val color: Color = getColor(tileEntity) ?: continue
 
                 if (!entityMap.containsKey(color)) {
-                    entityMap.put(color, ArrayList())
+                    entityMap[color] = ArrayList()
                 }
 
                 entityMap[color]!!.add(tileEntity)

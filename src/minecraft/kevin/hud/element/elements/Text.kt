@@ -177,10 +177,10 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
 
         var fontRenderer = fontValue
 
-        if(bigFont.get())
-            fontRenderer = KevinClient.fontManager.font60;
+        fontRenderer = if(bigFont.get())
+            KevinClient.fontManager.font60;
         else
-            fontRenderer = KevinClient.fontManager.font40;
+            KevinClient.fontManager.font40;
         if(boldFont.get())
             fontRenderer = KevinClient.fontManager.fontNovo40;
         val rainbow = rainbow.get()

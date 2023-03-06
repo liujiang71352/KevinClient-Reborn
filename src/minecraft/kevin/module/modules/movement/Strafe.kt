@@ -84,8 +84,8 @@ class Strafe : Module("Strafe","Allows you to freely move in mid air.", Keyboard
         }
         if (!mc.thePlayer!!.onGround || onGroundStrafeValue.get()) {
             val yaw = getMoveYaw()
-            mc.thePlayer!!.motionX = (((-sin(Math.toRadians(yaw.toDouble())) * speed) + motionX))
-            mc.thePlayer!!.motionZ = (((cos(Math.toRadians(yaw.toDouble())) * speed) + motionZ))
+            mc.thePlayer!!.motionX = (-sin(Math.toRadians(yaw.toDouble())) * speed) + motionX
+            mc.thePlayer!!.motionZ = (cos(Math.toRadians(yaw.toDouble())) * speed) + motionZ
         }
     }
 

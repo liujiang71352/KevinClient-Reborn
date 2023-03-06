@@ -28,6 +28,7 @@ import kevin.module.modules.render.FreeCam
 import kevin.module.modules.world.Scaffold
 import kevin.utils.*
 import net.minecraft.client.gui.inventory.GuiContainer
+import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -110,7 +111,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     private val afterTickTimingValue = ListValue("AfterTickBlockTiming", arrayOf("Pre", "Post", "Both"), "Post")
 
     // AutoBlock
-    private val autoBlockValue = ListValue("AutoBlock", arrayOf("Off", "Packet", "AfterTick", "Keep", "Vulcan"), "Packet")
+    private val autoBlockValue = ListValue("AutoBlock", arrayOf("Off", "Packet", "AfterTick", "Keep", "Vulcan", "Fake"), "Off")
     private val interactAutoBlockValue = BooleanValue("InteractAutoBlock", true)
     private val blockStatusCheck = BooleanValue("BlockStatusCheck", true)
     private val blockRate = IntegerValue("BlockRate", 100, 1, 100)
@@ -588,23 +589,20 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 val targetEntity = sTarget!!
                 val partialTicks = mc.timer.renderPartialTicks
                 val box = targetEntity.entityBoundingBox.expands(targetEntity.collisionBorderSize.toDouble())
-                val lastRot = RotationUtils.serverRotation
-                val rot = RotationUtils.targetRotation ?: lastRot
+                val rot = RotationUtils.targetRotation ?: RotationUtils.serverRotation
 //                val dYaw = rot.yaw - lastRot.yaw
 //                val dPitch = rot.pitch - lastRot.pitch
-                var vecEyes = mc.thePlayer.getPositionEyes(partialTicks)
+                val vecEyes = mc.thePlayer.getPositionEyes(partialTicks)
 //                var vecRot = Rotation(lastRot.yaw + dYaw * partialTicks, lastRot.pitch * dPitch * partialTicks).toDirection().multiply(discoverRangeValue.get().toDouble()).add(vecEyes)
                 var vecRot = rot.toDirection().multiply(discoverRangeValue.get().toDouble()).add(vecEyes)
                 val obj = box.calculateIntercept(vecEyes, vecRot)
                 if (obj.typeOfHit != MovingObjectPosition.MovingObjectType.MISS) {
                     vecRot = obj.hitVec ?: vecRot
                 }
-                val renderPosX = mc.renderManager.viewerPosX
-                val renderPosY = mc.renderManager.viewerPosY
-                val renderPosZ = mc.renderManager.viewerPosZ
-                vecEyes = vecEyes.addVector(-renderPosX, -renderPosY, -renderPosZ)
-                vecRot = vecRot.addVector(-renderPosX, -renderPosY, -renderPosZ)
-                GL11.glPushMatrix()
+                val renderPosX = mc.renderManager.renderPosX
+                val renderPosY = mc.renderManager.renderPosY
+                val renderPosZ = mc.renderManager.renderPosZ
+//                GL11.glPushMatrix()
                 GL11.glEnable(GL11.GL_BLEND)
                 GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
                 GL11.glShadeModel(GL11.GL_SMOOTH)
@@ -616,12 +614,12 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST)
                 GL11.glLoadIdentity()
                 mc.entityRenderer.setupCameraTransform(mc.timer.renderPartialTicks, 2)
-                GL11.glColor4f(1F, 1F, 1F, 1F)
-                GL11.glLineWidth(2f)
+                RenderUtils.glColor(Color.white)
+                GL11.glLineWidth(1.2f)
 
                 GL11.glBegin(GL11.GL_LINE)
-                RenderUtils.glVertex3dVec3D(vecEyes)
-                RenderUtils.glVertex3dVec3D(vecRot)
+                GL11.glVertex3d(vecEyes.xCoord - renderPosX, vecEyes.yCoord - renderPosY, vecEyes.zCoord - renderPosZ)
+                GL11.glVertex3d(vecRot.xCoord - renderPosX, vecRot.yCoord - renderPosY, vecRot.zCoord - renderPosZ)
                 GL11.glEnd()
 //                GL11.glColor4f(1F, 1F, 1F, 1F)
                 GL11.glDepthMask(true)
@@ -629,7 +627,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 GL11.glDisable(GL11.GL_LINE_SMOOTH)
                 GL11.glEnable(GL11.GL_TEXTURE_2D)
                 GL11.glDisable(GL11.GL_BLEND)
-                GL11.glPopMatrix()
+//                GL11.glPopMatrix()
             }
         }
 
@@ -1003,10 +1001,15 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
      * Start blocking
      */
     private fun startBlocking(interactEntity: Entity, interact: Boolean) {
-        if (!(blockRate.get() > 0 && Random().nextInt(100) <= blockRate.get()))
+        if (!(blockRate.get() > 0 && RandomUtils.random.nextInt(100) <= blockRate.get()))
             return
 
         if (blockingStatus&&blockStatusCheck.get()) {
+            return
+        }
+
+        if (autoBlockValue equal "Fake") {
+            blockingStatus = true
             return
         }
 
@@ -1046,7 +1049,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
      */
     private fun stopBlocking() {
         if (blockingStatus) {
-            mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+            if (autoBlockValue notEqual "Fake") mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
             blockingStatus = false
         }
     }
@@ -1087,7 +1090,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
      * HUD Tag
      */
     override val tag: String
-        get() = targetModeValue.get()
+        get() = "${targetModeValue.get()} ${autoBlockValue.get()} [${discoveredTargets.size}]"
 
     val isBlockingChestAura: Boolean
         get() = this.state && target != null

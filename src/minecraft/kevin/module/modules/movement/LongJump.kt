@@ -16,27 +16,33 @@ package kevin.module.modules.movement
 
 import kevin.event.*
 import kevin.module.*
+import kevin.module.modules.movement.flys.verus.VerusAuto
 import kevin.utils.MovementUtils
 import kevin.utils.PacketUtils
+import net.minecraft.block.BlockAir
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.server.S27PacketExplosion
+import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
+import kotlin.math.floor
 
 @Suppress("unused_parameter")
 class LongJump : Module("LongJump", "Allows you to jump further.", category = ModuleCategory.MOVEMENT) {
-    private val modeValue = ListValue("Mode", arrayOf("NCP", "AACv1", "AACv2", "Buzz", "BuzzBoost", "PikaNew", "AACv3", "Mineplex", "Mineplex2", "Mineplex3", "Redesky", "BlocksMCBlockOver", "ExplosionBoost"), "NCP")
+    private val modeValue = ListValue("Mode", arrayOf("NCP", "AACv1", "AACv2", "Buzz", "BuzzBoost", "PikaNew", "AACv3", "Mineplex", "Mineplex2", "Mineplex3", "Redesky", "Vulcan", "BlocksMCBlockOver", "ExplosionBoost"), "NCP")
     private val ncpBoostValue = FloatValue("NCPBoost", 4.25f, 1f, 10f)
     private val autoJumpValue = BooleanValue("AutoJump", false)
     private val explosionBoostHigh = FloatValue("ExplosionBoostHigh",0.00F,0.01F,1F)
     private val explosionBoostLong = FloatValue("ExplosionBoostLong",0.25F,0.01F,1F)
     private val visualSpoofY = BooleanValue("visualSpoofY", false)
+    private val autoDisableValue = BooleanValue("AutoDisable", true)
     private var jumped = false
     private var canBoost = false
     private var teleported = false
     private var canMineplexBoost = false
     private var explosion = false
+    private var jumpPositionY = 0.0
 
     override fun onEnable() {
         canBoost = false
@@ -64,6 +70,15 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
                     thePlayer.motionX = 0.0
                     thePlayer.motionZ = 0.0
                 }
+                if (modeValue equal "Vulcan") {
+                    if (canBoost) {
+                        if (thePlayer.onGround) {
+                            thePlayer.jump()
+                            canBoost = false
+                        }
+                    }
+                }
+                if (autoDisableValue.get()) state = false
                 return
             }
             run {
@@ -152,16 +167,6 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
         if (autoJumpValue.get() && thePlayer.onGround && MovementUtils.isMoving) {
             jumped = true
             thePlayer.jump()
-            if(modeValue.get() == "Buzz"){
-                mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(
-                    thePlayer.posX,
-                    thePlayer.posY + 0.23F,
-                    thePlayer.posZ,
-                    false
-                ))
-                thePlayer.handleStatusUpdate(2)
-                thePlayer.motionY = 0.49551110024
-            }
         }
         if (modeValue.get().equals("ExplosionBoost",true)){
             if (explosion){
@@ -195,6 +200,7 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
         jumped = true
         canBoost = true
         teleported = false
+        jumpPositionY = mc.thePlayer!!.posY
 
         if (state) {
             when (modeValue.get().lowercase()) {
@@ -216,6 +222,18 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
                     mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY - 0.07 - Math.random(), mc.thePlayer.posZ, true))
                     event.cancelEvent()
                 }
+                "buzz" -> {
+                    val thePlayer = mc.thePlayer ?: return
+                    mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(
+                        thePlayer.posX,
+                        thePlayer.posY + 0.23F,
+                        thePlayer.posZ,
+                        false
+                    ))
+                    thePlayer.handleStatusUpdate(2)
+                    event.motion = 0.4955111f
+                }
+                "vulcan" -> {}
             }
         }
     }
@@ -242,6 +260,14 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
 
     @EventTarget fun onMotion(event: MotionEvent) {
         if (visualSpoofY.get()) mc.thePlayer.posY = minOf(mc.thePlayer.lastTickPosY, mc.thePlayer.posY)
+    }
+
+    @EventTarget fun onBB(event: BlockBBEvent) {
+        if (modeValue equal "Vulcan" && canBoost) {
+            if (event.block is BlockAir && event.y <= floor(jumpPositionY)) {
+                event.boundingBox = AxisAlignedBB.fromBounds(event.x.toDouble(), event.y.toDouble(), event.z.toDouble(), event.x + 1.0, floor(jumpPositionY), event.z + 1.0)
+            }
+        }
     }
 
     override val tag: String

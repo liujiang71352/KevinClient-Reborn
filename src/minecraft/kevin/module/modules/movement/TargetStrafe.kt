@@ -16,10 +16,7 @@ package kevin.module.modules.movement
 
 import kevin.event.*
 import kevin.main.KevinClient
-import kevin.module.BooleanValue
-import kevin.module.FloatValue
-import kevin.module.Module
-import kevin.module.ModuleCategory
+import kevin.module.*
 import kevin.utils.MovementUtils
 import kevin.utils.RotationUtils
 import net.minecraft.entity.EntityLivingBase
@@ -30,8 +27,10 @@ import kotlin.math.sin
 
 object TargetStrafe : Module("TargetStrafe","Strafe around your target.", category = ModuleCategory.MOVEMENT) {
     private val radius = FloatValue("Radius", 2.0f, 0.1f, 4.0f)
+    private val strengthValue= FloatValue("Strength", 0.5F, 0F, 1F)
     private val render = BooleanValue("Render", true)
     private val space = BooleanValue("HoldSpace", false)
+    private val hurtTime = IntegerValue("MinHurtTime", 0, 0, 9)
     private val safewalk = BooleanValue("SafeWalk", true)
     private val onlySpeed = BooleanValue("OnlySpeed", false)
     private var direction = -1
@@ -56,16 +55,13 @@ object TargetStrafe : Module("TargetStrafe","Strafe around your target.", catego
     }
 
     @EventTarget
-    fun strafe(event: MoveEvent) {
-        val target = KevinClient.combatManager.target
-        if (canStrafe(target))
-            setSpeed(event, MovementUtils.speed.toDouble(), RotationUtils.getRotationsEntity(target).yaw, direction.toDouble(), if (mc.thePlayer.getDistanceToEntity(target) <= radius.get()) 0.0 else 1.0)
-    }
-
-    @EventTarget
     fun onMove(event: MoveEvent) {
         if (safewalk.get() && mc.thePlayer.onGround && canStrafe(KevinClient.combatManager.target))
             event.isSafeWalk = true
+
+        val target = KevinClient.combatManager.target
+        if (canStrafe(target))
+            setSpeed(event, MovementUtils.speed.toDouble(), RotationUtils.getRotationsEntity(target).yaw, direction.toDouble(), if (mc.thePlayer.getDistanceToEntity(target) <= radius.get()) 0.0 else 1.0)
     }
 
     private fun setSpeed(moveEvent: MoveEvent, moveSpeed: Double, pseudoYaw: Float, pseudoStrafe: Double, pseudoForward: Double) {
@@ -93,8 +89,12 @@ object TargetStrafe : Module("TargetStrafe","Strafe around your target.", catego
             val cos = cos(Math.toRadians(yaw + 90.0))
             val sin = sin(Math.toRadians(yaw + 90.0))
 
-            moveEvent.x = (forward * moveSpeed * cos + strafe * moveSpeed * sin)
-            moveEvent.z = (forward * moveSpeed * sin - strafe * moveSpeed * cos)
+            val speed = moveSpeed * strengthValue.get()
+            val motionX = (mc.thePlayer!!.motionX * (1 - strengthValue.get()))
+            val motionZ = (mc.thePlayer!!.motionZ * (1 - strengthValue.get()))
+
+            moveEvent.x = (forward * speed * cos + strafe * speed * sin) + motionX
+            moveEvent.z = (forward * speed * sin - strafe * speed * cos) + motionZ
         }
     }
 
@@ -139,6 +139,6 @@ object TargetStrafe : Module("TargetStrafe","Strafe around your target.", catego
     }
 
     private fun canStrafe(target: EntityLivingBase?): Boolean {
-        return this.state && target != null && (!space.get() || mc.thePlayer.movementInput.jump) && (!onlySpeed.get() || KevinClient.moduleManager.getModule(Speed::class.java).state)
+        return this.state && target != null && (!space.get() || mc.thePlayer.movementInput.jump) && (!onlySpeed.get() || KevinClient.moduleManager.getModule(Speed::class.java).state) && (hurtTime.get() <= mc.thePlayer.hurtTime)
     }
 }

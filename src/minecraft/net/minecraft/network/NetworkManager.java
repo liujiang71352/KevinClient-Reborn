@@ -43,6 +43,7 @@ import kevin.event.PacketEvent;
 
 import kevin.main.KevinClient;
 import kevin.module.modules.combat.BackTrack;
+import kevin.module.modules.exploit.Disabler;
 import kevin.utils.PacketUtils;
 import kevin.utils.proxy.ProxyManager;
 import kevin.via.CommonTransformer;
@@ -71,6 +72,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
 {
     private static final Logger logger = LogManager.getLogger();
     public static BackTrack backTrack = null;
+    public static Disabler disabler = null;
     public static final Marker logMarkerNetwork = MarkerManager.getMarker("NETWORK");
     public static final Marker logMarkerPackets = MarkerManager.getMarker("NETWORK_PACKETS", logMarkerNetwork);
     public static final AttributeKey<EnumConnectionState> attrKeyConnectionState = AttributeKey.valueOf("protocol");
@@ -183,6 +185,17 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
                     }
                     if (packetEvent.isCancelled()) return;
                 }
+                if (disabler == null) {
+                    disabler = KevinClient.moduleManager.getModule(Disabler.class);
+                }
+                if (disabler.getState() && !PacketUtils.INSTANCE.getPacketList().contains(p_channelRead0_2_)) {
+                    try {
+                        disabler.onPacket(packetEvent);
+                    } catch (Exception e) {
+                        Minecraft.logger.error("Exception caught in Disabler", e);
+                    }
+                    if (packetEvent.isCancelled()) return;
+                }
 
                 if (!PacketUtils.INSTANCE.getPacketList().contains(p_channelRead0_2_)) KevinClient.eventManager.callEvent(packetEvent);
                 if (packetEvent.isCancelled()) return;
@@ -207,9 +220,40 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
     {
 
         final PacketEvent event = new PacketEvent(packetIn/*,PacketMode.SEND**/);
-
+        if (disabler == null) {
+            disabler = KevinClient.moduleManager.getModule(Disabler.class);
+        }
+        if (disabler.getState() && !PacketUtils.INSTANCE.getPacketList().contains(packetIn)) {
+            try {
+                disabler.onPacket(event);
+            } catch (Exception e) {
+                Minecraft.logger.error("Exception caught in Disabler", e);
+            }
+            if (event.isCancelled()) return;
+        }
         if (!PacketUtils.INSTANCE.getPacketList().contains(packetIn)) KevinClient.eventManager.callEvent(event);
         if(event.isCancelled()) return;
+        if (this.isChannelOpen())
+        {
+            this.flushOutboundQueue();
+            this.dispatchPacket(packetIn, (GenericFutureListener<? extends Future<? super Void>>[])null);
+        }
+        else
+        {
+            this.readWriteLock.writeLock().lock();
+
+            try
+            {
+                this.outboundPacketsQueue.add(new NetworkManager.InboundHandlerTuplePacketListener(packetIn, (GenericFutureListener<? extends Future<? super Void>>[])null));
+            }
+            finally
+            {
+                this.readWriteLock.writeLock().unlock();
+            }
+        }
+    }
+
+    public void sendPacketNoEvent(Packet packetIn) {
         if (this.isChannelOpen())
         {
             this.flushOutboundQueue();

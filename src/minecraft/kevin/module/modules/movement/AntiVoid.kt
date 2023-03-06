@@ -24,7 +24,14 @@ import kevin.module.modules.world.Scaffold
 import kevin.utils.*
 import net.minecraft.block.BlockAir
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.network.Packet
+import net.minecraft.network.play.client.C02PacketUseEntity
 import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.play.client.C07PacketPlayerDigging
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
+import net.minecraft.network.play.client.C09PacketHeldItemChange
+import net.minecraft.network.play.client.C0APacketAnimation
+import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import org.lwjgl.opengl.GL11
@@ -37,7 +44,7 @@ import kotlin.math.max
 
 class AntiVoid : Module("AntiVoid","Automatically setbacks you after falling a certain distance.", category = ModuleCategory.MOVEMENT) {
     private val modeValue = ListValue("Mode", arrayOf("TeleportBack", "FlyFlag", "OnGroundSpoof", "Freeze", "OldHypixel-Flag", "MotionTeleport-Flag", "MineMora-Blink"), "FlyFlag")
-    private val maxFallDistance = IntegerValue("MaxFallDistance", 10, 2, 255)
+    private val maxFallDistance =FloatValue("MaxFallDistance", 10f, 0f, 255f)
     private val maxDistanceWithoutGround = FloatValue("MaxDistanceToSetback", 2.5f, 1f, 30f)
     private val yBoost = FloatValue("BlinkYBoost",1f,0f,5f)
     private val indicator = BooleanValue("Indicator", true)
@@ -50,7 +57,7 @@ class AntiVoid : Module("AntiVoid","Automatically setbacks you after falling a c
     private var prevZ = 0.0
     private var sent = false
 
-    private val packetCache=ArrayList<C03PacketPlayer>()
+    private val packetCache=ArrayList<Packet<*>>()
     private var blink=false
     private var canBlink=false
     private var posX=0.0
@@ -241,6 +248,9 @@ class AntiVoid : Module("AntiVoid","Automatically setbacks you after falling a c
                 packet.y += RandomUtils.nextDouble(10.0, 12.0)
                 mc.thePlayer.fallDistance = -1f
             }
+        } else if (modeValue equal "minemora-blink" && blink && (packet is C0APacketAnimation || packet is C0BPacketEntityAction || packet is C02PacketUseEntity || packet is C07PacketPlayerDigging || packet is C08PacketPlayerBlockPlacement || packet is C09PacketHeldItemChange)) {
+            packetCache.add(packet)
+            event.cancelEvent()
         }
     }
     override val tag: String
