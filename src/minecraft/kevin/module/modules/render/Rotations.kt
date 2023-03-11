@@ -14,9 +14,7 @@
  */
 package kevin.module.modules.render
 
-import kevin.event.EventTarget
-import kevin.event.PacketEvent
-import kevin.event.Render3DEvent
+import kevin.event.*
 import kevin.main.KevinClient
 import kevin.module.BooleanValue
 import kevin.module.FloatValue
@@ -62,6 +60,12 @@ object Rotations : Module("Rotations", description = "Allows you to see server-s
 
             thePlayer.rotationYawHead = thePlayer.renderYawOffset
         }
+    }
+
+    @EventTarget
+    fun onMotion(event: MotionEvent) {
+        if (event.eventState == EventState.PRE) return
+        mc.thePlayer.prevRotationYawHead = mc.thePlayer.rotationYawHead
     }
 
     private fun getState(module: String) = KevinClient.moduleManager.getModuleByName(module)!!.state

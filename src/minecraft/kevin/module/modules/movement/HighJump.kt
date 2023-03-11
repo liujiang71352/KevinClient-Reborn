@@ -35,7 +35,7 @@ import kotlin.math.sin
 
 class HighJump : Module("HighJump", "Allows you to jump higher.", category = ModuleCategory.MOVEMENT) {
     private val heightValue = FloatValue("Height", 2f, 0.5f, 5f)
-    private val modeValue = ListValue("Mode", arrayOf("Vanilla", "Damage", "AACv3", "DAC", "Mineplex", "Timer", "Matrix","MatrixWater"), "Vanilla")
+    private val modeValue = ListValue("Mode", arrayOf("Vanilla", "Damage", "AACv3", "DAC", "Mineplex", "Timer", "VulcanLong", "Matrix","MatrixWater"), "Vanilla")
     private val glassValue = BooleanValue("OnlyGlassPane", false)
     private val timerValue = FloatValue("Timer-Timer",0.1f,0.01f,1f)
     private val waitTimeValue = IntegerValue("Timer-WaitTime",1,0,5)
@@ -104,6 +104,12 @@ class HighJump : Module("HighJump", "Allows you to jump higher.", category = Mod
                 }
             }
             return
+        }
+
+        if (modeValue equal "VulcanLong") {
+            mc.thePlayer.motionY = 0.8995931202
+            MovementUtils.strafe(0.48f)
+            state = false
         }
 
         if (glassValue.get() && (getBlock(BlockPos(thePlayer.posX, thePlayer.posY, thePlayer.posZ))) !is BlockPane)

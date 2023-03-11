@@ -34,7 +34,7 @@ import net.minecraft.network.play.server.S14PacketEntity
 import net.minecraft.util.AxisAlignedBB
 import org.lwjgl.opengl.GL11.*
 
-class BackTrack: Module("BackTrack", "(IN TEST) Lets you attack people in their previous locations", category = ModuleCategory.COMBAT) {
+class BackTrack: Module("BackTrack", "Lets you attack people in their previous locations", category = ModuleCategory.COMBAT) {
     private val minDistance: FloatValue = object : FloatValue("MinDistance", 2.9f, 2f, 4f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
             if (newValue > maxDistance.get()) set(maxDistance.get())

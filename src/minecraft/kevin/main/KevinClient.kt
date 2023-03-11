@@ -66,27 +66,33 @@ object KevinClient {
     var cStart = "§l§7[§l§9Kevin§l§7]"
 
     fun run() {
-        Display.setTitle("$name $version | Minecraft 1.8.9")
+        Display.setTitle("Kevin Client is loading")
         moduleManager = ModuleManager()
         fileManager = FileManager()
         fileManager.load()
+        Display.setTitle("Kevin Client is loading.")
         commandManager = CommandManager()
         eventManager = EventManager()
         fontManager = FontManager()
         fontManager.loadFonts()
+        Display.setTitle("Kevin Client is loading..")
         eventManager.registerListener(FontGC)
         Renderer.load()
         moduleManager.load()
         ScriptManager.load()
+        Display.setTitle("Kevin Client is loading...")
+
         fileManager.loadConfig(fileManager.modulesConfig)
         fileManager.loadConfig(fileManager.bindCommandConfig)
         eventManager.registerListener(BindCommandManager)
         eventManager.registerListener(RotationUtils())
+        Display.setTitle("Kevin Client is loading....")
         hud = createDefault()
         fileManager.loadConfig(fileManager.hudConfig)
         commandManager.load()
         clickGUI = ClickGUI()
         newClickGui = NewClickGui()
+        Display.setTitle("Kevin Client is loading.....")
         capeManager = CapeManager()
         capeManager.load()
         SkinManager.load()
@@ -96,6 +102,7 @@ object KevinClient {
         ConfigsManager.updateValue()
         combatManager = CombatManager()
         ViaVersion.start()
+        Display.setTitle("$name $version | Minecraft 1.8.9")
         isStarting = false
     }
 

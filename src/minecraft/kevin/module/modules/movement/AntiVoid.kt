@@ -14,12 +14,10 @@
  */
 package kevin.module.modules.movement
 
-import kevin.event.EventTarget
-import kevin.event.PacketEvent
-import kevin.event.Render3DEvent
-import kevin.event.UpdateEvent
+import kevin.event.*
 import kevin.main.KevinClient
 import kevin.module.*
+import kevin.module.modules.movement.flys.verus.VerusAuto
 import kevin.module.modules.world.Scaffold
 import kevin.utils.*
 import net.minecraft.block.BlockAir
@@ -43,7 +41,7 @@ import kotlin.math.floor
 import kotlin.math.max
 
 class AntiVoid : Module("AntiVoid","Automatically setbacks you after falling a certain distance.", category = ModuleCategory.MOVEMENT) {
-    private val modeValue = ListValue("Mode", arrayOf("TeleportBack", "FlyFlag", "OnGroundSpoof", "Freeze", "OldHypixel-Flag", "MotionTeleport-Flag", "MineMora-Blink"), "FlyFlag")
+    private val modeValue = ListValue("Mode", arrayOf("TeleportBack", "FlyFlag", "OnGroundSpoof", "VulcanGhost", "Freeze", "OldHypixel-Flag", "MotionTeleport-Flag", "MineMora-Blink"), "FlyFlag")
     private val maxFallDistance =FloatValue("MaxFallDistance", 10f, 0f, 255f)
     private val maxDistanceWithoutGround = FloatValue("MaxDistanceToSetback", 2.5f, 1f, 30f)
     private val yBoost = FloatValue("BlinkYBoost",1f,0f,5f)
@@ -251,6 +249,12 @@ class AntiVoid : Module("AntiVoid","Automatically setbacks you after falling a c
         } else if (modeValue equal "minemora-blink" && blink && (packet is C0APacketAnimation || packet is C0BPacketEntityAction || packet is C02PacketUseEntity || packet is C07PacketPlayerDigging || packet is C08PacketPlayerBlockPlacement || packet is C09PacketHeldItemChange)) {
             packetCache.add(packet)
             event.cancelEvent()
+        }
+    }
+    @EventTarget
+    fun onBB(event: BlockBBEvent) {
+        if (modeValue equal "VulcanGhost" && !KevinClient.moduleManager.getModule(Fly::class.java).state && !KevinClient.moduleManager.getModule(HighJump::class.java).state && (mc.thePlayer.fallDistance - lastFound >= maxDistanceWithoutGround.get())) {
+            if (event.block is BlockAir && event.y <= mc.thePlayer.posY && event.boundingBox == null) event.boundingBox = AxisAlignedBB.fromBounds(event.x.toDouble(), event.y.toDouble(), event.z.toDouble(), event.x + 1.0, floor(mc.thePlayer.posY), event.z + 1.0)
         }
     }
     override val tag: String

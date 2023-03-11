@@ -15,6 +15,7 @@
 package kevin.module.modules.movement.speeds
 
 import kevin.event.MoveEvent
+import kevin.event.PacketEvent
 import kevin.event.UpdateEvent
 import kevin.main.KevinClient
 import kevin.module.Value
@@ -32,5 +33,6 @@ abstract class SpeedMode(val modeName: String): MinecraftInstance() {
 
     open fun onMove(event: MoveEvent) {}
     open fun onUpdate(event: UpdateEvent) {}
+    open fun onPacket(event: PacketEvent) {}
     open fun onPreMotion() {}
 }

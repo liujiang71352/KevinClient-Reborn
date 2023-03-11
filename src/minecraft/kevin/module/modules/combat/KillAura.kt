@@ -602,7 +602,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 val renderPosX = mc.renderManager.renderPosX
                 val renderPosY = mc.renderManager.renderPosY
                 val renderPosZ = mc.renderManager.renderPosZ
-//                GL11.glPushMatrix()
+                GL11.glPushMatrix()
                 GL11.glEnable(GL11.GL_BLEND)
                 GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
                 GL11.glShadeModel(GL11.GL_SMOOTH)
@@ -614,7 +614,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST)
                 GL11.glLoadIdentity()
                 mc.entityRenderer.setupCameraTransform(mc.timer.renderPartialTicks, 2)
-                RenderUtils.glColor(Color.white)
+                RenderUtils.glColor(255, 255, 255, 255)
                 GL11.glLineWidth(1.2f)
 
                 GL11.glBegin(GL11.GL_LINE)
@@ -627,7 +627,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 GL11.glDisable(GL11.GL_LINE_SMOOTH)
                 GL11.glEnable(GL11.GL_TEXTURE_2D)
                 GL11.glDisable(GL11.GL_BLEND)
-//                GL11.glPopMatrix()
+                GL11.glPopMatrix()
             }
         }
 

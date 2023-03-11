@@ -44,7 +44,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
     //private val modeValue = ListValue("Mode", arrayOf("Normal", "Expand"), "Normal")
     private val towerModeValue = ListValue(
         "TowerMode",
-        arrayOf("Jump", "Jump2", "Motion", "Motion2", "ConstantMotion", "MotionTP", "MotionTP2", "Packet", "Teleport", "AAC3.3.9", "AAC3.6.4"),
+        arrayOf("Jump", "Jump2", "Motion", "Motion2", "ConstantMotion", "MotionTP", "MotionTP2", "Packet", "Teleport", "AAC3.3.9", "AAC3.6.4", "Vulcan"),
         "Jump"
     )
 
@@ -313,36 +313,36 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
             "jump2" -> {
                 if (thePlayer.onGround) {
                     fakeJump()
-                    thePlayer.motionY = 0.42
+                    thePlayer.motionY = thePlayer.jumpUpwardsMotionDouble()
                 } else if (thePlayer.motionY < 0) {
                     fakeJump()
-                    thePlayer.motionY = 0.42
+                    thePlayer.motionY = thePlayer.jumpUpwardsMotionDouble()
                 }
             }
             "motion" -> if (thePlayer.onGround) {
                 fakeJump()
-                thePlayer.motionY = 0.42
+                thePlayer.motionY = thePlayer.jumpUpwardsMotionDouble()
             } else if (thePlayer.motionY < 0.1) {
                 thePlayer.motionY = -0.3
             }
             "motion2" -> {
                 if (mc.thePlayer.onGround) {
                     fakeJump()
-                    mc.thePlayer.motionY = 0.42
+                    mc.thePlayer.motionY = thePlayer.jumpUpwardsMotionDouble()
                 } else if (mc.thePlayer.motionY < 0.18) {
                     mc.thePlayer.motionY -= 0.02
                 }
             }
             "motiontp" -> if (thePlayer.onGround) {
                 fakeJump()
-                thePlayer.motionY = 0.42
+                thePlayer.motionY = thePlayer.jumpUpwardsMotionDouble()
             } else if (thePlayer.motionY < 0.23) {
                 thePlayer.setPosition(thePlayer.posX, truncate(thePlayer.posY), thePlayer.posZ)
             }
             "motiontp2" -> {
                 if (mc.thePlayer.onGround) {
                     fakeJump()
-                    mc.thePlayer.motionY = 0.42
+                    mc.thePlayer.motionY = thePlayer.jumpUpwardsMotionDouble()
                 } else if (mc.thePlayer.motionY < 0.23) {
                     mc.thePlayer.setPosition(mc.thePlayer.posX, truncate(mc.thePlayer.posY), mc.thePlayer.posZ)
                     mc.thePlayer.onGround = true
@@ -354,7 +354,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
                 mc.netHandler.addToSendQueue(
                     C03PacketPlayer.C04PacketPlayerPosition(
                         thePlayer.posX,
-                        thePlayer.posY + 0.42, thePlayer.posZ, false
+                        thePlayer.posY + thePlayer.jumpUpwardsMotionDouble(), thePlayer.posZ, false
                     )
                 )
                 mc.netHandler.addToSendQueue(

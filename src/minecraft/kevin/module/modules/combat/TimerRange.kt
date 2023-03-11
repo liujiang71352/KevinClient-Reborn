@@ -30,7 +30,7 @@ import kotlin.math.min
 /* Modified class:
  * Minecraft.java
  */
-object TimerRange: Module("TimerRange", "(IN TEST) Make you walk to target faster", category = ModuleCategory.COMBAT) {
+object TimerRange: Module("TimerRange", "Make you walk to target faster", category = ModuleCategory.COMBAT) {
     private val mode = ListValue("Mode", arrayOf("RayCast", "Radius"), "RayCast")
     private val minDistance: FloatValue = object : FloatValue("MinDistance", 3F, 0F, 4F) {
         override fun onChanged(oldValue: Float, newValue: Float) {

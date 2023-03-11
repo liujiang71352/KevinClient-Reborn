@@ -21,7 +21,7 @@ import kevin.module.modules.movement.speeds.aac.*
 import kevin.module.modules.movement.speeds.matrix.MatrixNew
 import kevin.module.modules.movement.speeds.other.*
 import kevin.module.modules.movement.speeds.verus.*
-import kevin.module.modules.movement.speeds.vulcan.VulcanHop
+import kevin.module.modules.movement.speeds.vulcan.*
 import kevin.utils.MovementUtils
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 
@@ -39,6 +39,8 @@ class Speed : Module("Speed","Allows you to move faster.", category = ModuleCate
         VerusHop,
         MatrixNew, //from FDP
         VulcanHop, //from FDP
+        VulcanGround, // from FDP
+        VulcanLowHop, // from FDP
         Prediction, // from Rise
         IntaveHop // from Rise
     )
@@ -88,6 +90,7 @@ class Speed : Module("Speed","Allows you to move faster.", category = ModuleCate
             packet.motionY = (packet.motionY * vertical).toInt()
             packet.motionZ = (packet.motionZ * horizontal).toInt()
         }
+        nowMode.onPacket(event)
     }
     override val values: List<Value<*>> = super.values.toMutableList().also { list -> speeds.forEach { speedMode -> list.addAll(speedMode.values) } }
 }
