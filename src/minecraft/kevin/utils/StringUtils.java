@@ -53,7 +53,12 @@ public final class StringUtils {
                 int choice = rnd.nextInt(2) % 2 == 0 ? 65 : 97; // 取得大写字母还是小写字母
                 ret.append((char) (choice + rnd.nextInt(26)));
             } else { // 数字
-                ret.append(rnd.nextInt(10));
+                int rd = rnd.nextInt(11);
+                if (rd == 10) {
+                    ret.append('_');
+                    continue;
+                }
+                ret.append(rd);
             }
         }
         return ret.toString();

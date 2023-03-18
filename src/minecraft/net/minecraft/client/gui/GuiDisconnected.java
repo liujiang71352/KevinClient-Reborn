@@ -3,6 +3,7 @@ package net.minecraft.client.gui;
 import java.io.IOException;
 import java.util.List;
 
+import kevin.altmanager.AltManager;
 import kevin.utils.ServerUtils;
 import kevin.utils.StringUtils;
 import kevin.utils.UserUtils;
@@ -67,8 +68,7 @@ public class GuiDisconnected extends GuiScreen
         }
         if (button.id >= 1) {
             if (button.id == 2) {
-                String userName = StringUtils.randomString(11);
-                this.mc.setSession(new Session(userName, UserUtils.getUUID(userName), "-", "legacy"));
+                AltManager.randomOffline(10);
             }
             ServerUtils.connectToLastServer();
         }

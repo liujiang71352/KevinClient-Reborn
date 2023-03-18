@@ -16,7 +16,6 @@ package kevin.module.modules.movement
 
 import kevin.event.*
 import kevin.module.*
-import kevin.module.modules.movement.flys.verus.VerusAuto
 import kevin.utils.MovementUtils
 import kevin.utils.PacketUtils
 import net.minecraft.block.BlockAir
@@ -30,14 +29,16 @@ import kotlin.math.floor
 
 @Suppress("unused_parameter")
 class LongJump : Module("LongJump", "Allows you to jump further.", category = ModuleCategory.MOVEMENT) {
-    private val modeValue = ListValue("Mode", arrayOf("NCP", "AACv1", "AACv2", "Buzz", "BuzzBoost", "PikaNew", "AACv3", "Mineplex", "Mineplex2", "Mineplex3", "Redesky", "Vulcan", "BlocksMCBlockOver", "ExplosionBoost"), "NCP")
+    private val modeValue = ListValue("Mode", arrayOf("NCP", "AACv1", "AACv2", "Buzz", "BuzzBoost", "PikaNew", "AACv3", "Mineplex", "Mineplex2", "Mineplex3", "Redesky", "Vulcan", "VulcanExtreme", "BlocksMCBlockOver", "ExplosionBoost"), "NCP")
     private val ncpBoostValue = FloatValue("NCPBoost", 4.25f, 1f, 10f)
     private val autoJumpValue = BooleanValue("AutoJump", false)
+    private val vulcanExtremeHeight = FloatValue("VulcanExtremeHeight", 0.98f, 0.42f, 3.7f)
     private val explosionBoostHigh = FloatValue("ExplosionBoostHigh",0.00F,0.01F,1F)
     private val explosionBoostLong = FloatValue("ExplosionBoostLong",0.25F,0.01F,1F)
     private val visualSpoofY = BooleanValue("visualSpoofY", false)
     private val autoDisableValue = BooleanValue("AutoDisable", true)
     private var jumped = false
+    private var jumpedTicks = 0
     private var canBoost = false
     private var teleported = false
     private var canMineplexBoost = false
@@ -81,6 +82,7 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
                 if (autoDisableValue.get()) state = false
                 return
             }
+            jumpedTicks++
             run {
                 when (mode.lowercase()) {
                     "ncp" -> {
@@ -148,6 +150,17 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
                         thePlayer.jumpMovementFactor = 0.15f
                         thePlayer.motionY += 0.05f
                     }
+                    "vulcanextreme" -> {
+                        if (thePlayer.motionY < -0.07) {
+                            thePlayer.motionY = -if(thePlayer.ticksExisted % 2 == 0) {
+                                0.17
+                            } else {
+                                0.10
+                            }
+                        } else if (thePlayer.motionY > 0.2 && jumpedTicks > 6) {
+                            thePlayer.motionY *= 0.1
+                        }
+                    }
                     "blocksmcblockover" -> {
                         if (mc.theWorld.isBlockFullCube(BlockPos(mc.thePlayer.posX, mc.thePlayer.posY + 2.1, mc.thePlayer.posZ))) {
                             canBoost = true
@@ -200,6 +213,7 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
         jumped = true
         canBoost = true
         teleported = false
+        jumpedTicks = 0
         jumpPositionY = mc.thePlayer!!.posY
 
         if (state) {
@@ -234,6 +248,10 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
                     event.motion = 0.4955111f
                 }
                 "vulcan" -> {}
+                "vulcanextreme" -> {
+                    event.motion = vulcanExtremeHeight.get()
+                    MovementUtils.strafe(0.4873f)
+                }
             }
         }
     }

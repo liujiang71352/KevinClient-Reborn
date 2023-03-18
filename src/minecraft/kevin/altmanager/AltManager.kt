@@ -62,6 +62,7 @@ object AltManager : GuiScreen() {
     private var startY = 0F
     private var canRoll = false
     private var canRoll2 = false
+    private var kevinPrefix = false
     private val altService = AltService()
     private var lastClick:Alt? = null
     private val clickTimer = MSTimer()
@@ -75,6 +76,7 @@ object AltManager : GuiScreen() {
         buttonList.add(GuiButton(1,mc.currentScreen.width - 75,40,70,20,"Add"))
         buttonList.add(GuiButton(5,mc.currentScreen.width - 75,140,70,20,"Reload"))
         buttonList.add(GuiButton(6,mc.currentScreen.width - 75,165,70,20,"RandomName"))
+        buttonList.add(GuiButton(7, mc.currentScreen.width - 75,190,70,20, "§${if(kevinPrefix) "2" else "c"}RandomKevinPrefix"))
         buttonList.add(removeButton)
         buttonList.add(changeButton)
         buttonList.add(loginButton)
@@ -173,9 +175,11 @@ object AltManager : GuiScreen() {
             4 -> stateMessage = login(altList[chose!!])
             5 -> load()
             6 -> {
-                val userName = StringUtils.randomString(9)
-                Minecraft.getMinecraft().session = Session(userName, UserUtils.getUUID(userName), "-", "legacy")
-                stateMessage = "§aYour name is now §f§l$userName§a."
+                stateMessage = "§aYour name is now §f§l${randomOffline(9)}§a."
+            }
+            7 -> {
+                kevinPrefix = !kevinPrefix
+                button.displayString = "§${if (kevinPrefix) "2" else "c"}RandomKevinPrefix"
             }
         }
     }
@@ -248,6 +252,13 @@ object AltManager : GuiScreen() {
         val printWriter = PrintWriter(FileWriter(file))
         printWriter.println(FileManager.PRETTY_GSON.toJson(jsonArray))
         printWriter.close()
+    }
+
+    @JvmStatic
+    fun randomOffline(baseLen: Int): String {
+        val userName = "${if (kevinPrefix) "KEVIN" else ""}${StringUtils.randomString(baseLen)}"
+        Minecraft.getMinecraft().session = Session(userName, UserUtils.getUUID(userName), "-", "legacy")
+        return userName
     }
     data class Alt(var name:String,var password:String,var inGameName: String){
 

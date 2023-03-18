@@ -521,7 +521,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
 
     private fun runBlock() {
         if (discoveredTargets.isNotEmpty() && canBlock) {
-            val target = this.target ?: discoveredTargets.first()
+            val target = this.sTarget ?: discoveredTargets.first()
             if (mc.thePlayer.getDistanceToEntityBox(target) <= blockRange.get()) {
                 startBlocking(
                     target,

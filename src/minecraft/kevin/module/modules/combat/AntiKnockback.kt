@@ -251,8 +251,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
             "pikastable" -> if (velocityInput && velocityTimer.hasTimePassed(80)) {
                 if (!thePlayer.onGround) {
                     val reducer = (Math.random() - 0.5) / 50.0 + 0.2f
-                    thePlayer.motionX *= reducer
-                    thePlayer.motionZ *= reducer
+                    thePlayer.motionY *= reducer
                 }
                 velocityInput = false
             }

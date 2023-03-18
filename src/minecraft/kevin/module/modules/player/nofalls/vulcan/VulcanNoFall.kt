@@ -46,7 +46,7 @@ object VulcanNoFall : NoFallMode("Vulcan") {
             MovementUtils.strafe(0.3f)
             nextSpoof = false
         }
-        if(mc.thePlayer.fallDistance > 3.5625f) {
+        if(mc.thePlayer.fallDistance > 3.0f) {
             mc.thePlayer.fallDistance = 0.0f
             doSpoof = true
             nextSpoof = true

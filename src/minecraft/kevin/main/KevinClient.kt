@@ -48,6 +48,7 @@ object KevinClient {
     var isStarting = true
 
     val debug = false
+    var wasStop = false
 
     lateinit var moduleManager: ModuleManager
     lateinit var fileManager: FileManager
@@ -74,6 +75,7 @@ object KevinClient {
         commandManager = CommandManager()
         eventManager = EventManager()
         fontManager = FontManager()
+        Display.setTitle("Kevin Client is loading. [fonts]")
         fontManager.loadFonts()
         Display.setTitle("Kevin Client is loading..")
         eventManager.registerListener(FontGC)
@@ -104,9 +106,13 @@ object KevinClient {
         ViaVersion.start()
         Display.setTitle("$name $version | Minecraft 1.8.9")
         isStarting = false
+        // ?!
+        Runtime.getRuntime().addShutdownHook(Thread(/* target = */ ::stop))
     }
 
     fun stop() {
+        if (wasStop) return
+        wasStop = true
         eventManager.callEvent(ClientShutdownEvent())
         fileManager.saveAllConfigs()
         capeManager.save()

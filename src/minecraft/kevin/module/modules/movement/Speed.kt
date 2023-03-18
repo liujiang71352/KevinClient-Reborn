@@ -41,6 +41,9 @@ class Speed : Module("Speed","Allows you to move faster.", category = ModuleCate
         VulcanHop, //from FDP
         VulcanGround, // from FDP
         VulcanLowHop, // from FDP
+        VulcanYPort, // from FDP
+        VulcanYPort2, // coded by myself (ys_)
+        Spartan, // from Rise
         Prediction, // from Rise
         IntaveHop // from Rise
     )

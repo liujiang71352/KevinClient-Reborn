@@ -19,6 +19,7 @@ import kevin.main.KevinClient
 import kevin.utils.MinecraftInstance
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.FontRenderer
+import org.lwjgl.opengl.Display
 import java.awt.Font
 import java.io.*
 
@@ -56,15 +57,25 @@ class FontManager : MinecraftInstance(){
     @FontDetails(fontName = "NotiFont", fontSize = 80)
     lateinit var notiFont: GameFontRenderer
     fun loadFonts(){
+        Display.setTitle("Kevin Client is loading. [fonts] [font35]")
         font35 = GameFontRenderer(getFont("Novo.ttf",35))
+        Display.setTitle("Kevin Client is loading. [fonts] [font40]")
         font40 = GameFontRenderer(getFont("Novo.ttf",40))
+        Display.setTitle("Kevin Client is loading. [fonts] [fontBold180]")
         fontBold180 = GameFontRenderer(getFont("Novo.ttf",180))
+        Display.setTitle("Kevin Client is loading. [fonts] [notificationFont]")
         notiFont = GameFontRenderer(getFont("NOTIFICATIONS.ttf",80))
+        Display.setTitle("Kevin Client is loading. [fonts] [fontMisans32]")
         fontMisans32 = GameFontRenderer(getFont("misans.ttf",32))
+        Display.setTitle("Kevin Client is loading. [fonts] [fontMisans50]")
         fontMisans50 = GameFontRenderer(getFont("misans.ttf",40))
+        Display.setTitle("Kevin Client is loading. [fonts] [font60]")
         font60 = GameFontRenderer(getFont("Novo.ttf",60))
+        Display.setTitle("Kevin Client is loading. [fonts] [fontN40]")
         fontNovo40 = GameFontRenderer(getFont("Novo2.ttf",40))
+        Display.setTitle("Kevin Client is loading. [fonts] [fontUni32]")
         fontUniFont32  = GameFontRenderer(getFont("unifont-14.0.04.ttf",32))
+        Display.setTitle("Kevin Client is loading. [fonts] [Custom...]")
         loadCustomFonts()
     }
 
@@ -165,7 +176,7 @@ class FontManager : MinecraftInstance(){
             val inputStream = FontManager::class.java.getResourceAsStream("/kevin/font/fonts/$fontName")
             var awtClientFont = Font.createFont(Font.TRUETYPE_FONT, inputStream)
             awtClientFont = awtClientFont.deriveFont(Font.PLAIN, size.toFloat())
-            inputStream.close()
+            inputStream!!.close()
             awtClientFont
         } catch (e: Exception) {
             e.printStackTrace()
