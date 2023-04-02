@@ -37,7 +37,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
     private val verticalValue = FloatValue("Vertical", 0F, -1F, 1F)
     private val modeValue = ListValue("Mode", arrayOf("Simple", "AAC", "AACPush", "AACZero", "AACv4",
         "Reverse", "SmoothReverse", "HypixelReverse", "Jump", "Glitch", "AAC5Packet", "MatrixReduce", "MatrixSimple", "MatrixReverse",
-        "Vulcan", "VulcanSmart", "VulcanS", "AllowFirst", "Click", "LegitSmart", "IntaveJump", "TestBuzzReverse", "PikaStable", "TestIntave"), "Simple")
+        "Vulcan", "VulcanSmart", "VulcanS", "AllowFirst", "Click", "LegitSmart", "IntaveJump", "TestBuzzReverse", "PikaStable", "TestGrimAC"), "Simple")
 
     // Reverse
     private val reverseStrengthValue = FloatValue("ReverseStrength", 1F, 0.1F, 1F)
@@ -93,13 +93,8 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
             return
 
         when (modeValue.get().lowercase()) {
-            "jump" -> if (thePlayer.hurtTime > 0 && thePlayer.onGround) {
-                thePlayer.motionY = 0.42F.toDouble()
-
-                val yaw = thePlayer.rotationYaw * 0.017453292F
-
-                thePlayer.motionX -= MathHelper.sin(yaw) * 0.2F
-                thePlayer.motionZ += MathHelper.cos(yaw) * 0.2F
+            "jump" -> if (thePlayer.hurtTime > 7 && thePlayer.onGround) {
+                thePlayer.jump()
             }
 
             "glitch" -> {
@@ -241,7 +236,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                 if (mc.thePlayer.hurtTime == 9) {
                     if (++jumped % 2 == 0 && mc.thePlayer.onGround && mc.thePlayer.isSprinting && mc.currentScreen == null) {
                         mc.gameSettings.keyBindJump.pressed = true
-                        jumped = 0 // don't spam
+                        jumped = 0 // reset
                     }
                 } else {
                     mc.gameSettings.keyBindJump.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindJump)
@@ -255,18 +250,11 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                 }
                 velocityInput = false
             }
-            "testintave" -> if (velocityInput && thePlayer.hurtTime > 0) {
-                if (thePlayer.hurtTime in 3..7) {
-                    thePlayer.motionX /= 1.010101
-                    thePlayer.motionZ /= 1.010101
-                } else if (mc.thePlayer.hurtTime > 1) {
-                    thePlayer.motionY -= Math.random() / 5000.0 + 0.0001
-                }
-                if (thePlayer.onGround && thePlayer.hurtTime < 6) {
-                    thePlayer.motionX /= 1.011007
-                    thePlayer.motionZ /= 1.011007
-                }
-            } else velocityInput = false
+            // by IamFrozenMilk
+            "testgrimac" -> if (velocityInput && thePlayer.hurtTime == 8) {
+                MovementUtils.strafe(0.025f)
+                velocityInput = false
+            }
         }
     }
 
@@ -300,7 +288,9 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                     packet.motionZ = (packet.motionZ * horizontal).toInt()
                 }
 
-                "aac", "reverse", "smoothreverse", "aaczero", "allowfirst", "testintave", "pikastable", "intavejump" -> velocityInput = true
+                "aac", "reverse", "smoothreverse", "aaczero", "allowfirst", "pikastable", "intavejump" -> velocityInput = true
+
+                "testgrimac" -> if (thePlayer.onGround) { velocityInput = true }
 
                 "hypixelreverse" -> {
                     if (MovementUtils.isMoving) {

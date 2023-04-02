@@ -18,10 +18,7 @@ import kevin.event.EventTarget
 import kevin.event.PacketEvent
 import kevin.event.Render3DEvent
 import kevin.event.UpdateEvent
-import kevin.module.BooleanValue
-import kevin.module.IntegerValue
-import kevin.module.Module
-import kevin.module.ModuleCategory
+import kevin.module.*
 import kevin.utils.ColorUtils.rainbow
 import kevin.utils.MSTimer
 import kevin.utils.RenderUtils
@@ -35,11 +32,13 @@ import java.util.concurrent.LinkedBlockingQueue
 
 class Blink : Module("Blink", "Suspends all movement packets.", category = ModuleCategory.PLAYER) {
     private val packets = LinkedBlockingQueue<Packet<*>>()
+    private val c0fs = LinkedBlockingQueue<Packet<*>>()
     private var fakePlayer: EntityOtherPlayerMP? = null
     private var disableLogger = false
     private val positions = LinkedList<DoubleArray>()
     private val pulseValue = BooleanValue("Pulse", false)
     private val pulseDelayValue = IntegerValue("PulseDelay", 1000, 500, 5000)
+    private val grimAC = ListValue("GrimAC-TimerMode", arrayOf("None", "Storage", "Cancel"), "None")
     private val pulseTimer = MSTimer()
     private val colorRainbow = BooleanValue("ColorRainbow",true)
     private val colorRedValue = IntegerValue("R",255,0,255)
@@ -86,6 +85,7 @@ class Blink : Module("Blink", "Suspends all movement packets.", category = Modul
     @EventTarget
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
+        if (event.isCancelled) return
 
         if (mc.thePlayer == null || disableLogger)
             return
@@ -93,12 +93,17 @@ class Blink : Module("Blink", "Suspends all movement packets.", category = Modul
         if ((packet)is C03PacketPlayer) // Cancel all movement stuff
             event.cancelEvent()
 
-        if ((packet)is C03PacketPlayer.C04PacketPlayerPosition || (packet)is C03PacketPlayer.C06PacketPlayerPosLook ||
+        if ((packet)is C03PacketPlayer.C04PacketPlayerPosition || (packet)is C03PacketPlayer.C05PacketPlayerLook || (packet)is C03PacketPlayer.C06PacketPlayerPosLook ||
             (packet)is C08PacketPlayerBlockPlacement ||
             (packet)is C0APacketAnimation ||
             (packet)is C0BPacketEntityAction || (packet)is C02PacketUseEntity) {
             event.cancelEvent()
             packets.add(packet)
+        }
+
+        if ((packet)is C0FPacketConfirmTransaction && grimAC notEqual "None") {
+            event.cancelEvent()
+            if (grimAC equal "Storage") c0fs.add(packet)
         }
     }
 
@@ -150,6 +155,12 @@ class Blink : Module("Blink", "Suspends all movement packets.", category = Modul
 
             while (!packets.isEmpty()) {
                 mc.netHandler.networkManager.sendPacket(packets.take())
+            }
+
+            // send c0f after movement to bypass timer check
+            // don't ignore c0f cause some server will detect lost C0F
+            while (c0fs.isNotEmpty()) {
+                mc.netHandler.networkManager.sendPacket(c0fs.take())
             }
 
             disableLogger = false

@@ -39,29 +39,37 @@ object AdminDetector : Module("AdminDetector","Detect server admins."),ICommand 
             usageMessage()
             return
         }
-        val name = args[1]
+        val command = args[0]
+        val argNames = java.util.ArrayList<String>().apply {
+            addAll(args)
+            removeAt(0)
+        }
         val names = adminNamesFile.readLines()
         when{
-            args[0].equals("Add",true) -> {
-                if (name in names) {
-                    ChatUtils.messageWithStart("§cName is already in the list!")
-                    return
-                }
-                adminNamesFile.appendText("$name\n")
-                ChatUtils.messageWithStart("§aName successfully added to the list!")
-            }
-            args[0].equals("Remove",true) -> {
-                if (name !in names){
-                    ChatUtils.messageWithStart("§cName is not in the list!")
-                    return
-                }
-                adminNamesFile.writeText("")
-                names.forEach {
-                    if (it!=name&&it.isNotEmpty()){
-                        adminNamesFile.appendText("$it\n")
+            "Add".equals(command,true) -> {
+                for (name in argNames) {
+                    if (name in names) {
+                        ChatUtils.messageWithStart("§cName is already in the list!")
+                        return
                     }
+                    adminNamesFile.appendText("$name\n")
+                    ChatUtils.messageWithStart("§aName successfully added to the list!")
                 }
-                ChatUtils.messageWithStart("§aName successfully removed from the list!")
+            }
+            "Remove".equals(command,true) -> {
+                for (name in argNames) {
+                    if (name !in names){
+                        ChatUtils.messageWithStart("§cName is not in the list!")
+                        return
+                    }
+                    adminNamesFile.writeText("")
+                    names.forEach {
+                        if (it!=name&&it.isNotEmpty()){
+                            adminNamesFile.appendText("$it\n")
+                        }
+                    }
+                    ChatUtils.messageWithStart("§aName successfully removed from the list!")
+                }
             }
             else -> usageMessage()
         }
@@ -94,14 +102,16 @@ object AdminDetector : Module("AdminDetector","Detect server admins."),ICommand 
             "Tab" -> {
                 if (!waiting) return
                 if (packet is S3APacketTabComplete){
-                    val players = packet.func_149630_c()
-                    val admins = adminNamesFile.readLines().toMutableList()
-                    admins.removeAll { it.isEmpty() }
-                    val findAdmins = arrayListOf<String>()
-                    players.forEach {
-                        if (it in admins) findAdmins.add(it)
+                    KevinClient.pool.execute {
+                        val players = packet.func_149630_c()
+                        val admins = adminNamesFile.readLines().toMutableList()
+                        admins.removeAll { it.isEmpty() }
+                        val findAdmins = arrayListOf<String>()
+                        players.forEach {
+                            if (it in admins) findAdmins.add(it)
+                        }
+                        n(findAdmins)
                     }
-                    n(findAdmins)
                     waiting = false
                     event.cancelEvent()
                 }

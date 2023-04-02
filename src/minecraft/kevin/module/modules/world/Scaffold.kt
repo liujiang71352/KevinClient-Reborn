@@ -40,6 +40,7 @@ import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.*
 
+@Suppress("ControlFlowWithEmptyBody")
 class Scaffold : Module("Scaffold", "Automatically places blocks beneath your feet.", category = ModuleCategory.WORLD) {
     //private val modeValue = ListValue("Mode", arrayOf("Normal", "Expand"), "Normal")
     private val towerModeValue = ListValue(
@@ -85,11 +86,12 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
     private val autoBlockValue = ListValue("AutoBlock", arrayOf("Off", "Pick", "Spoof", "Switch"), "Spoof")
 
     // Basic stuff
-    private val sprintValue = ListValue("Sprint", arrayOf("Always", "Dynamic", "OnGround", "OffGround", "OFF"), "Always")
+    private val sprintValue = ListValue("Sprint", arrayOf("Always", "Dynamic", "Smart", "OnGround", "OffGround", "OFF"), "Always")
     private val towerNoSprintSwitch = BooleanValue("TowerNoSprintSwitch", false)
     val canSprint: Boolean
         get() = MovementUtils.isMoving && when (sprintValue.get().lowercase()) {
             "always", "dynamic" -> true
+            "smart" -> mc.thePlayer.moveForward > 0.3 && (lockRotation?.let { abs(wrapAngleTo180_float(it.yaw) - wrapAngleTo180_float(mc.thePlayer.rotationYaw)) < 90 } == true)
             "onground" -> mc.thePlayer.onGround
             "offground" -> !mc.thePlayer.onGround
             else -> false
@@ -99,7 +101,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
     private val searchValue = BooleanValue("Search", true)
     private val advancedSearchValue = BooleanValue("AdvancedSearch", true)
     private val downValue = BooleanValue("Down", true)
-    private val placeModeValue = ListValue("PlaceTiming", arrayOf("Pre", "Post"), "Post")
+    private val placeModeValue = ListValue("PlaceTiming", arrayOf("Update", "Pre", "Post"), "Update")
 
     // Eagle
     private val eagleValue = ListValue("Eagle", arrayOf("Normal", "Smart", "Silent", "Off"), "Normal")
@@ -214,6 +216,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
     private val sameYJumpUp = BooleanValue("SameYJumpUp", false)
     private val safeWalkValue = BooleanValue("SafeWalk", true)
     private val airSafeValue = BooleanValue("AirSafe", false)
+    private val grimACRotation = BooleanValue("GrimACRotation", false)
     private val hitableCheck = ListValue("HitableCheck", arrayOf("Strict", "Simple", "Normal", "None"), "Normal")
     private val invalidPlaceFacingMode = ListValue("WhenPlaceFacingInvalid", arrayOf("CancelIt", "FixIt", "IgnoreIt"), "FixIt")
 
@@ -231,6 +234,9 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
     private var lockRotation: Rotation? = null
     private var lockRotationTimer = TickTimer()
     private var aacRotationPositive = true
+    private var lastYaw = 0f
+    private var lastPitch = 0f
+    private var grimRotationBoolean = false
 
     // Launch position
     private var launchY = 0
@@ -439,6 +445,18 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
         if (shouldGoDown) {
             mc.gameSettings.keyBindSneak.pressed = false
         }
+        // AutoJump
+        if (mc.thePlayer.onGround
+            && mc.thePlayer.jumpTicks == 0
+            && MovementUtils.isMoving
+            && !mc.thePlayer.isInLava
+            && !mc.thePlayer.isInWater
+            && !mc.thePlayer.inWeb
+            && !mc.thePlayer.isOnLadder
+            && !mc.gameSettings.keyBindJump.isKeyDown
+            && autoJump.get()){
+            mc.thePlayer.jump()
+        }
         if (slowValue.get()) {
             mc.thePlayer!!.motionX = mc.thePlayer!!.motionX * slowSpeed.get()
             mc.thePlayer!!.motionZ = mc.thePlayer!!.motionZ * slowSpeed.get()
@@ -525,7 +543,18 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
                 placedBlocksWithoutEagle++
             }
         }
+        grimRotationBoolean = lockRotation != null
         update()
+        if ((facesBlock || !rotationsOn || hitableCheck equal "None") && placeModeValue equal "Update") {
+            place()
+            timer.update()
+            val update = if (!autoBlockValue.get().equals("Off", ignoreCase = true)) {
+                InventoryUtils.findAutoBlockBlock() != -1 || mc.thePlayer.heldItem != null && mc.thePlayer.heldItem!!.item is ItemBlock
+            } else {
+                mc.thePlayer.heldItem != null && mc.thePlayer.heldItem!!.item is ItemBlock
+            }
+            if (update&&mc.gameSettings.keyBindJump.isKeyDown) move()
+        }
     }
 
     @EventTarget
@@ -534,6 +563,15 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
         val packet = event.packet
         if ((packet) is C09PacketHeldItemChange) {
             slot = packet.slotId
+        }
+        if (grimACRotation.get() && (packet is C03PacketPlayer)) {
+            if (packet.rotating) {
+                if ((packet.yaw != lastYaw || (packet.pitch != lastPitch && lastPitch != 90f)) && lockRotation == null) {
+                    packet.pitch = 90f
+                }
+                lastYaw = packet.yaw
+                lastPitch = packet.pitch
+            }
         }
     }
 
@@ -570,8 +608,34 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
             if (strafeMode.get().equals("AAC", true)) {
                 it.applyStrafeToPlayer(event)
             } else { // strafeMode.get().equals("Strict", true)
-                var strafe: Float = -event.strafe
-                var forward: Float = -event.forward
+                var strafe: Float = event.strafe
+                var forward: Float = event.forward
+                val deltaYaw = abs(RotationUtils.getAngleDifference(it.yaw, mc.thePlayer.rotationYaw))
+                if (strafe == 0f && deltaYaw > 45f && deltaYaw < 170 && forward != 0f) {
+                    val floorX = floor(mc.thePlayer.posX)
+                    val floorZ = floor(mc.thePlayer.posZ)
+                    val xChange = mc.thePlayer.posX - floorX
+                    val zChange = mc.thePlayer.posZ - floorZ
+                    val absForward = abs(forward)
+                    when (mc.thePlayer.getHorizontalFacing(mc.thePlayer.rotationYaw)) {
+                        EnumFacing.EAST -> strafe = if (xChange > 0.5) absForward else -absForward
+                            EnumFacing.WEST -> strafe = if (zChange < 0.5) absForward else -absForward
+                        EnumFacing.SOUTH -> strafe = if (xChange < 0.5) absForward else -absForward
+                        EnumFacing.NORTH -> strafe = if (zChange > 0.5) absForward else -absForward
+                        else -> {}
+                    }
+                    if (forward < 0f) {
+                        strafe = -strafe
+                    }
+                    if (!mc.thePlayer.isSprinting && abs(deltaYaw - 90f) < 18f) {
+                        forward = 0f
+                    }
+                }
+                if (deltaYaw >= 90) {
+                    strafe = -strafe
+                    forward = -forward
+                }
+
                 val friction: Float = event.friction
                 var f = strafe * strafe + forward * forward
 
@@ -599,20 +663,6 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
 
         if (motionSpeedEnabled.get())
             MovementUtils.setMotion(motionSpeedValue.get().toDouble())
-
-        // AutoJump
-        if (mc.thePlayer.onGround
-            && mc.thePlayer.jumpTicks == 0
-            && MovementUtils.isMoving
-            && !mc.thePlayer.isInLava
-            && !mc.thePlayer.isInWater
-            && !mc.thePlayer.inWeb
-            && !mc.thePlayer.isOnLadder
-            && !mc.gameSettings.keyBindJump.isKeyDown
-            && autoJump.get()
-            && eventState == EventState.PRE){
-            mc.thePlayer.jump()
-        }
 
         // Lock Rotation
         if (rotationsOn
@@ -642,7 +692,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
         }
 
         // Update and search for a new block
-        if (eventState == EventState.PRE && strafeMode.get().equals("Off", true))
+        if (eventState == EventState.PRE && strafeMode.get().equals("Off", true)) {}
 //            update()
 
         // Reset placeable delay
@@ -652,7 +702,9 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
 
     @EventTarget
     fun onJump(event: JumpEvent) {
-        if (!(towerModeValue equal "Jump")&&mc.gameSettings.keyBindJump.isKeyDown) event.cancelEvent()
+        if (towerModeValue equal "Jump") {
+
+        } else if (mc.gameSettings.keyBindJump.isKeyDown) event.cancelEvent()
     }
 
     fun update() {
@@ -981,6 +1033,9 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
         }
 
         // HitableCheck
+        if (grimACRotation.get()) {
+            if (lockRotation != null && !grimRotationBoolean) return
+        }
         if (hitableCheck.get() !in arrayOf("None", "Normal")) {
             val eyesVec: Vec3 = if (placeModeValue equal "Pre") { // we aren't tell server our position in pre MotionEvent, so...
                 Vec3(mc.thePlayer.lastReportedPosX, mc.thePlayer.lastReportedPosY, mc.thePlayer.lastReportedPosZ)
@@ -1097,6 +1152,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
 //            mc.gameSettings.keyBindSneak.pressed = false
 //        }
         targetPlace = null
+        grimRotationBoolean = false
     }
 
     // DISABLING MODULE

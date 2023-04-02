@@ -101,7 +101,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
 
     // Bypass
     private val swingValue = ListValue("SwingMode", arrayOf("Normal", "OnlyWhenNoHurt", "Packet", "OFF"), "Normal")
-    private val keepSprintValue = BooleanValue("KeepSprint", true)
+    private val keepSprintValue = ListValue("KeepSprint", arrayOf("Off", "On", "OnlyNoHurt"), "Off")
     private val scaffoldCheck = BooleanValue("ScaffoldCheck", true)
 
     //Timing
@@ -832,7 +832,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
 
         mc.netHandler.addToSendQueue(C02PacketUseEntity(entity, C02PacketUseEntity.Action.ATTACK))
 
-        if (keepSprintValue.get()) {
+        if (keepSprintValue equal "On" || (keepSprintValue equal "OnlyNoHurt" && thePlayer.hurtTime == 0)) {
             // Critical Effect
             if (thePlayer.fallDistance > 0F && !thePlayer.onGround && !thePlayer.isOnLadder &&
                 !thePlayer.isInWater && !thePlayer.isPotionActive(Potion.blindness) && !thePlayer.isRiding)

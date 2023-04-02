@@ -19,6 +19,7 @@ import kevin.hud.element.*
 import kevin.hud.element.elements.ConnectNotificationType.*
 import kevin.hud.element.elements.Notification.FadeState.*
 import kevin.main.KevinClient
+import kevin.module.IntegerValue
 import kevin.module.ListValue
 import kevin.utils.AnimationUtils
 import kevin.utils.MSTimer
@@ -30,6 +31,7 @@ import java.awt.Color
 class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)) : Element(x, y, scale, side) {
 
     private val notificationMode = ListValue("NotificationMode", arrayOf("Connect","MilkNew","LiquidBounce-Kevin","Kevin", "Normal", "Simple"),"Connect")
+    private val maxNotificationHeight = IntegerValue("MaxNotificationHeight", mc.displayHeight * 2, 1, 10000)
     private val exampleNotification = Notification("Example Notification", "Example title")
     override fun drawElement(): Border? {
         var animationY = 30F
@@ -38,6 +40,7 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
         for(i in hud.notifications)
             notifications.add(i)
         for(i in notifications){
+            if (animationY > maxNotificationHeight.get()) break
             if (mc.currentScreen !is GuiHudDesigner) {
                 when (notificationMode.get()) {
                     "LiquidBounce-Kevin" -> i.drawNotification(animationY).also { animationY += 20 }
@@ -76,7 +79,7 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
                 "Connect" -> return Border(-220F, -50F, 0F, -30F)
                 "MilkNew" -> return Border(-125F, -55F, 0F, -0F)
                 "Normal" -> return Border(-150F, -50F, 0F, -30F)
-                "Simple" -> return Border(-110F, -50F, 0F, -30F)
+                "Simple" -> return Border(-100F, -50F, 0F, -30F)
             }
         }
         GL11.glDisable(GL11.GL_BLEND)

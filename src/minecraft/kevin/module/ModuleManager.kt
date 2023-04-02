@@ -83,6 +83,7 @@ class ModuleManager : Listenable {
             Plugins(),
             PortalMenu(),
             ServerCrasher(),
+            ServerSidePacketDelayer(),
             TP(),
             VehicleOneHit()
         )

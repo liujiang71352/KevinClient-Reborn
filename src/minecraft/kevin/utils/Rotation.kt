@@ -231,6 +231,8 @@ data class Rotation(var yaw: Float, var pitch: Float) : MinecraftInstance() {
         }
     }
 
+    fun applyStrictSilentStrafeForPlayer(event: StrafeEvent) {}
+
     fun toDirection(): Vec3 {
         val f: Float = MathHelper.cos(-yaw * 0.017453292f - Math.PI.toFloat())
         val f1: Float = MathHelper.sin(-yaw * 0.017453292f - Math.PI.toFloat())

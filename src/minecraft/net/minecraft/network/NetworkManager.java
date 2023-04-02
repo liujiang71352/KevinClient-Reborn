@@ -436,7 +436,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
             EventLoopGroup eventLoopGroup;
             Proxy proxy = ProxyManager.INSTANCE.getProxyInstance();
             if(!Epoll.isAvailable() || !useNativeTransport){
-                System.out.println("Something goes wrong! Maybe you can disable proxy. [Epoll="+ Epoll.isAvailable()+", UNT="+useNativeTransport+"]");
+                Minecraft.logger.warn("Something goes wrong! Maybe you can disable proxy. [Epoll="+ Epoll.isAvailable()+", UNT="+useNativeTransport+"]");
             }
             eventLoopGroup = new OioEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Client IO #%d").setDaemon(true).build());
             bootstrap.channelFactory(new ProxyManager.ProxyOioChannelFactory(proxy));

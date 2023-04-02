@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import kevin.event.EntityMovementEvent;
 import kevin.main.KevinClient;
 import kevin.module.modules.render.Particles;
+import kevin.module.modules.world.World;
 import net.minecraft.block.Block;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.Minecraft;
@@ -963,7 +964,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
     {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.gameController);
         this.gameController.theWorld.setTotalWorldTime(packetIn.getTotalWorldTime());
-        this.gameController.theWorld.setWorldTime(packetIn.getWorldTime());
+        if (!World.INSTANCE.getState()) this.gameController.theWorld.setWorldTime(packetIn.getWorldTime());
     }
 
     public void handleSpawnPosition(S05PacketSpawnPosition packetIn)
