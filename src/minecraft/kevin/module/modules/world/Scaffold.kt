@@ -618,10 +618,10 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
                     val zChange = mc.thePlayer.posZ - floorZ
                     val absForward = abs(forward)
                     when (mc.thePlayer.getHorizontalFacing(mc.thePlayer.rotationYaw)) {
-                        EnumFacing.EAST -> strafe = if (xChange > 0.5) absForward else -absForward
+                        EnumFacing.EAST -> strafe = if (zChange > 0.5) absForward else -absForward
                             EnumFacing.WEST -> strafe = if (zChange < 0.5) absForward else -absForward
                         EnumFacing.SOUTH -> strafe = if (xChange < 0.5) absForward else -absForward
-                        EnumFacing.NORTH -> strafe = if (zChange > 0.5) absForward else -absForward
+                        EnumFacing.NORTH -> strafe = if (xChange > 0.5) absForward else -absForward
                         else -> {}
                     }
                     if (forward < 0f) {

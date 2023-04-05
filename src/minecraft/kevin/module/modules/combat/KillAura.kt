@@ -331,7 +331,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
 
         update()
 
-        if (currentTarget != null && RotationUtils.targetRotation != null) {
+        if (currentTarget != null && RotationUtils.targetRotation != null && !(scaffoldCheck.get() && KevinClient.moduleManager.getModule(Scaffold::class.java).state)) {
             when (rotationStrafeValue.get().lowercase()) {
                 "vanilla" -> {
                     val (yaw) = RotationUtils.targetRotation ?: return

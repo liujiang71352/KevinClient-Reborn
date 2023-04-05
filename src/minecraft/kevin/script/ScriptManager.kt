@@ -28,6 +28,10 @@ object ScriptManager : ICommand {
         val dir = KevinClient.fileManager.scripts
         if (!dir.exists()) return
         val files = dir.listFiles() ?: return
+        if (files.isEmpty()) {
+            Minecraft.logger.info("[ScriptManager] There is no script to load")
+            return
+        }
         Minecraft.logger.info("[ScriptManager] Loading scripts...")
         val time = System.currentTimeMillis()
         //KevinClient.fileManager.saveConfig(KevinClient.fileManager.modulesConfig)

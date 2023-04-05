@@ -22,6 +22,10 @@ import net.minecraft.client.gui.FontRenderer
 import org.lwjgl.opengl.Display
 import java.awt.Font
 import java.io.*
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
+import kotlin.streams.toList
 
 class FontManager : MinecraftInstance(){
     private val CUSTOM_FONT_RENDERERS: HashMap<FontInfo, GameFontRenderer> = HashMap()
@@ -57,26 +61,39 @@ class FontManager : MinecraftInstance(){
     @FontDetails(fontName = "NotiFont", fontSize = 80)
     lateinit var notiFont: GameFontRenderer
     fun loadFonts(){
-        Display.setTitle("Kevin Client is loading. [fonts] [font35]")
-        font35 = GameFontRenderer(getFont("Novo.ttf",35))
-        Display.setTitle("Kevin Client is loading. [fonts] [font40]")
-        font40 = GameFontRenderer(getFont("Novo.ttf",40))
-        Display.setTitle("Kevin Client is loading. [fonts] [fontBold180]")
-        fontBold180 = GameFontRenderer(getFont("Novo.ttf",180))
-        Display.setTitle("Kevin Client is loading. [fonts] [notificationFont]")
-        notiFont = GameFontRenderer(getFont("NOTIFICATIONS.ttf",80))
-        Display.setTitle("Kevin Client is loading. [fonts] [fontMisans32]")
-        fontMisans32 = GameFontRenderer(getFont("misans.ttf",32))
-        Display.setTitle("Kevin Client is loading. [fonts] [fontMisans50]")
-        fontMisans50 = GameFontRenderer(getFont("misans.ttf",40))
-        Display.setTitle("Kevin Client is loading. [fonts] [font60]")
-        font60 = GameFontRenderer(getFont("Novo.ttf",60))
-        Display.setTitle("Kevin Client is loading. [fonts] [fontN40]")
-        fontNovo40 = GameFontRenderer(getFont("Novo2.ttf",40))
-        Display.setTitle("Kevin Client is loading. [fonts] [fontUni32]")
-        fontUniFont32  = GameFontRenderer(getFont("unifont-14.0.04.ttf",32))
-        Display.setTitle("Kevin Client is loading. [fonts] [Custom...]")
-        loadCustomFonts()
+        Display.setTitle("Kevin Client is loading. [fonts] [init]")
+        WaitingObject.addConcurrentTaskToWaitQueue {
+            font35 = GameFontRenderer(getFont("Novo.ttf",35))
+        }
+        WaitingObject.addConcurrentTaskToWaitQueue {
+            font40 = GameFontRenderer(getFont("Novo.ttf", 40))
+        }
+        WaitingObject.addConcurrentTaskToWaitQueue {
+            fontBold180 = GameFontRenderer(getFont("Novo.ttf", 180))
+        }
+        WaitingObject.addConcurrentTaskToWaitQueue {
+            notiFont = GameFontRenderer(getFont("NOTIFICATIONS.ttf", 80))
+        }
+        WaitingObject.addConcurrentTaskToWaitQueue {
+            fontMisans32 = GameFontRenderer(getFont("misans.ttf",32))
+        }
+        WaitingObject.addConcurrentTaskToWaitQueue {
+            fontMisans50 = GameFontRenderer(getFont("misans.ttf", 40))
+        }
+        WaitingObject.addConcurrentTaskToWaitQueue {
+            font60 = GameFontRenderer(getFont("Novo.ttf", 60))
+        }
+        WaitingObject.addConcurrentTaskToWaitQueue {
+            fontNovo40 = GameFontRenderer(getFont("Novo2.ttf", 40))
+        }
+        WaitingObject.addConcurrentTaskToWaitQueue {
+            fontUniFont32 = GameFontRenderer(getFont("unifont-14.0.04.ttf", 32))
+        }
+        WaitingObject.addConcurrentTaskToWaitQueue {
+            loadCustomFonts()
+        }
+        Display.setTitle("Kevin Client is loading. [fonts] [waiting...]")
+        WaitingObject.waitAll()
     }
 
     fun reloadFonts() {
@@ -193,6 +210,48 @@ class FontManager : MinecraftInstance(){
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
             Font("default", Font.PLAIN, size)
+        }
+    }
+}
+
+private class WaitingObject() {
+    private var done = false
+    fun startWait() = startWait(1L)
+
+    fun startWait(timeSleep: Long) {
+        if (!done) {
+            Thread.sleep(timeSleep)
+        }
+    }
+
+    fun isDone() = done
+
+    fun done() {
+        done = true
+    }
+
+    companion object {
+        var queue: MutableList<WaitingObject> = LinkedList<WaitingObject>()
+
+        fun waitAll() {
+            while (queue.isNotEmpty()) {
+                queue = queue.stream().filter { !it.isDone() }.toList() as MutableList<WaitingObject>
+                Thread.sleep(30)
+            }
+            queue = LinkedList<WaitingObject>()
+        }
+
+        fun addConcurrentTaskToWaitQueue(runnable: Runnable) {
+            val waitingObject = WaitingObject()
+            KevinClient.pool.execute {
+                try {
+                    runnable.run()
+                } catch (e: Exception) {
+                    Minecraft.logger.warn("Exception occ in waiting, details: \n${e.stackTraceToString()}")
+                }
+                waitingObject.done()
+            }
+            queue.add(waitingObject)
         }
     }
 }

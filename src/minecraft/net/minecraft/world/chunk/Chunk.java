@@ -11,6 +11,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import kevin.utils.MiniMapRegister;
+import kevin.utils.caches.ChunkSnapshot;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
@@ -861,7 +862,7 @@ public class Chunk
 
         if (i != this.xPosition || j != this.zPosition)
         {
-            logger.warn("Wrong location! (" + i + ", " + j + ") should be (" + this.xPosition + ", " + this.zPosition + "), " + entityIn, entityIn);
+            logger.warn("Wrong location! (" + i + ", " + j + ") should be (" + this.xPosition + ", " + this.zPosition + "), " + entityIn);
             entityIn.setDead();
         }
 
@@ -1703,6 +1704,10 @@ public class Chunk
     public void setInhabitedTime(long newInhabitedTime)
     {
         this.inhabitedTime = newInhabitedTime;
+    }
+
+    public ChunkSnapshot getSnapshot() {
+        return new ChunkSnapshot(storageArrays);
     }
 
     public static enum EnumCreateEntityType

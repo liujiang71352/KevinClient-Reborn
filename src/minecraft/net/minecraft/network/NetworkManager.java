@@ -67,7 +67,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
-
+@SuppressWarnings("unchecked")
 public class NetworkManager extends SimpleChannelInboundHandler<Packet>
 {
     private static final Logger logger = LogManager.getLogger();
@@ -216,7 +216,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
         this.packetListener = handler;
     }
 
-    public void sendPacket(Packet packetIn)
+    public void sendPacket(Packet<?> packetIn)
     {
 
         final PacketEvent event = new PacketEvent(packetIn/*,PacketMode.SEND**/);
@@ -236,7 +236,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
         if (this.isChannelOpen())
         {
             this.flushOutboundQueue();
-            this.dispatchPacket(packetIn, (GenericFutureListener<? extends Future<? super Void>>[])null);
+            this.dispatchPacket(packetIn, null);
         }
         else
         {

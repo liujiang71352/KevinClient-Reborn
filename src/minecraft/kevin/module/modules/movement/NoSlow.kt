@@ -43,7 +43,7 @@ class NoSlow : Module("NoSlow", "Cancels slowness effects caused by soulsand and
     private val bowForwardMultiplier = FloatValue("BowForwardMultiplier", 1.0F, 0.2F, 1.0F)
     private val bowStrafeMultiplier = FloatValue("BowStrafeMultiplier", 1.0F, 0.2F, 1.0F)
 
-    private val packetMode = ListValue("PacketMode", arrayOf("None","AntiCheat","AntiCheat2", "SwitchItem", "ReverseNCP","AAC","AAC5","Delay","Matrix","Vulcan", "Intave", "GrimAC"),"None")
+    private val packetMode = ListValue("PacketMode", arrayOf("None","AntiCheat","AntiCheat2", "SwitchItem", "ReverseNCP","AAC","AAC5","Delay","Matrix","Vulcan", "Intave", "GrimAC", "GrimACSwitch"),"None")
 
     val soulsandValue = BooleanValue("Soulsand", true)
     val liquidPushValue = BooleanValue("LiquidPush", true)
@@ -76,8 +76,14 @@ class NoSlow : Module("NoSlow", "Cancels slowness effects caused by soulsand and
 
         if (aura == null) aura = KevinClient.moduleManager.getModule(KillAura::class.java)
         val aura = this.aura!!
-        val isBlocking = !thePlayer.isBlocking && !aura.blockingStatus
+        val isBlocking = thePlayer.isBlocking || aura.blockingStatus
         val isUsing = thePlayer.isUsingItem
+        if (packetMode equal "GrimACSwitch" && event.eventState == EventState.PRE) {
+            if (thePlayer.isUsingItem || thePlayer.isBlocking || aura.blockingStatus) {
+                mc.netHandler.addToSendQueue(C09PacketHeldItemChange((mc.thePlayer.inventory.currentItem + 1) % 9))
+                mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
+            }
+        }
         if (!isBlocking && !isUsing) return
         val isUsingNotBlocking = !isBlocking && isUsing
 
