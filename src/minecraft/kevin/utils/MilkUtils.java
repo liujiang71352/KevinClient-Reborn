@@ -15,34 +15,44 @@
 package kevin.utils;
 
 import java.awt.*;
+import java.util.Objects;
 
 public class MilkUtils {
     public static float[] lastFraction = new float[]{};
     public static Color[] lastColors = new Color[]{};
     static int blendAmount;
-    static public Color[] lol2=new Color[]{
-            new Color(167, 98, 211),
-            new Color(218, 121, 120),
-            new Color(119, 201, 217)
+    public static Color[] getColor(String mode){
+        switch (mode){
+            case "Stichh":
+                return Stichh;
+            case "Night":
+                return lol;
+            case "2":
+                return _2;
+            case "3":
+                return _3;
+        }
+        return lol;
+    }
+    static public Color[] Stichh=new Color[]{
+            new Color(150, 143, 253),
+            new Color(62, 65, 224, 255),
+            new Color(203, 208, 246)
+    };
+    static public Color[] _3=new Color[]{
+            new Color(255, 56, 56),
+            new Color(102, 62, 224, 255),
+            new Color(255, 226, 35)
+    };
+    static public Color[] _2=new Color[]{
+            new Color(56, 255, 179),
+            new Color(62, 162, 224, 255),
+            new Color(35, 162, 255)
     };
     static public Color[] lol=new Color[]{
             new Color(150, 143, 253),
             new Color(147, 67, 168),
             new Color(76, 147, 169)
-    };
-    static public Color[] lol3=new Color[]{new Color(236, 133, 209),
-            new Color(28, 167, 222)};
-    static public Color[] lol4=new Color[]{new Color(106, 172, 255),
-            new Color(144, 48, 232)
-    };
-    static public Color[] lol5=new Color[]{new Color(255, 142, 142),
-            new Color(255, 190, 95),
-            new Color(248, 255, 92),
-            new Color(171, 255, 92),
-            new Color(92, 255, 157),
-            new Color(92, 168, 255),
-            new Color(103, 92, 255),
-            new Color(233, 92, 255),
     };
 
     public static int[] getFractionIndices(float[] fractions, float progress) {
@@ -70,15 +80,29 @@ public class MilkUtils {
             throw new IllegalArgumentException("Fractions and colours must have equal number of elements");
         }
     }
+    public static String lastMode = "";
     public static Color getMixedColor(int index, int seconds) {
-
-        if (lastColors.length <= 0 || lastFraction.length <= 0) regenerateColors(true); // just to make sure it won't go white
+        if (lastColors.length <= 0 || lastFraction.length <= 0) regenerateColors(true, "Stichh");
+        // just to make sure it won't go white
 
         return blendColors(lastFraction, lastColors, (System.currentTimeMillis() + index) % (seconds * 1000) / (float) (seconds * 1000));
     }
+    public static Color getMixedColor(int index, int seconds, String mode) {
+        if(!Objects.equals(lastMode, mode)){
+            lastColors = new Color[]{};
+            lastFraction = new float[]{};
+            regenerateColors(true, mode);
+            lastMode = mode;
+        }
 
-    public static void regenerateColors(boolean forceValue) {
-        blendAmount=lol4.length;
+        if (lastColors.length <= 0 || lastFraction.length <= 0) regenerateColors(true, mode); // just to make sure it won't go white
+
+        return blendColors(
+                lastFraction, lastColors, (System.currentTimeMillis() + index) % (seconds * 1000) / (float) (seconds * 1000));
+    }
+
+    public static void regenerateColors(boolean forceValue, String mode) {
+        blendAmount=getColor(mode).length;
 
         // color generation
         if (forceValue || lastColors.length != (blendAmount * 2) - 1) {
@@ -88,9 +112,9 @@ public class MilkUtils {
             for (int i = 0; i < blendAmount; i++) {
                 Color result = Color.white;
                 try {
-                            result = new Color(Math.max(0, Math.min(lol4[i].getRed(), 255)),
-                                    Math.max(0, Math.min(lol4[i].getGreen(), 255)),
-                                    Math.max(0, Math.min(lol4[i].getBlue(), 255)));
+                            result = new Color(Math.max(0, Math.min(getColor(mode)[i].getRed(), 255)),
+                                    Math.max(0, Math.min(getColor(mode)[i].getGreen(), 255)),
+                                    Math.max(0, Math.min(getColor(mode)[i].getBlue(), 255)));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

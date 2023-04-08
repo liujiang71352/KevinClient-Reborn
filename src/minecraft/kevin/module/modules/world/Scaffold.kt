@@ -91,7 +91,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
     val canSprint: Boolean
         get() = MovementUtils.isMoving && when (sprintValue.get().lowercase()) {
             "always", "dynamic" -> true
-            "smart" -> mc.thePlayer.moveForward > 0.3 && (lockRotation?.let { abs(wrapAngleTo180_float(it.yaw) - wrapAngleTo180_float(mc.thePlayer.rotationYaw)) < 90 } == true)
+            "smart" -> mc.thePlayer.moveForward > 0.3 && (lockRotation == null || (abs(RotationUtils.getAngleDifference(lockRotation!!.yaw, mc.thePlayer.rotationYaw)) < 90))
             "onground" -> mc.thePlayer.onGround
             "offground" -> !mc.thePlayer.onGround
             else -> false
@@ -437,8 +437,6 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
 
         if (!sameY()) launchY = mc.thePlayer!!.posY.toInt()
 
-        mc.thePlayer.isSprinting = canSprint
-
         mc.timer.timerSpeed = timerValue.get()
         shouldGoDown =
             downValue.get() && !sameY() && GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) && blocksAmount > 1
@@ -463,7 +461,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
         }
         if (mc.thePlayer!!.onGround) {
             when (zitterMode.get().lowercase(Locale.getDefault())) {
-                //"off" -> return //LiquidBounce B73, WTF is this?? if you turn off zitter u cant use eagle??????
+                //"off" -> return //LiquidBounce B73, WTF is this?? if you turn off zitter u can't use eagle??????
                 "smooth" -> {
                     if (!GameSettings.isKeyDown(mc.gameSettings.keyBindRight)) {
                         mc.gameSettings.keyBindRight.pressed = false
@@ -555,6 +553,8 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
             }
             if (update&&mc.gameSettings.keyBindJump.isKeyDown) move()
         }
+
+        mc.thePlayer.isSprinting = canSprint
     }
 
     @EventTarget

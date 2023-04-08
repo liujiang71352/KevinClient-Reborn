@@ -127,7 +127,7 @@ class FontManager : MinecraftInstance(){
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
         }
-        Minecraft.logger.info("[FontManager] Loaded ${CUSTOM_FONT_RENDERERS.size} font(s)," + (System.currentTimeMillis() - l) + "ms.")
+        Minecraft.logger.info("[FontManager] Loaded ${CUSTOM_FONT_RENDERERS.size} custom font(s)," + (System.currentTimeMillis() - l) + "ms.")
     }
 
     fun getFontRenderer(name: String?, size: Int): FontRenderer {
@@ -214,7 +214,7 @@ class FontManager : MinecraftInstance(){
     }
 }
 
-private class WaitingObject() {
+private class WaitingObject {
     private var done = false
     fun startWait() = startWait(1L)
 
@@ -232,11 +232,13 @@ private class WaitingObject() {
 
     companion object {
         var queue: MutableList<WaitingObject> = LinkedList<WaitingObject>()
-
+        val start = System.currentTimeMillis()
         fun waitAll() {
             while (queue.isNotEmpty()) {
                 queue = queue.stream().filter { !it.isDone() }.toList() as MutableList<WaitingObject>
-                Thread.sleep(30)
+                Display.setTitle("Kevin Client is loading. [fonts] [waiting... ${System.currentTimeMillis() - start} ms]")
+                Thread.sleep(50)
+                Display.setTitle("Kevin Client is loading. [fonts] [waiting... ${System.currentTimeMillis() - start} ms]")
             }
             queue = LinkedList<WaitingObject>()
         }

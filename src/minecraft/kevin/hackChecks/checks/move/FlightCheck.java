@@ -39,14 +39,14 @@ public class FlightCheck extends Check {
             // "strict" ground check
             AxisAlignedBB aabb = new AxisAlignedBB((handlePlayer.serverPosX / 32.0) - 0.30125, (handlePlayer.serverPosY / 32.0) + 0.25, (handlePlayer.serverPosZ / 32.0) - 0.30125, (handlePlayer.serverPosX / 32.0) + 0.30125, (handlePlayer.serverPosY / 32.0) - 0.25, (handlePlayer.serverPosZ / 32.0) + 0.30125);
             if (OtherExtensionsKt.getBlockStatesIncluded(aabb).isEmpty()) { // No block found under the player
-                if (handlePlayer.hurtTime < 6 && ++buffer > 5) flag(String.format("glide/fly, d=(%.5f, %.5f)", lastDeltaY, y), 1.3);
+                if (handlePlayer.hurtTime < 3 && ++buffer > 5) flag(String.format("glide/fly, d=(%.5f, %.5f)", lastDeltaY, y), 1.3);
             } else {
                 --buffer;
             }
         }
 
         // Fast down (code from MedusaAntiCheat and better value for client side)
-        if (y < -3.3) {
+        if (y < -3.5) {
             flag("fast down, mY=" + y, 5);
         }
 

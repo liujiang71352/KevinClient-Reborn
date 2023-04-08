@@ -14,6 +14,8 @@
  */
 package kevin.hud.element.elements
 
+import blur.GaussianBlur
+import cn.frozenmilk.milkjello.utils.StencilUtil
 import kevin.event.*
 import kevin.hud.element.Border
 import kevin.hud.element.Element
@@ -55,13 +57,21 @@ class Information(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,side: Sid
     var cps = TimeList<Int>(1000)
 
     override fun drawElement(): Border {
-        RenderUtils.drawRect(0,0,150,70, Color(0,0,0,200).rgb)
-        GL11.glPushMatrix()
-        GL11.glScaled(0.7,0.7,0.7)
-        KevinClient.fontManager.font40.drawString("Session Info",
-            (10+45- KevinClient.fontManager.font40.getStringWidth("Session Info")/2*0.7f)/0.7f + 20,
-            10F,Color(255,255,255).rgb)
-        GL11.glPopMatrix()
+
+        GL11.glTranslated(-renderX, -renderY, 0.0)
+        //绘制Bloom & Blur
+        StencilUtil.initStencilToWrite()
+        RenderUtils.drawRect(renderX,renderY,150 + renderX,58 + renderY, Color(0,0,0,255).rgb)
+        StencilUtil.readStencilBuffer(1)
+        GaussianBlur.renderBlur(12F)
+        StencilUtil.uninitStencilBuffer()
+
+        GL11.glTranslated(renderX, renderY, 0.0)
+
+        RenderUtils.drawRect(0,0,150,70, Color(0,0,0,10).rgb)
+        KevinClient.fontManager.font40.drawCenteredString("Session Info",
+            150 / 2F,
+            5F,Color(255,255,255).rgb)
         var y = KevinClient.fontManager.font40.fontHeight + 0.0F
 
         GL11.glPushMatrix()
@@ -69,21 +79,36 @@ class Information(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,side: Sid
         RenderUtils.drawLine(0.0,0.0,150.0,0.0)
         RenderUtils.drawLineEnd()
         GL11.glPopMatrix()
+        KevinClient.fontManager.fontMisans32.drawString("Health: ",
+            10F,
+            15F,Color(255,255,255).rgb)
+        KevinClient.fontManager.fontMisans32.drawString(mc.thePlayer.health.toInt().toString(),
+            140F - KevinClient.fontManager.fontMisans32.getStringWidth(mc.thePlayer.health.toInt().toString()),
+            15F,Color(255,255,255).rgb)
 
-        GL11.glPushMatrix()
-        GL11.glScaled(0.6,0.6,0.6)
-        KevinClient.fontManager.font40.drawString("TPS: $tps",20/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,if(tps >= 19.0) Color(255,255,255,255).rgb else Color(255,255,255,150).rgb)
-        KevinClient.fontManager.font40.drawString("Ping: $ping",65/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,if(ping <= 150) Color(255,255,255,200).rgb else Color(255,255,255,150).rgb)
-        y +=  KevinClient.fontManager.font40.fontHeight
-        KevinClient.fontManager.font40.drawString("HurtTime: ${mc.thePlayer.hurtTime}",20/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,if (mc.thePlayer.hurtTime>0) Color(255,255,255,200).rgb else Color(255,255,255,200).rgb)
-        y +=  KevinClient.fontManager.font40.fontHeight
-        KevinClient.fontManager.font40.drawString("Kills: $kills         CPS: ${cps.size()}",20/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,Color(255,255,255,200).rgb)
-        y +=  KevinClient.fontManager.font40.fontHeight
-        KevinClient.fontManager.font40.drawString("Speed: ${bps}/bps",20/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,Color(255,255,255,200).rgb)
-        y +=  KevinClient.fontManager.font40.fontHeight
-        KevinClient.fontManager.font40.drawString("Time: ${getTime(System.currentTimeMillis()-startTime)}",
-            20/0.6f,(y.toFloat()+2+ KevinClient.fontManager.font40.fontHeight/2F)/0.6f,Color(170,200,200,200).rgb)
-        GL11.glPopMatrix()
+
+        KevinClient.fontManager.fontMisans32.drawString("Speed: ",
+            10F,
+            25F,Color(255,255,255).rgb)
+        KevinClient.fontManager.fontMisans32.drawString(bps.toString(),
+            140F - KevinClient.fontManager.fontMisans32.getStringWidth(bps.toString()),
+            25F,Color(255,255,255).rgb)
+
+
+        KevinClient.fontManager.fontMisans32.drawString("Kills: ",
+            10F,
+            35F,Color(255,255,255).rgb)
+        KevinClient.fontManager.fontMisans32.drawString(kills.toString(),
+            140F - KevinClient.fontManager.fontMisans32.getStringWidth(kills.toString()),
+            35F,Color(255,255,255).rgb)
+
+        KevinClient.fontManager.fontMisans32.drawString("Username: ",
+            10F,
+            45F,Color(255,255,255).rgb)
+        KevinClient.fontManager.fontMisans32.drawString(mc.thePlayer.name,
+            140F - KevinClient.fontManager.fontMisans32.getStringWidth(mc.thePlayer.name),
+            45F,Color(255,255,255).rgb)
+
         return Border(10F,10F,100F,70F)
     }
     init {

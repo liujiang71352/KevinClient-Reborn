@@ -59,7 +59,7 @@ public class SpeedCheck extends Check {
                 }
                 if (buffer > 40) {
                     flag("speed up movement, o=" + outed + ",b=" + buffer + ",r=" + ratio, 1.2);
-                    buffer -= 3;
+                    buffer -= 10;
                 }
             } else {
                 buffer -= buffer > 0 ? 1 : 0;

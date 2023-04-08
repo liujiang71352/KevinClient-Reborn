@@ -56,7 +56,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
             return text
         }
         fun defaultClientVersion(): Text {
-            val text = Text((KevinClient.fontManager.font40!!.getStringWidth(KevinClient.name) + 1)/0.6,(11F)/0.6, scale = 0.6F)
+            val text = Text((KevinClient.fontManager.font40.getStringWidth(KevinClient.name) + 1)/0.6,(11F)/0.6, scale = 0.6F)
 
             text.displayString.set("%clientVersion%")
             text.shadow.set(true)
@@ -81,7 +81,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
     private val rGreenValue = IntegerValue("rGreen", 0, 0, 255)
     private val rBlueValue = IntegerValue("rBlue", 0, 0, 255)
     private val rAlphaValue = IntegerValue("rAlpha", 100, 0, 255)
-    private var fontValue = KevinClient.fontManager.font35!!
+    private var fontValue = KevinClient.fontManager.font35
 
     private var editMode = false
     private var editTicks = 0
@@ -178,11 +178,11 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
         var fontRenderer = fontValue
 
         fontRenderer = if(bigFont.get())
-            KevinClient.fontManager.font60;
+            KevinClient.fontManager.font60
         else
-            KevinClient.fontManager.font40;
+            KevinClient.fontManager.font40
         if(boldFont.get())
-            fontRenderer = KevinClient.fontManager.fontNovo40;
+            fontRenderer = KevinClient.fontManager.fontNovo40
         val rainbow = rainbow.get()
         if(rect.get()){
             if(!rRect.get())
@@ -197,7 +197,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
                     fontRenderer.fontHeight.toDouble(),1.0,
                     Color(rRedValue.get(),rGreenValue.get(),rBlueValue.get(),rAlphaValue.get())
                 )
-                RenderUtils.drawShadow(-2F , -2F , fontRenderer.getStringWidth(displayText).toFloat() , fontRenderer.fontHeight.toFloat());
+                RenderUtils.drawShadow(-2F , -2F , fontRenderer.getStringWidth(displayText).toFloat() , fontRenderer.fontHeight.toFloat())
             }
         }
         RainbowFontShader.begin(rainbow, if (rainbowX.get() == 0.0F) 0.0F else 1.0F / rainbowX.get(), if (rainbowY.get() == 0.0F) 0.0F else 1.0F / rainbowY.get(), System.currentTimeMillis() % 10000 / 10000F).use {

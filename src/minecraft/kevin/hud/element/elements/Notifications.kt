@@ -14,12 +14,13 @@
  */
 package kevin.hud.element.elements
 
+import blur.GaussianBlur
+import cn.frozenmilk.milkjello.utils.StencilUtil
 import kevin.hud.designer.GuiHudDesigner
 import kevin.hud.element.*
 import kevin.hud.element.elements.ConnectNotificationType.*
 import kevin.hud.element.elements.Notification.FadeState.*
 import kevin.main.KevinClient
-import kevin.module.IntegerValue
 import kevin.module.ListValue
 import kevin.utils.AnimationUtils
 import kevin.utils.MSTimer
@@ -31,7 +32,6 @@ import java.awt.Color
 class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)) : Element(x, y, scale, side) {
 
     private val notificationMode = ListValue("NotificationMode", arrayOf("Connect","MilkNew","LiquidBounce-Kevin","Kevin", "Normal", "Simple"),"Connect")
-    private val maxNotificationHeight = IntegerValue("MaxNotificationHeight", mc.displayHeight * 2, 1, 10000)
     private val exampleNotification = Notification("Example Notification", "Example title")
     override fun drawElement(): Border? {
         var animationY = 30F
@@ -40,13 +40,12 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
         for(i in hud.notifications)
             notifications.add(i)
         for(i in notifications){
-            if (animationY > maxNotificationHeight.get()) break
             if (mc.currentScreen !is GuiHudDesigner) {
                 when (notificationMode.get()) {
                     "LiquidBounce-Kevin" -> i.drawNotification(animationY).also { animationY += 20 }
                     "Kevin" -> i.drawNotificationKevinNew(animationY).also { animationY += 40 }
                     "Connect" -> i.drawConnectNotification(animationY).also { animationY += 24 }
-                    "MilkNew" -> i.drawMilkNewNotification(animationY).also { animationY += 35 }
+                    "MilkNew" -> i.drawMilkNewNotification(animationY, renderX, renderY).also { animationY += 35 }
                     "Normal" -> i.drawNormalNotification(animationY).also { animationY += 24 }
                     "Simple" -> i.drawSimpleNotification(animationY).also { animationY += 24 }
                 }
@@ -55,7 +54,7 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
                     "LiquidBounce-Kevin" -> exampleNotification.drawNotification(animationY)
                     "Kevin" -> exampleNotification.drawNotificationKevinNew(animationY)
                     "Connect" -> exampleNotification.drawConnectNotification(animationY)
-                    "MilkNew" -> i.drawMilkNewNotification(animationY)
+                    "MilkNew" -> i.drawMilkNewNotification(animationY, renderX, renderY)
                     "Normal" -> i.drawNormalNotification(animationY)
                     "Simple" -> i.drawSimpleNotification(animationY)
                 }
@@ -79,7 +78,7 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
                 "Connect" -> return Border(-220F, -50F, 0F, -30F)
                 "MilkNew" -> return Border(-125F, -55F, 0F, -0F)
                 "Normal" -> return Border(-150F, -50F, 0F, -30F)
-                "Simple" -> return Border(-100F, -50F, 0F, -30F)
+                "Simple" -> return Border(-110F, -50F, 0F, -30F)
             }
         }
         GL11.glDisable(GL11.GL_BLEND)
@@ -483,7 +482,7 @@ class Notification(private val message: String, val title: String = "", val type
         }
     }
 
-    fun drawMilkNewNotification(animationY: Float) {
+    fun drawMilkNewNotification(animationY: Float, renderX: Double, renderY: Double) {
         var y = animationY
         if (firstY == 1919.0F)
             firstY = y
@@ -500,11 +499,22 @@ class Notification(private val message: String, val title: String = "", val type
         val long = textLength
         // Draw notification
 
-        RenderUtils.drawRect(8 + long - x + 10 + 5, -y + 7, -x - 30, -19F - y - 7, Color(0, 0, 0, 150).rgb)
+        //绘制Bloom & Blur
+        GL11.glTranslated(-renderX, -renderY, 0.0)
+        StencilUtil.initStencilToWrite()
+        RenderUtils.drawRect(8 + long - x + 10 + 5 + renderX,
+            -y + 7 + renderY, -x - 30 + renderX, -19F - y - 7 + renderY, Color(0, 0, 0, 255).rgb)
+        StencilUtil.readStencilBuffer(1)
+        GaussianBlur.renderBlur(10F)
+        StencilUtil.uninitStencilBuffer()
+        GL11.glTranslated(renderX, renderY, 0.0)
+
+//        RenderUtils.drawShadow(8 + long - x + 10 + 5, -y + 7, -x - 30 - (8 + long - x + 10 + 5) , -19F - y - 7 - (-y + 7));
+//        RenderUtils.drawRect(8 + long - x + 10 + 5, -y + 7, -x - 30, -19F - y - 7, Color(0, 0, 0, 150).rgb)
         KevinClient.fontManager.notiFont.drawString("b", -x - 20 + 3, -19F - y - 15 + 17,
             Color(255, 255, 255, 255).rgb)
         KevinClient.fontManager.font35.drawString(message, 4 - x, -5F-y, Color(220, 255,255, 200).rgb)
-        KevinClient.fontManager.fontNovo40.drawString("Module", 4 - x, -18F-y, Color(220, 160, 70, 255).rgb)
+        KevinClient.fontManager.fontNovo40.drawString(title, 4 - x, -18F-y, Color(220, 160, 70, 255).rgb)
 
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
         // Animation
