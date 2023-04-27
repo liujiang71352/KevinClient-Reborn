@@ -29,6 +29,7 @@ class KeepRange: Module("KeepDistance", "Keep yourself out of a range with your 
     private val minDistance = FloatValue("MinDistance", 2.3F, 0F, 4F)
     private val maxDistance = FloatValue("MaxDistance", 4.0F, 3F, 7F)
     private val onlyForward = BooleanValue("OnlyForward", true)
+    private val onlyNoHurt = BooleanValue("OnlyNoHurt", true)
     // bypass / wTap
     private val keepTick = IntegerValue("KeepTick", 10, 0, 40)
     private val restTick = IntegerValue("RestTick", 4, 0, 40)
@@ -58,6 +59,7 @@ class KeepRange: Module("KeepDistance", "Keep yourself out of a range with your 
     }
     @EventTarget fun onUpdate(event: UpdateEvent) {
         if (target == null) return
+        if (onlyNoHurt.get() && mc.thePlayer.hurtTime > 0) return
         if (ticks.hasTimePassed(keepTick.get() + restTick.get())) ticks.reset()
         ticks.update()
         val distance = mc.thePlayer.getDistanceToEntityBox(target!!)

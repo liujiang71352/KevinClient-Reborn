@@ -20,6 +20,8 @@ import kotlin.math.pow
 
 object MathUtils {
     @JvmStatic
+    val jumpYPosArr = arrayOf(0.0, 0.41999998688698, 0.7531999805212, 1.00133597911214, 1.16610926093821, 1.24918707874468, 1.24918707874468, 1.1707870772188, 1.0155550727022, 0.78502770378924, 0.4807108763317, 0.10408037809304)
+    @JvmStatic
     fun getPointsOnCurve(points: Array<Array<Double>>, num: Int): Array<Array<Double>> {
         val cpoints = mutableListOf<Array<Double>>()
         for (i in 0 until num) {

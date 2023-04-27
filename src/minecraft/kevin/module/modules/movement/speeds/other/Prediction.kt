@@ -16,6 +16,7 @@ package kevin.module.modules.movement.speeds.other
 
 import kevin.module.modules.movement.speeds.SpeedMode
 import kevin.utils.MovementUtils
+import kotlin.math.abs
 
 object Prediction : SpeedMode("Prediction") {
     override fun onPreMotion() {
@@ -29,7 +30,7 @@ object Prediction : SpeedMode("Prediction") {
         if (mc.thePlayer.onGround && !mc.gameSettings.keyBindJump.isKeyDown)
             mc.thePlayer.jump()
 
-        if (mc.thePlayer.motionY >= 0 && mc.thePlayer.motionY < 9.0E-4) {
+        if (abs(mc.thePlayer.motionY) < 0.005) {
             mc.thePlayer.motionY = (mc.thePlayer.motionY - 0.08) * 0.98F
         }
     }

@@ -34,6 +34,9 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.Items
+import net.minecraft.item.ItemPickaxe
+import net.minecraft.item.ItemSpade
 import net.minecraft.item.ItemSword
 import net.minecraft.network.play.client.*
 import net.minecraft.potion.Potion
@@ -105,6 +108,8 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     private val scaffoldCheck = BooleanValue("ScaffoldCheck", true)
 
     //Timing
+    private val hightVersionAttackDelay = BooleanValue("HighVersionAttackDelay", false)
+    private val hightVersionAttackSwing = BooleanValue("HighVersionAttackSwing", false)
     private val attackTimingValue = ListValue("AttackTiming", arrayOf("Legit", "Pre", "Post", "Update", "Pre&Post", "Update&Pre", "Update&Post", "Update&Pre&Post"), "Update")
     private val extraBlockTimingValue // vanilla will send block packet at pre
     = ListValue("ExtraBlockTiming", arrayOf("NoExtra", "Pre", "Post", "Update", "Pre&Post", "Update&Pre", "Update&Post", "Update&Pre&Post"), "NoExtra")
@@ -218,6 +223,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
 
     // Attack delay
     private val attackTimer = MSTimer()
+    private val attackTickTimer = TickTimer()
     private var attackDelay = 0L
     var clicks = 0
 
@@ -484,6 +490,37 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
             }
             false
         }
+        attackTickTimer.update()
+        if (hightVersionAttackDelay.get()) {
+            var delayValue = 4
+
+            if (mc.thePlayer.heldItem != null) {
+                val item = mc.thePlayer.heldItem.item
+
+                if (item is ItemSpade || item == Items.golden_axe || item == Items.diamond_axe || item == Items.wooden_hoe || item == Items.golden_hoe)
+                    delayValue = 20
+
+                if (item == Items.wooden_axe || item == Items.stone_axe)
+                    delayValue = 25
+
+                if (item is ItemSword)
+                    delayValue = 12
+
+                if (item is ItemPickaxe)
+                    delayValue = 17
+
+                if (item == Items.iron_axe)
+                    delayValue = 22
+
+                if (item == Items.stone_hoe)
+                    delayValue = 10
+
+                if (item == Items.iron_hoe)
+                    delayValue = 7
+            }
+
+            if (attackTickTimer.hasTimePassed(ceil(delayValue * max(1f, mc.timer.timerSpeed)).toInt())) ++clicks
+        }
     }
 
     @EventTarget
@@ -634,6 +671,9 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
 
         target ?: return
 
+        // prevent duplicated swing / attack
+        if (hightVersionAttackDelay.get()) return
+
         if (currentTarget != null && attackTimer.hasTimePassed(attackDelay + if (!smartAttackValue.get() || mc.thePlayer.hurtTime != 0 || (target !is EntityLivingBase || (target as EntityLivingBase).hurtTime <= 3)) 0 else 500) &&
             (currentTarget !is EntityLivingBase || (currentTarget as EntityLivingBase).hurtTime <= hurtTimeValue.get())) {
             clicks++
@@ -666,6 +706,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
             }
             "Packet" -> mc.netHandler.addToSendQueue(C0APacketAnimation())
         }
+        attackTickTimer.reset()
     }
 
     /**
@@ -829,7 +870,8 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
         KevinClient.eventManager.callEvent(AttackEvent(entity))
 
         // Attack target
-        doSwing()
+        val highVersionSwing = hightVersionAttackSwing.get()
+        if (!highVersionSwing) doSwing()
 
         mc.netHandler.addToSendQueue(C02PacketUseEntity(entity, C02PacketUseEntity.Action.ATTACK))
 
@@ -859,6 +901,8 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
             if (target is EntityLivingBase && EnchantmentHelper.getModifierForCreature(thePlayer.heldItem, (target as EntityLivingBase).creatureAttribute) > 0.0f || fakeSharpValue.get())
                 thePlayer.onEnchantmentCritical(target!!)
         }
+
+        if (highVersionSwing) doSwing()
 
         // Start blocking after attack
         if ((autoBlockValue equal "Packet"||keepAutoBlock) && (thePlayer.isBlocking || canBlock))

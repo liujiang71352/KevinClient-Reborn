@@ -34,6 +34,7 @@ class Fly : Module("Fly","Allow you fly", Keyboard.KEY_F,ModuleCategory.MOVEMENT
         Creative,
         AAC5,
         ACD,
+        FunCraft,
         Teleport,
         VerusAuto,
         NCPPacket,
@@ -41,11 +42,14 @@ class Fly : Module("Fly","Allow you fly", Keyboard.KEY_F,ModuleCategory.MOVEMENT
         NCPNew,
         HypixelFly,
         HypixelVanilla,
+        OldHypixelBoost,
         OldNCP,
         Matrix, // from FDP
         NewMatrix, // from FDP
         NewMatrixClip, // from FDP
         Pika,
+        Sparky,
+        TestSparky,
         Vulcan, // from FDP
         VulcanClip, // from FDP
         VulcanDamage, // from FDP

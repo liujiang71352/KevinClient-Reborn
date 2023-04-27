@@ -26,16 +26,18 @@ import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import kotlin.math.floor
+import kotlin.math.max
 
 @Suppress("unused_parameter")
 class LongJump : Module("LongJump", "Allows you to jump further.", category = ModuleCategory.MOVEMENT) {
-    private val modeValue = ListValue("Mode", arrayOf("NCP", "AACv1", "AACv2", "Buzz", "BuzzBoost", "PikaNew", "AACv3", "Mineplex", "Mineplex2", "Mineplex3", "Redesky", "Vulcan", "VulcanExtreme", "BlocksMCBlockOver", "ExplosionBoost"), "NCP")
+    private val modeValue = ListValue("Mode", arrayOf("NCP", "NCP2", "AACv1", "AACv2", "Buzz", "BuzzBoost", "PikaNew", "AACv3", "Mineplex", "Mineplex2", "Mineplex3", "Redesky", "Vulcan", "VulcanExtreme", "BlocksMCBlockOver", "ExplosionBoost"), "NCP")
     private val ncpBoostValue = FloatValue("NCPBoost", 4.25f, 1f, 10f)
-    private val autoJumpValue = BooleanValue("AutoJump", false)
+    private val ncp2YAdderValue = FloatValue("NCP2MotionYAdder", 0.1f, -0.5f, 0.5f)
     private val vulcanExtremeHeight = FloatValue("VulcanExtremeHeight", 0.98f, 0.42f, 3.7f)
     private val explosionBoostHigh = FloatValue("ExplosionBoostHigh",0.00F,0.01F,1F)
     private val explosionBoostLong = FloatValue("ExplosionBoostLong",0.25F,0.01F,1F)
     private val visualSpoofY = BooleanValue("visualSpoofY", false)
+    private val autoJumpValue = BooleanValue("AutoJump", false)
     private val autoDisableValue = BooleanValue("AutoDisable", true)
     private var jumped = false
     private var jumpedTicks = 0
@@ -44,6 +46,7 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
     private var canMineplexBoost = false
     private var explosion = false
     private var jumpPositionY = 0.0
+    private var boostMotion = 0.0
 
     override fun onEnable() {
         canBoost = false
@@ -88,6 +91,28 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
                     "ncp" -> {
                         MovementUtils.strafe(MovementUtils.speed * if (canBoost) ncpBoostValue.get() else 1f)
                         canBoost = false
+                    }
+                    // copied directly from my script: MoraFly
+                    "ncp2" -> {
+                        boostMotion *= 0.92f
+                        boostMotion +=
+                            if (thePlayer.isSprinting) 0.026f
+                            else 0.02f
+                        if (MovementUtils.isMoving) thePlayer.isSprinting = true
+                        thePlayer.motionY += ncp2YAdderValue.get() * 0.01 // increase accurate
+                        if (mc.thePlayer.motionY < 0.3 && mc.thePlayer.motionY > -0.05) {
+                            mc.timer.timerSpeed = max(0.5f, mc.timer.timerSpeed - 0.05f)
+                        } else if (mc.thePlayer.motionY < -0.05 && mc.thePlayer.motionY > -0.2) {
+                            mc.timer.timerSpeed = 0.5f
+                        } else if (mc.thePlayer.motionY < -0.2) {
+                            mc.timer.timerSpeed = 1f
+                        }
+                        if (mc.thePlayer.motionY > -0.1) {
+                            boostMotion += ncpBoostValue.get() * 0.0012
+                        } else if (mc.thePlayer.motionY > -0.2) {
+                            boostMotion *= 0.995
+                        }
+                        MovementUtils.strafeDouble(boostMotion)
                     }
                     "buzz" -> {
                         canBoost = true
@@ -218,6 +243,15 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
 
         if (state) {
             when (modeValue.get().lowercase()) {
+                "ncp2" -> {
+                    mc.timer.timerSpeed = 1.1f
+                    boostMotion = 0.2801
+                    if (MovementUtils.isMoving) {
+                        mc.thePlayer!!.isSprinting = true
+                        MovementUtils.strafeDouble(boostMotion)
+                    }
+                    boostMotion = 0.4801
+                }
                 "mineplex" -> event.motion = event.motion * 4.08f
                 "mineplex2" -> {
                     if (mc.thePlayer!!.isCollidedHorizontally) {

@@ -16,7 +16,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class GaussianBlur {
 
-    public static Minecraft mc=Minecraft.getMinecraft();
+    public static Minecraft mc = Minecraft.getMinecraft();
     public static ShaderUtil blurShader = new ShaderUtil("shaders/Shaders/gaussian.frag");
 
     public static Framebuffer framebuffer = new Framebuffer(1, 1, false);
@@ -76,7 +76,6 @@ public class GaussianBlur {
         ShaderUtil.drawQuads();
         blurShader.unload();
 
-        GlStateManager.bindTexture(0);
     }
 
 }

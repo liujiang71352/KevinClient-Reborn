@@ -45,6 +45,16 @@ object MovementUtils : MinecraftInstance() {
     }
 
     @JvmStatic
+    @JvmOverloads
+    fun strafeDouble(speed: Double) {
+        if (!isMoving) return
+        val yaw = direction
+        val thePlayer = mc.thePlayer!!
+        thePlayer.motionX = -sin(yaw) * speed
+        thePlayer.motionZ = cos(yaw) * speed
+    }
+
+    @JvmStatic
     fun forward(length: Double) {
         val thePlayer = mc.thePlayer!!
         val yaw = toRadians(thePlayer.rotationYaw.toDouble())

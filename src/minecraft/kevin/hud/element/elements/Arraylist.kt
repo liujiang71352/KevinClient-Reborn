@@ -67,8 +67,8 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
     // Test -> 5
     private var textColorCode = 0
     private val testMode = ListValue("TestColor-Mode", arrayOf("Night","Stichh","2","3"),"Stichh")
-    private val blurMode = ListValue("Blur-Mode", arrayOf("None","Kawase","Gaussian"),"Kawase")
-    private val bloomMode = ListValue("Bloom-Mode", arrayOf("None","TextColor","BackGroundColor"),"TextColor")
+    private val blurMode = ListValue("Blur-Mode", arrayOf("None","Kawase","Gaussian"),"None")
+    private val bloomMode = ListValue("Bloom-Mode", arrayOf("None","TextColor","BackGroundColor"),"None")
     private val blurStrength = FloatValue("BlurStrength",10F, 6F, 40F)
     private val arraylistTextCustomRed = IntegerValue("ArrayList-TextColor-CustomRed",0,0,255)
     private val arraylistTextCustomGreen = IntegerValue("ArrayList-TextColor-CustomGreen",0,0,255)
@@ -177,17 +177,17 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
         //绘制Bloom & Blur
         if(blurMode.get() != "None") {
             StencilUtil.initStencilToWrite()
+            GL11.glColor3f(0f, 0f, 0f)
             modules.forEachIndexed { index, module ->
                 val xPos = -module.slide - 2 + renderX.toFloat()
                 val yPos = renderY.toFloat() + (if (side.vertical == Side.Vertical.DOWN) -textSpacer else textSpacer) *
-                        if (side.vertical == Side.Vertical.DOWN) index + 1 else index
-                RenderUtils.drawRect(
-                    xPos - if (rectCode > 1/*rectMode.equals("right", true) || rectMode.equals("all", true)*/)
-                        rectWidth.get() + 2F else 2F,
+                        (if (side.vertical == Side.Vertical.DOWN) index + 1 else index)
+                RenderUtils.drawRectVertex(
+                    xPos - (if (rectCode > 1/*rectMode.equals("right", true) || rectMode.equals("all", true)*/)
+                        rectWidth.get() + 2F else 2F),
                     yPos,
-                    renderX.toFloat() + if (rectCode > 1/*rectMode.equals("right", true) || rectMode.equals("all", true)*/)
-                        -rectWidth.get() else 0F,
-                    yPos + textHeight, -1
+                    renderX.toFloat() + (if (rectCode > 1/*rectMode.equals("right", true) || rectMode.equals("all", true)*/) -rectWidth.get() else 0F),
+                    yPos + textHeight
                 )
             }
             StencilUtil.readStencilBuffer(1)
@@ -203,7 +203,7 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
             modules.forEachIndexed { index, module ->
                 val xPos = -module.slide - 2 + renderX.toFloat()
                 val yPos = renderY.toFloat() + (if (side.vertical == Side.Vertical.DOWN) -textSpacer else textSpacer) *
-                        if (side.vertical == Side.Vertical.DOWN) index + 1 else index
+                        (if (side.vertical == Side.Vertical.DOWN) index + 1 else index)
                     RenderUtils.drawRect(
                         xPos - if (rectCode > 1/*rectMode.equals("right", true)||rectMode.equals("all",true)*/)
                             rectWidth.get() + 2F else 2F,
@@ -239,7 +239,8 @@ class Arraylist(x: Double = 1.0, y: Double = 2.0, scale: Float = 1F,
                     xPos - if (rectCode > 1/*rectMode.equals("right", true)||rectMode.equals("all",true)*/) rectWidth.get() + 2F else 2F,
                     yPos,
                     if (rectCode > 1/*rectMode.equals("right", true)||rectMode.equals("all",true)*/) -rectWidth.get() else 0F,
-                    yPos + textHeight, when {
+                    yPos + textHeight,
+                    when {
                         backgroundRectRainbow -> 0xFF shl 24
                         backgroundColorMode.equals("Random", ignoreCase = true) -> moduleColor
                         else -> backgroundCustomColor

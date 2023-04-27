@@ -29,6 +29,7 @@ import org.lwjgl.input.Keyboard
 
 class InvMove : Module("InvMove","Allows you to walk while an inventory is opened.",Keyboard.KEY_NONE,ModuleCategory.MOVEMENT){
     private val sprintMode = ListValue("Sprint", arrayOf("Ignore", "AlwaysFake", "StopWhenOpen", "FakeWhenOpen"), "Ignore")
+    private val allowSneak = BooleanValue("AllowSneak", true)
     private val bypass = BooleanValue("Bypass",false)
     private val noMoveClicksValue = BooleanValue("NoMoveClicks", false)
     private val alwaysActiveWithClickGui = BooleanValue("AlwaysActiveInClickGUI", true)
@@ -62,7 +63,7 @@ class InvMove : Module("InvMove","Allows you to walk while an inventory is opene
         //if (event.eventState == UpdateState.OnLivingUpdate){
         if (((state && mc.currentScreen !is GuiChat) || (alwaysActiveWithClickGui.get() && (mc.currentScreen is ClickGui.ClickGUI || mc.currentScreen is ClickGui.NewClickGui))) && mc.currentScreen !is GuiIngameMenu)
             for (affectedBinding in affectedBindings) {
-                affectedBinding.pressed = GameSettings.isKeyDown(affectedBinding)
+                if (affectedBinding != mc.gameSettings.keyBindSneak || allowSneak.get()) affectedBinding.pressed = GameSettings.isKeyDown(affectedBinding)
             }
         //}
     }

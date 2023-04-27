@@ -24,7 +24,7 @@ public class StencilUtil {
     }
 
     /**
-     * @param framebuffer
+     * @param framebuffer is the current frame buffer
      * @implNote Sets up the Framebuffer for Stencil use
      */
 

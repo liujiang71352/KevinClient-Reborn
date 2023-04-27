@@ -765,6 +765,15 @@ public final class RenderUtils extends MinecraftInstance{
         glDisable(GL_LINE_SMOOTH);
     }
 
+    public static void drawRectVertex(final float x, final float y, final float x2, final float y2) {
+        glBegin(GL_QUADS);
+        glVertex2f(x2, y);
+        glVertex2f(x, y);
+        glVertex2f(x, y2);
+        glVertex2f(x2, y2);
+        glEnd();
+    }
+
     public static void makeScissorBox(final float x, final float y, final float x2, final float y2) {
         final ScaledResolution scaledResolution = new ScaledResolution(mc);
         final int factor = scaledResolution.getScaleFactor();

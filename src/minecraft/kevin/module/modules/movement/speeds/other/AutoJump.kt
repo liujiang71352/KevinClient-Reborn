@@ -14,11 +14,12 @@
  */
 package kevin.module.modules.movement.speeds.other
 
+import kevin.event.UpdateEvent
 import kevin.module.modules.movement.speeds.SpeedMode
 import kevin.utils.MovementUtils
 
 object AutoJump : SpeedMode("AutoJump") {
-    override fun onPreMotion() {
+    override fun onUpdate(event: UpdateEvent) {
         if (mc.thePlayer.onGround
             && mc.thePlayer.jumpTicks == 0
             && MovementUtils.isMoving
