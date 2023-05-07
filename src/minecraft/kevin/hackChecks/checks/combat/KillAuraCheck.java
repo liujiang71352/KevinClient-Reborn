@@ -24,7 +24,7 @@ public class KillAuraCheck extends Check {
         String msg = null;
         boolean ableReward = true;
         if (delta > 45 && handlePlayer.swingProgress != 0) {
-            if ((rotBuffer += 5) > 20) {
+            if ((rotBuffer += 6) > 20) {
                 flag = true;
                 msg = String.format("Rotation change too fast, delta yaw: %.2f", delta);
             }

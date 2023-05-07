@@ -12,8 +12,9 @@ import java.util.List;
 // FlightCheck detect the player who is floating / flying / gliding
 // It check for motionY
 // All players' motionY is changed as (lastMotionY - 0.08D) * 0.98F  in air
-// but in client, we cannot get others' accurate location
-// we just make a simple check for this problem
+// but in client, it is hard to check player is flying because we cannot get others' accurate location
+
+// so we just make a simple check for this problem to detect floating hack
 public class FlightCheck extends Check {
     // use buffer to prevent false positives.
     // we are not the antiCheat for server, we haven't promised to mark all cheaters.
@@ -37,16 +38,19 @@ public class FlightCheck extends Check {
         if (y >= lastDeltaY && !(handlePlayer.isInWater() || handlePlayer.isInLava())) {
 //                BlockPos bp = new BlockPos(handlePlayer.prevPosX, handlePlayer.prevPosY - 0.25, handlePlayer.prevPosZ);
             // "strict" ground check
-            AxisAlignedBB aabb = new AxisAlignedBB((handlePlayer.serverPosX / 32.0) - 0.30125, (handlePlayer.serverPosY / 32.0) + 0.25, (handlePlayer.serverPosZ / 32.0) - 0.30125, (handlePlayer.serverPosX / 32.0) + 0.30125, (handlePlayer.serverPosY / 32.0) - 0.25, (handlePlayer.serverPosZ / 32.0) + 0.30125);
+            AxisAlignedBB aabb = new AxisAlignedBB((handlePlayer.serverPosX / 32.0) - 0.30125, (handlePlayer.serverPosY / 32.0) - 0.5, (handlePlayer.serverPosZ / 32.0) - 0.30125, (handlePlayer.serverPosX / 32.0) + 0.30125, (handlePlayer.serverPosY / 32.0) + 0.25, (handlePlayer.serverPosZ / 32.0) + 0.30125);
             if (OtherExtensionsKt.getBlockStatesIncluded(aabb).isEmpty()) { // No block found under the player
-                if (handlePlayer.hurtTime < 3 && ++buffer > 5) flag(String.format("glide/fly, d=(%.5f, %.5f)", lastDeltaY, y), 1.3);
+                if (handlePlayer.hurtTime < 3 && ++buffer > 5) {
+                    flag(String.format("glide/fly, d=(%.5f, %.5f), b=%s", lastDeltaY, y, buffer), 1.3);
+                    if (buffer > 10) buffer = 10;
+                }
             } else {
                 --buffer;
             }
         }
 
         // Fast down (code from MedusaAntiCheat and better value for client side)
-        if (y < -3.5) {
+        if (y < -3.8) {
             flag("fast down, mY=" + y, 5);
         }
 

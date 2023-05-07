@@ -42,6 +42,7 @@ class Fly : Module("Fly","Allow you fly", Keyboard.KEY_F,ModuleCategory.MOVEMENT
         NCPNew,
         HypixelFly,
         HypixelVanilla,
+        Intave13, // from Rise
         OldHypixelBoost,
         OldNCP,
         Matrix, // from FDP

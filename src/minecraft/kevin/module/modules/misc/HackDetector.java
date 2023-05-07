@@ -31,6 +31,7 @@ public class HackDetector extends Module {
     private final TextValue warningMessageValue = new TextValue("WarningMessage", "%player% is using %module% hack!");
     private final BooleanValue autoReportValue = new BooleanValue("AutoReportWhenWarning", false);
     private final TextValue reportCommandValue = new TextValue("ReportCommand", "/report %player% %module%");
+    private final BooleanValue alertValue = new BooleanValue("Alert", false);
     private final BooleanValue debugValue = new BooleanValue("Debug", false) {
         @Override
         protected void onChanged(Boolean oldValue, Boolean newValue) {
@@ -153,5 +154,9 @@ public class HackDetector extends Module {
             return true;
         }
         return false;
+    }
+
+    public static boolean shouldAlert() {
+        return INSTANCE.alertValue.get();
     }
 }

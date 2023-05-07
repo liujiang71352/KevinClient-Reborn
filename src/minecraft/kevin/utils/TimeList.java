@@ -15,10 +15,11 @@
 package kevin.utils;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class TimeList<T> {
-    private final HashMap<Long, T> map = new HashMap<>();
+    private final LinkedHashMap<Long, T> map = new LinkedHashMap<>();
     private final long keepTime;
     public boolean autoUpdate = true;
 

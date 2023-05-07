@@ -5,6 +5,11 @@ import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.BlockPos;
 
+// I don't really want to make a speed check
+// because it is too difficult for client
+// we may not get target's correct position and effects
+// calculate friction? it is almost impossible
+// but I tried to make it
 public class SpeedCheck extends Check {
     public SpeedCheck(EntityOtherPlayerMP playerMP) {
         super(playerMP);
@@ -33,10 +38,10 @@ public class SpeedCheck extends Check {
                 double gDir = Math.atan2(-offGroundXSpeed, -offGroundZSpeed) * 180.0 / Math.PI;
                 double diff = Math.abs(dir - gDir);
                 if (diff > 30 && diff < 330 /* 360 - 30 */) {
-                    if (xz >= 0.375) strafeBuffer += 20;
-                    if (strafeBuffer >= 120) {
-                        flag(String.format("invalid strafe movement, ad,d,dg=(%.3f,%.3f,%.3f) buffer=%s", diff, dir, gDir, strafeBuffer), 2.5);
-                        strafeBuffer -= 10;
+                    if (xz >= 0.375) strafeBuffer += 4;
+                    if (strafeBuffer >= 60) {
+                        flag(String.format("invalid strafe movement, (ad,d,dg)=(%.3f,%.3f,%.3f) buffer=%s", diff, dir, gDir, strafeBuffer), 2.5);
+                        strafeBuffer -= 4;
                     }
                 } else strafeBuffer -= strafeBuffer > 0 ? 1 : 0;
             }
@@ -47,19 +52,20 @@ public class SpeedCheck extends Check {
             }
             double predict = lastXZ * 0.91, allowed = 0.026;
             if (lastOnGround) {
+                // should we?
                 predict *= mc.theWorld.getBlockState(new BlockPos(handlePlayer.prevPosX, handlePlayer.prevPosY - 1, handlePlayer.prevPosZ)).getBlock().slipperiness;
                 if (!handlePlayer.onGround) predict += 0.2;
             }
             double outed = xz - predict, ratio = xz / (predict + allowed);
             outed -= allowed;
             if (outed >= 1e-5) {
-                buffer += 5;
-                if (ratio >= 2.0) { // flying maybe, he moved too fast
-                    buffer += 5;
+                buffer += 2;
+                if (ratio >= 2.0) { // flying maybe, it moved too fast
+                    buffer += 2;
                 }
-                if (buffer > 40) {
+                if (buffer > 30) {
                     flag("speed up movement, o=" + outed + ",b=" + buffer + ",r=" + ratio, 1.2);
-                    buffer -= 10;
+                    buffer -= 5;
                 }
             } else {
                 buffer -= buffer > 0 ? 1 : 0;

@@ -2,6 +2,9 @@ package kevin.hackChecks;
 
 import kevin.hackChecks.checks.combat.*;
 import kevin.hackChecks.checks.move.*;
+import kevin.hud.element.elements.ConnectNotificationType;
+import kevin.hud.element.elements.Notification;
+import kevin.main.KevinClient;
 import kevin.module.modules.misc.HackDetector;
 import kevin.utils.ChatUtils;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
@@ -27,6 +30,7 @@ public class CheckManager {
                 checks.add((Check) clz.getConstructor(EntityOtherPlayerMP.class).newInstance(target));
             } catch (InstantiationException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
                 e.printStackTrace();
+                KevinClient.hud.addNotification(new Notification("Failed to initialize %s check for %s", "HackDetector", ConnectNotificationType.Error));
             }
         }
     }
@@ -36,7 +40,7 @@ public class CheckManager {
             try {
                 check.onLivingUpdate();
                 if (check.wasFailed()) {
-                    ChatUtils.INSTANCE.message(String.format("§l§7[§l§9HackDetector§l§7]§r §4%s§7 maybe using §c%s§7 hack§8: §7%s", check.handlePlayer.getName(), check.name, check.description()));
+                    if (HackDetector.shouldAlert()) ChatUtils.INSTANCE.message(String.format("§l§7[§l§9HackDetector§l§7]§r §4%s§7 maybe using §c%s§7 hack§8: §7%s", check.handlePlayer.getName(), check.name, check.description()));
                     totalVL += check.getPoint();
                     if (HackDetector.catchPlayer(check.handlePlayer.getName(), check.reportName(), totalVL)) {
                         totalVL = -5;
