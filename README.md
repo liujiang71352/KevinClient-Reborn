@@ -1,5 +1,5 @@
 # KevinClient
-A Minecraft hacked client.
+A Minecraft hacked client. [Discord](https://discord.gg/PSP3CZAuag)
 
 ## License
 This project is subject to the [GNU General Public License v3.0](LICENSE). This does only apply for source code located directly in this clean repository. During the development and compilation process, additional source code may be used to which we have obtained no rights. Such code is not covered by the GPL license.
