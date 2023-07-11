@@ -1,3 +1,5 @@
 package kevin.module.modules.world;
 
-class BlockFly {}
+class BlockFly {
+  // test
+}
