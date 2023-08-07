@@ -71,12 +71,12 @@ class NoSlow : Module("NoSlow", "Cancels slowness effects caused by soulsand and
         val thePlayer = mc.thePlayer ?: return
         val heldItem = thePlayer.heldItem ?: return
 
-        if ((heldItem.item) !is ItemSword || !MovementUtils.isMoving)
+        if (!MovementUtils.isMoving)
             return
 
         if (aura == null) aura = KevinClient.moduleManager.getModule(KillAura::class.java)
         val aura = this.aura!!
-        val isBlocking = thePlayer.isBlocking || aura.blockingStatus
+        val isBlocking = (thePlayer.isBlocking || aura.blockingStatus) && (heldItem.item) is ItemSword
         val isUsing = thePlayer.isUsingItem
         if (packetMode equal "GrimACSwitch" && event.eventState == EventState.PRE) {
             if (thePlayer.isUsingItem || thePlayer.isBlocking || aura.blockingStatus) {
@@ -212,6 +212,8 @@ class NoSlow : Module("NoSlow", "Cancels slowness effects caused by soulsand and
 
     @EventTarget
     fun onTick(event: TickEvent) {
+        mc.thePlayer?: return
+        mc.theWorld ?: return
         if (packetMode equal "GrimAC") {
             if (mc.thePlayer.isBlocking || aura?.blockingStatus == true) mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 255, mc.thePlayer!!.inventory.getCurrentItem(), 0.0F, 0.0F, 0.0F))
             else if (mc.thePlayer.isUsingItem) {

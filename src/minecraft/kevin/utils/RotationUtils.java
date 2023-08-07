@@ -309,12 +309,14 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
 
         final Rotation rot = bestServerRotation().cloneSelf();
         if (random) {
-            if (RotationUtils.random.nextGaussian() > 0.5) {
-                lastRandomDeltaRotation[0] = lastRandomDeltaRotation[0] * 0.6f + RandomUtils.INSTANCE.nextFloat(-5, 5);
+            lastRandomDeltaRotation[0] *= 0.6f;
+            lastRandomDeltaRotation[1] *= 0.6f;
+            if (RotationUtils.random.nextGaussian() > 0.2) {
+                lastRandomDeltaRotation[0] += RandomUtils.INSTANCE.nextFloat(-4, 4);
                 rot.setYaw(lastRandomDeltaRotation[0] + rot.getYaw());
             }
-            if (RotationUtils.random.nextGaussian() > 0.5) {
-                lastRandomDeltaRotation[1] = lastRandomDeltaRotation[1] * 0.6f + RandomUtils.INSTANCE.nextFloat(-5, 5);
+            if (RotationUtils.random.nextGaussian() > 0.2) {
+                lastRandomDeltaRotation[1] += RandomUtils.INSTANCE.nextFloat(-4, 4);
                 rot.setPitch(lastRandomDeltaRotation[1] + rot.getPitch());
             }
         }

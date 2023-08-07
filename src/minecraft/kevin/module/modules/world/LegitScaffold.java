@@ -191,7 +191,7 @@ public class LegitScaffold extends Module {
 
                 movingObjectPositions.sort(Comparator.comparingDouble((m) -> mc.thePlayer.getDistanceSq(m.getBlockPos().add(0.5D, 0.5D, 0.5D))));
                 MovingObjectPosition mm1 = null;
-                if(movingObjectPositions.size() > 0) {
+                if(!movingObjectPositions.isEmpty()) {
                     mm1 = movingObjectPositions.get(0);
                 }
 

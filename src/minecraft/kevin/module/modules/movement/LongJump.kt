@@ -23,14 +23,13 @@ import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.server.S27PacketExplosion
 import net.minecraft.util.AxisAlignedBB
-import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import kotlin.math.floor
 import kotlin.math.max
 
 @Suppress("unused_parameter")
 class LongJump : Module("LongJump", "Allows you to jump further.", category = ModuleCategory.MOVEMENT) {
-    private val modeValue = ListValue("Mode", arrayOf("NCP", "NCP2", "AACv1", "AACv2", "Buzz", "BuzzBoost", "PikaNew", "AACv3", "Mineplex", "Mineplex2", "Mineplex3", "Redesky", "Vulcan", "VulcanExtreme", "BlocksMCBlockOver", "ExplosionBoost"), "NCP")
+    private val modeValue = ListValue("Mode", arrayOf("NCP", "NCP2", "AACv1", "AACv2", "Buzz", "BuzzBoost", "PikaNew", "AACv3", "Mineplex", "Mineplex2", "Mineplex3", "Redesky", "Vulcan", "VulcanExtreme", "HyCraft", "ExplosionBoost"), "NCP")
     private val ncpBoostValue = FloatValue("NCPBoost", 4.25f, 1f, 10f)
     private val ncp2YAdderValue = FloatValue("NCP2MotionYAdder", 0.1f, -0.5f, 0.5f)
     private val vulcanExtremeHeight = FloatValue("VulcanExtremeHeight", 0.98f, 0.42f, 3.7f)
@@ -52,7 +51,7 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
         canBoost = false
     }
     override fun onDisable() {
-
+        mc.thePlayer?.jumpMovementFactor = 0.02f
     }
 
     @EventTarget
@@ -186,17 +185,13 @@ class LongJump : Module("LongJump", "Allows you to jump further.", category = Mo
                             thePlayer.motionY *= 0.1
                         }
                     }
-                    "blocksmcblockover" -> {
-                        if (mc.theWorld.isBlockFullCube(BlockPos(mc.thePlayer.posX, mc.thePlayer.posY + 2.1, mc.thePlayer.posZ))) {
-                            canBoost = true
-                            mc.timer.timerSpeed = 0.2F
-                            return
-                        } else if (canBoost && thePlayer.onGround) {
-                            thePlayer.motionY = 0.2
-                            mc.timer.timerSpeed = 1F
-                            MovementUtils.strafe(5.0f)
-                            canBoost = false
-                            return
+                    "hycraft" -> {
+                        if(mc.thePlayer.motionY < 0) {
+                            mc.thePlayer.motionY *= 0.75f
+                            mc.thePlayer.jumpMovementFactor = 0.055f
+                        } else {
+                            mc.thePlayer.motionY += 0.02f
+                            mc.thePlayer.jumpMovementFactor = 0.08f
                         }
                     }
                 }
