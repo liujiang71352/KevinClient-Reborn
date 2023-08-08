@@ -1598,7 +1598,7 @@ public abstract class EntityLivingBase extends Entity
      */
     protected void jump()
     {
-        final JumpEvent jumpEvent = new JumpEvent(this.getJumpUpwardsMotion());
+        final JumpEvent jumpEvent = new JumpEvent(this.getJumpUpwardsMotion(), this.rotationYaw);
         KevinClient.eventManager.callEvent(jumpEvent);
         if (jumpEvent.isCancelled()) return;
 
@@ -1612,7 +1612,7 @@ public abstract class EntityLivingBase extends Entity
 
         if (this.isSprinting())
         {
-            float f = this.rotationYaw * ((float)Math.PI / 180F);
+            float f = jumpEvent.getYaw() * ((float)Math.PI / 180F);
             this.motionX -= MathHelper.sin(f) * 0.2F;
             this.motionZ += MathHelper.cos(f) * 0.2F;
         }

@@ -16,8 +16,11 @@ import java.util.Map.Entry;
 
 import kevin.event.EntityMovementEvent;
 import kevin.main.KevinClient;
+import kevin.module.modules.misc.NoRotateSet;
 import kevin.module.modules.render.Particles;
 import kevin.module.modules.world.World;
+import kevin.utils.Rotation;
+import kevin.utils.RotationUtils;
 import net.minecraft.block.Block;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.Minecraft;
@@ -722,6 +725,9 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
             f += entityplayer.rotationYaw;
         }
 
+        final float prevYaw = entityplayer.rotationYaw;
+        final float prevPitch = entityplayer.rotationPitch;
+
         entityplayer.setPositionAndRotation(d0, d1, d2, f, f1);
         this.netManager.sendPacket(new C03PacketPlayer.C06PacketPlayerPosLook(entityplayer.posX, entityplayer.getEntityBoundingBox().minY, entityplayer.posZ, entityplayer.rotationYaw, entityplayer.rotationPitch, false));
 
@@ -732,6 +738,10 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
             this.gameController.thePlayer.prevPosZ = this.gameController.thePlayer.posZ;
             this.doneLoadingTerrain = true;
             this.gameController.displayGuiScreen(null);
+        } else if (NoRotateSet.INSTANCE.getState()) {
+            entityplayer.setPositionAndRotation(d0, d1, d2, prevYaw, prevPitch);
+            // let move correction work
+            RotationUtils.setTargetRotation(new Rotation(f, f1), 2);
         }
     }
 

@@ -38,7 +38,7 @@ class ClientShutdownEvent : Event()
 
 data class EntityMovementEvent(val movedEntity: Entity) : Event()
 
-class JumpEvent(var motion: Float) : CancellableEvent()
+class JumpEvent(var motion: Float, var yaw: Float) : CancellableEvent()
 
 class KeyEvent(val key: Int) : Event()
 
@@ -52,7 +52,9 @@ class MotionEvent(var posX: Double, var posY: Double, var posZ: Double,val event
 
 class SlowDownEvent(var strafe: Float, var forward: Float) : Event()
 
-class StrafeEvent(val strafe: Float, val forward: Float, val friction: Float) : CancellableEvent()
+class MovementInputUpdateEvent(var strafe: Float, var forward: Float, var jump: Boolean, var sneak: Boolean) : Event()
+
+class StrafeEvent(var strafe: Float, var forward: Float, var friction: Float, var yaw: Float) : CancellableEvent()
 
 class MoveEvent(var x: Double, var y: Double, var z: Double) : CancellableEvent() {
     var isSafeWalk = false

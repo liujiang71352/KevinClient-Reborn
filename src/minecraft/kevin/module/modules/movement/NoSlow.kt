@@ -43,7 +43,7 @@ class NoSlow : Module("NoSlow", "Cancels slowness effects caused by soulsand and
     private val bowForwardMultiplier = FloatValue("BowForwardMultiplier", 1.0F, 0.2F, 1.0F)
     private val bowStrafeMultiplier = FloatValue("BowStrafeMultiplier", 1.0F, 0.2F, 1.0F)
 
-    private val packetMode = ListValue("PacketMode", arrayOf("None","AntiCheat","AntiCheat2", "SwitchItem", "ReverseEventSwitchItem", "ReverseNCP","AAC","AAC5","Delay","Matrix","Vulcan", "Intave", "GrimAC", "GrimACSwitch"),"None")
+    private val packetMode = ListValue("PacketMode", arrayOf("None","AntiCheat","AntiCheat2", "SwitchItem", "ReverseEventSwitchItem", "ReverseNCP","AAC","AAC5","Delay","Matrix","Vulcan", "Intave", "GrimAC", "GrimACSwitch", "Bug"),"None")
 
     val soulsandValue = BooleanValue("Soulsand", true)
     val liquidPushValue = BooleanValue("LiquidPush", true)
@@ -56,6 +56,8 @@ class NoSlow : Module("NoSlow", "Cancels slowness effects caused by soulsand and
     private val msTimer = MSTimer()
     private var packetBuf = LinkedList<Packet<INetHandlerPlayServer>>()
     private var aura: KillAura? = null
+    private var count = 0
+    private var lastItem: ItemStack? = null
     private val isBlocking: Boolean
         get() = (mc.thePlayer.isUsingItem || (KevinClient.moduleManager.getModule(KillAura::class.java)).blockingStatus) && mc.thePlayer.heldItem != null && mc.thePlayer.heldItem.item is ItemSword
 
@@ -240,6 +242,31 @@ class NoSlow : Module("NoSlow", "Cancels slowness effects caused by soulsand and
                 event.cancelEvent()
             }
         }
+    }
+
+    @EventTarget
+    fun onClick(event: ClickUpdateEvent) {
+        if (packetMode notEqual "Bug") return
+        val player = mc.thePlayer ?: return
+        val currentItem = player.currentEquippedItem
+        if (currentItem != null && (player.isUsingItem || isBlocking) && (player.moveForward != 0.0f || player.moveStrafing != 0.0f) && currentItem.item !is ItemBow) {
+            if (lastItem != null && lastItem!! != currentItem) {
+                count = 0
+            }
+            val state = if (currentItem.item is ItemSword) 1 else 3
+            if (count != state) {
+                event.cancelEvent()
+                mc.netHandler.networkManager.sendPacketNoEvent(C16PacketClientStatus(C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT))
+                player.stopUsingItem()
+                player.closeScreen()
+                count = state
+            }
+            if (event.isCancelled) mc.sendClickBlockToController(mc.currentScreen == null && mc.gameSettings.keyBindAttack.isKeyDown && mc.inGameHasFocus)
+            lastItem = currentItem
+        } else {
+            count = 0
+        }
+
     }
 
     override val tag: String

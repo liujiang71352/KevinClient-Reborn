@@ -110,13 +110,13 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     //Timing
     private val hightVersionAttackDelay = BooleanValue("HighVersionAttackDelay", false)
     private val hightVersionAttackSwing = BooleanValue("HighVersionAttackSwing", false)
-    private val attackTimingValue = ListValue("AttackTiming", arrayOf("Legit", "Pre", "Post", "Update", "Pre&Post", "Update&Pre", "Update&Post", "Update&Pre&Post"), "Update")
+    private val attackTimingValue = ListValue("AttackTiming", arrayOf("Legit", "Pre", "Post", "All"), "Legit")
     private val extraBlockTimingValue // vanilla will send block packet at pre
     = ListValue("ExtraBlockTiming", arrayOf("NoExtra", "Pre", "Post", "Update", "Pre&Post", "Update&Pre", "Update&Post", "Update&Pre&Post"), "NoExtra")
     private val afterTickTimingValue = ListValue("AfterTickBlockTiming", arrayOf("Pre", "Post", "Both"), "Post")
 
     // AutoBlock
-    private val autoBlockValue = ListValue("AutoBlock", arrayOf("Off", "Packet", "AfterTick", "Keep", "Vulcan", "Fake"), "Off")
+    private val autoBlockValue = ListValue("AutoBlock", arrayOf("Off", "Packet", "AfterTick", "Keep", "Vulcan"), "Off")
     private val interactAutoBlockValue = BooleanValue("InteractAutoBlock", true)
     private val blockStatusCheck = BooleanValue("BlockStatusCheck", true)
     private val blockRate = IntegerValue("BlockRate", 100, 1, 100)
@@ -297,9 +297,8 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
             }
         }
 
-        if (attackTimingValue equal "Update&Pre&Post" || attackTimingValue equal "Pre&Post" ||
-            ((attackTimingValue equal "Pre" || attackTimingValue equal "Update&Pre") && event.eventState == EventState.PRE) ||
-            ((attackTimingValue equal "Post" || attackTimingValue equal "Update&Post") && event.eventState == EventState.POST)
+        if ((attackTimingValue equal "Pre" && event.eventState == EventState.PRE) ||
+            (attackTimingValue equal "Post" && event.eventState == EventState.POST)
         ) {
             runAttackLoop()
         }
@@ -341,61 +340,9 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
 
         if (currentTarget != null && RotationUtils.targetRotation != null && !(scaffoldCheck.get() && KevinClient.moduleManager.getModule(Scaffold::class.java).state)) {
             when (rotationStrafeValue.get().lowercase()) {
-                "vanilla" -> {
+                "vanilla", "strict" -> {
                     val (yaw) = RotationUtils.targetRotation ?: return
-                    var strafe = event.strafe
-                    var forward = event.forward
-                    val friction = event.friction
-
-                    var f = strafe * strafe + forward * forward
-
-                    if (f >= 1.0E-4F) {
-                        f = MathHelper.sqrt_float(f)
-
-                        if (f < 1.0F)
-                            f = 1.0F
-
-                        f = friction / f
-                        strafe *= f
-                        forward *= f
-
-                        val yawSin = MathHelper.sin(yaw * Math.PI.toFloat() / 180.0f)
-                        val yawCos = MathHelper.cos(yaw * Math.PI.toFloat() / 180.0f)
-
-                        val player = mc.thePlayer!!
-
-                        player.motionX += strafe * yawCos - forward * yawSin
-                        player.motionZ += forward * yawCos + strafe * yawSin
-                    }
-                    event.cancelEvent()
-                }
-                "strict" -> {
-                    val (yaw) = RotationUtils.targetRotation ?: return
-                    var strafe = event.strafe
-                    var forward = event.forward
-                    val friction = event.friction
-
-                    var f = strafe * strafe + forward * forward
-
-                    if (f >= 1.0E-4F) {
-                        f = sqrt(f)
-
-                        if (f < 1.0F)
-                            f = 1.0F
-
-                        f = friction / f
-                        strafe *= f
-                        forward *= f
-
-                        val yawSin = sin((yaw * Math.PI / 180F).toFloat())
-                        val yawCos = cos((yaw * Math.PI / 180F).toFloat())
-
-                        val player = mc.thePlayer!!
-
-                        player.motionX += strafe * yawCos - forward * yawSin
-                        player.motionZ += forward * yawCos + strafe * yawSin
-                    }
-                    event.cancelEvent()
+                    event.yaw = yaw;
                 }
                 "silent" -> {
                     update()
@@ -680,7 +627,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
         if (currentTarget != null && attackTimer.hasTimePassed(attackDelay + if (!smartAttackValue.get() || mc.thePlayer.hurtTime != 0 || (target !is EntityLivingBase || (target as EntityLivingBase).hurtTime <= 3)) 0 else 500) &&
             (currentTarget !is EntityLivingBase || (currentTarget as EntityLivingBase).hurtTime <= hurtTimeValue.get())) {
             ++clicks
-            rotationTime = 2
+            rotationTime = 3
             attackTimer.reset()
             attackDelay = TimeUtils.randomClickDelay(minCPS.get(), maxCPS.get())
         }
@@ -969,7 +916,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
         } else if (rotationModeValue equal "Advanced") {
             val (_, rotation) = RotationUtils.newSearchCenter(
                 boundingBox,
-                outborderValue.get(),
+                outborderValue.get() && entity.hurtResistantTime > 15,
                 randomCenterValue.get(),
                 predictValue.get(),
                 mc.thePlayer!!.getDistanceToEntityBox(entity) < throughWallsRangeValue.get(),

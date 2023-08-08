@@ -18,6 +18,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import kevin.main.KevinClient
 import java.util.*
+import kotlin.reflect.KProperty
 
 abstract class Value<T>(val name: String, protected var value: T) {
 
@@ -49,6 +50,11 @@ abstract class Value<T>(val name: String, protected var value: T) {
     protected open fun onChange(oldValue: T, newValue: T) {}
     protected open fun onChanged(oldValue: T, newValue: T) {}
 
+    // Support for delegating values using the `by` keyword.
+    operator fun getValue(thisRef: Any?, property: KProperty<*>) = value
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+        set(value)
+    }
 }
 
 /**

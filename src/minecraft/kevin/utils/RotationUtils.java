@@ -321,11 +321,13 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
             }
         }
 
+        float adder = outborder ? 1f : 0;
+
 //        outborder = outborder && mc.thePlayer.ticksExisted % 10 != 0;
 
-        for(double xSearch = 0.15D; xSearch < 0.85D; xSearch += 0.1D) {
-            for (double ySearch = 0D; ySearch < 1D; ySearch += 0.02D) {
-                for (double zSearch = 0.15D; zSearch < 0.85D; zSearch += 0.1D) {
+        for(double xSearch = 0.15D - adder; xSearch < 0.85D + adder; xSearch += 0.1D) {
+            for (double ySearch = 0D - adder; ySearch < 1D + adder; ySearch += 0.02D) {
+                for (double zSearch = 0.15D - adder; zSearch < 0.85D + adder; zSearch += 0.1D) {
                     final Vec3 vec3 = new Vec3(
                             bb.minX + (bb.maxX - bb.minX) * xSearch,
                             bb.minY + (bb.maxY - bb.minY) * ySearch,

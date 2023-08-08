@@ -1,7 +1,6 @@
 package kevin.module.modules.combat
 
 import kevin.event.EventTarget
-import kevin.event.StrafeEvent
 import kevin.event.UpdateEvent
 import kevin.module.*
 import kevin.utils.MSTimer
@@ -15,7 +14,6 @@ class AntiFireball : Module("AntiFireball", "", category = ModuleCategory.COMBAT
 
     private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
     private val rotationValue = BooleanValue("Rotation", true)
-    private val cancelMove = BooleanValue("CancelMove", false)
     private val radius = FloatValue("Radius", 3f, 3f, 6f)
 
     private var needModifyMove = false
@@ -39,14 +37,6 @@ class AntiFireball : Module("AntiFireball", "", category = ModuleCategory.COMBAT
                 timer.reset()
                 break
             }
-        }
-    }
-
-    @EventTarget
-    fun onMove(event: StrafeEvent) {
-        if (needModifyMove && cancelMove.get()) {
-            needModifyMove = false
-            event.cancelEvent()
         }
     }
 }

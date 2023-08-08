@@ -1270,13 +1270,19 @@ public abstract class Entity implements ICommandSender
      */
     public void moveFlying(float strafe, float forward, float friction)
     {
+        float rotationYaw = this.rotationYaw;
         if (this == Minecraft.getMinecraft().thePlayer) {
 
-            final StrafeEvent strafeEvent = new StrafeEvent(strafe, forward, friction);
+            final StrafeEvent strafeEvent = new StrafeEvent(strafe, forward, friction, rotationYaw);
             KevinClient.eventManager.callEvent(strafeEvent);
 
             if (strafeEvent.isCancelled())
                 return;
+
+            strafe = strafeEvent.getStrafe();
+            forward = strafeEvent.getForward();
+            friction = strafeEvent.getFriction();
+            rotationYaw = strafeEvent.getYaw();
         }
 
         float f = strafe * strafe + forward * forward;
@@ -1293,8 +1299,8 @@ public abstract class Entity implements ICommandSender
             f = friction / f;
             strafe = strafe * f;
             forward = forward * f;
-            float f1 = MathHelper.sin(this.rotationYaw * (float)Math.PI / 180.0F);
-            float f2 = MathHelper.cos(this.rotationYaw * (float)Math.PI / 180.0F);
+            float f1 = MathHelper.sin(rotationYaw * (float)Math.PI / 180.0F);
+            float f2 = MathHelper.cos(rotationYaw * (float)Math.PI / 180.0F);
             this.motionX += strafe * f2 - forward * f1;
             this.motionZ += forward * f2 + strafe * f1;
         }

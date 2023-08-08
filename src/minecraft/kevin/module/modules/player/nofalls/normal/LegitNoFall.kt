@@ -35,14 +35,14 @@ object LegitNoFall: NoFallMode("Legit") {
                 thePlayer.moveForward
             )
 
-            if (fallingPlayer.findCollision(10) != null) {
+            if (fallingPlayer.findCollision(1) != null) {
                 working = true
             }
         }
-        if (mc.thePlayer.onGround && working && mc.thePlayer.isSneaking) {
-            mc.thePlayer.isSneaking = false
+        if (working && mc.thePlayer.onGround) {
+            mc.gameSettings.keyBindSneak.pressed = false
             working = false
         }
-        if (working) mc.thePlayer.isSneaking = true
+        if (working) mc.gameSettings.keyBindSneak.pressed = true
     }
 }

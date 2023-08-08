@@ -1,5 +1,7 @@
 package net.minecraft.util;
 
+import kevin.event.MovementInputUpdateEvent;
+import kevin.main.KevinClient;
 import net.minecraft.client.settings.GameSettings;
 
 public class MovementInputFromOptions extends MovementInput
@@ -38,6 +40,16 @@ public class MovementInputFromOptions extends MovementInput
 
         this.jump = this.gameSettings.keyBindJump.isKeyDown();
         this.sneak = this.gameSettings.keyBindSneak.isKeyDown();
+
+        final MovementInputUpdateEvent event = new MovementInputUpdateEvent(moveStrafe, moveForward, jump, sneak);
+
+        KevinClient.eventManager.callEvent(event);
+
+        this.moveForward = event.getForward();
+        this.moveStrafe = event.getStrafe();
+
+        this.jump = event.getJump();
+        this.sneak = event.getSneak();
 
         if (this.sneak)
         {
