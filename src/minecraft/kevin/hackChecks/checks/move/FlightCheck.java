@@ -50,7 +50,7 @@ public class FlightCheck extends Check {
         }
 
         // Fast down (code from MedusaAntiCheat and better value for client side)
-        if (y < -3.8) {
+        if (y < -4.0) {
             flag("fast down, mY=" + y, 5);
         }
 

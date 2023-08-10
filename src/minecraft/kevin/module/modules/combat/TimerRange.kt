@@ -43,7 +43,7 @@ object TimerRange: Module("TimerRange", "Make you walk to target faster", catego
         }
     }
     private val rangeMode = ListValue("RangeMode", arrayOf("Setting", "Smart"), "Smart")
-    private val maxTimeValue = IntegerValue("MaxTime", 3, 1, 20)
+    private val maxTimeValue = IntegerValue("MaxTime", 3, 0, 20)
     private val delayValue = IntegerValue("Delay", 5, 0, 20)
     private val maxHurtTimeValue = IntegerValue("TargetMaxHurtTime", 2, 0, 10)
     private val onlyKillAura = BooleanValue("OnlyKillAura", true)
@@ -51,7 +51,20 @@ object TimerRange: Module("TimerRange", "Make you walk to target faster", catego
     private val onlyPlayer = BooleanValue("OnlyPlayer", true)
     private val debug = BooleanValue("Debug", false)
     private val betterAnimation = BooleanValue("BetterAnimation", true)
-    private val bypassValue = BooleanValue("TestBypass", false)
+    private val reverseValue = BooleanValue("Reverse", false)
+    private val minReverseRange : FloatValue = object : FloatValue("MinReverseRange", 2.6f, 1f, 4f) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            if (newValue > minDistance.get()) set(minDistance.get())
+        }
+    }
+    private val reverseTime = IntegerValue("ReverseStopTime", 3, 1, 10)
+    private val reverseTickTime : IntegerValue = object : IntegerValue("ReverseTickTime", 3, 0, 10) {
+        override fun onChanged(oldValue: Int, newValue: Int) {
+            if (newValue > reverseTime.get()) set(reverseTime.get())
+        }
+    }
+    private val reverseDelay = IntegerValue("ReverseDelay", 5, 0, 20)
+    private val reverseTargetMaxHurtTime = IntegerValue("ReverseTargetMaxHurtTime", 3, 0, 10)
 
     private val killAura: KillAura by lazy { KevinClient.moduleManager.getModule(KillAura::class.java) }
 
@@ -61,7 +74,7 @@ object TimerRange: Module("TimerRange", "Make you walk to target faster", catego
     private var lastNearest = 10.0
     private var cooldown = 0
     private var freezeTicks = 0
-    private var bypassTick = 0
+    private var reverseFreeze = true
     private var firstAnimation = true
 
     @EventTarget fun onMotion(event: MotionEvent) {
@@ -96,6 +109,14 @@ object TimerRange: Module("TimerRange", "Make you walk to target faster", catego
             )
             val range = box.distanceTo(vecEyes)
             val afterRange = box2.distanceTo(predictEyes)
+            if (!working && reverseValue.get()) {
+                if (range < minReverseRange.get() && cooldown <= 0 && entity.hurtTime <= maxHurtTimeValue.get()) {
+                    freezeTicks = reverseTime.get()
+                    firstAnimation = false
+                    reverseFreeze = true
+                    return
+                }
+            }
             if (range < minDistance.get()) {
                 stopWorking = true
             } else if (((rangeMode equal "Smart" && range > minDistance.get() && afterRange < minDistance.get() && afterRange < range) || (rangeMode equal "Setting" && range <= maxDistance.get() && range < lastNearest && afterRange < range)) && entity.hurtTime <= maxHurtTimeValue.get()) {
@@ -155,14 +176,7 @@ object TimerRange: Module("TimerRange", "Make you walk to target faster", catego
     }
 
     fun foundTarget() {
-        if (cooldown > 0 || freezeTicks != 0) return
-        if (bypassValue.get()) {
-            if (bypassTick < 2) {
-                if (bypassTick == 0) bypassTick = 1
-                return
-            }
-        }
-        bypassTick = 0
+        if (cooldown > 0 || freezeTicks != 0 || maxTimeValue.get() == 0) return
         cooldown = delayValue.get()
         working = true
         freezeTicks = 0
@@ -178,21 +192,28 @@ object TimerRange: Module("TimerRange", "Make you walk to target faster", catego
             mc.runTick()
             if (debug.get()) ChatUtils.messageWithStart("Clicked")
         }
-        if (bypassValue.get()) --freezeTicks // we have been freeze 1 tick before
         stopWorking = false
         working = false
     }
 
     @JvmStatic
     fun handleTick(): Boolean {
-        if (bypassTick == 1) {
-            ++bypassTick
-            return true
-        }
         if (working || freezeTicks < 0) return true
         if (state && freezeTicks > 0) {
             --freezeTicks
             return true
+        }
+        if (reverseFreeze) {
+            reverseFreeze = false
+            var time = reverseTickTime.get()
+            working = true
+            while (time > 0) {
+                --time
+                mc.runTick()
+            }
+            working = false
+            cooldown = reverseDelay.get()
+            if (auraClick.get()) killAura.clicks++
         }
         if (cooldown > 0) --cooldown
         return false
@@ -206,9 +227,6 @@ object TimerRange: Module("TimerRange", "Make you walk to target faster", catego
                 return false
             }
             return true
-        }
-        if (bypassValue.get()) {
-            if (bypassTick == 1) return true
         }
         return false
     }

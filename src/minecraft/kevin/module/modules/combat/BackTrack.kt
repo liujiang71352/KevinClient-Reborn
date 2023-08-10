@@ -22,11 +22,13 @@ import kevin.module.*
 import kevin.utils.*
 import kevin.utils.PacketUtils.packetList
 import net.minecraft.entity.Entity
+import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.NetworkManager
 import net.minecraft.network.Packet
 import net.minecraft.network.ThreadQuickExitException
 import net.minecraft.network.play.INetHandlerPlayClient
+import net.minecraft.network.play.client.C02PacketUseEntity
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.server.S12PacketEntityVelocity
@@ -45,22 +47,27 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
             if (newValue < minDistance.get()) set(minDistance.get())
         }
     }
+    private val minTime = IntegerValue("MinTime", 100, 0, 500)
     private val maxTime = IntegerValue("MaxTime", 200, 0, 1000)
+    private val smartPacket = BooleanValue("Smart", true)
+    private val minAttackReleaseRange = FloatValue("MinAttackReleaseRange", 3.2F, 2f, 6f)
+
     private val onlyKillAura = BooleanValue("OnlyKillAura", true)
     private val onlyPlayer = BooleanValue("OnlyPlayer", true)
-    private val smartPacket = BooleanValue("Smart", true)
     private val resetOnVelocity = BooleanValue("ResetOnVelocity", true)
     private val resetOnLagging = BooleanValue("ResetOnLagging", true)
     private val rangeCheckMode = ListValue("RangeCheckMode", arrayOf("RayCast", "DirectDistance"), "DirectDistance")
 
     private val espMode = ListValue("ESPMode", arrayOf("FullBox", "OutlineBox", "NormalBox", "OtherOutlineBox", "OtherFullBox", "None"), "Box")
 
-    val storagePackets = ArrayList<Packet<INetHandlerPlayClient>>()
+    private val storagePackets = ArrayList<Packet<INetHandlerPlayClient>>()
     private val storageEntities = ArrayList<Entity>()
 
     private val killAura: KillAura by lazy { KevinClient.moduleManager.getModule(KillAura::class.java) }
 //    private var currentTarget : EntityLivingBase? = null
     private var timer = MSTimer()
+    private var attacked : Entity? = null
+
     var needFreeze = false
 
 //    @EventTarget
@@ -79,7 +86,7 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
                 val y = entity.serverPosY.toDouble() / 32.0
                 val z = entity.serverPosZ.toDouble() / 32.0
                 if (!onlyKillAura.get() || killAura.state || needFreeze) {
-                    val afterBB = AxisAlignedBB(x - 0.4F, y, z - 0.4F, x + 0.4F, y + 1.4F, z + 0.4F)
+                    val afterBB = AxisAlignedBB(x - 0.4F, y - 0.1F, z - 0.4F, x + 0.4F, y + 1.9F, z + 0.4F)
                     var afterRange: Double
                     var beforeRange: Double
                     if (rangeCheckMode equal "RayCast") {
@@ -140,10 +147,15 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
                     event.cancelEvent()
                 }
             }
+        } else if (packet is C02PacketUseEntity) {
+            if (packet.action == C02PacketUseEntity.Action.ATTACK && needFreeze) {
+                attacked = packet.getEntityFromWorld(mc.theWorld!!)
+            }
         }
     }
 
     @EventTarget fun onMotion(event: MotionEvent) {
+        if (event.eventState == EventState.PRE) return
         if (needFreeze) {
             if (timer.hasTimePassed(maxTime.get().toLong())) {
                 releasePackets()
@@ -155,7 +167,7 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
                     val x = entity.serverPosX.toDouble() / 32.0
                     val y = entity.serverPosY.toDouble() / 32.0
                     val z = entity.serverPosZ.toDouble() / 32.0
-                    val entityBB = AxisAlignedBB(x - 0.4F, y, z - 0.4F, x + 0.4F, y + 1.4F, z + 0.4F)
+                    val entityBB = AxisAlignedBB(x - 0.4F, y -0.1F, z - 0.4F, x + 0.4F, y + 1.9F, z + 0.4F)
                     var range = entityBB.getLookingTargetRange(mc.thePlayer!!)
                     if (range == Double.MAX_VALUE) {
                         val eyes = mc.thePlayer!!.getPositionEyes(1F)
@@ -165,6 +177,14 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
                         release = true
                         break
                     }
+                    val entity1 = attacked
+                    if (entity1 != entity) continue
+                    if (timer.hasTimePassed(minTime.get().toLong())) {
+                        if (range >= minAttackReleaseRange.get()) {
+                            release = true
+                            break
+                        }
+                    }
                 }
                 if (release) releasePackets()
             }
@@ -172,6 +192,7 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
     }
 
     @EventTarget fun onWorld(event: WorldEvent) {
+        attacked = null
         storageEntities.clear()
         if (event.worldClient == null) storagePackets.clear()
     }
@@ -257,6 +278,7 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
     }
 
     fun releasePackets() {
+        attacked = null
         val netHandler: INetHandlerPlayClient = mc.netHandler
         if (storagePackets.isEmpty()) return
         while (storagePackets.isNotEmpty()) {

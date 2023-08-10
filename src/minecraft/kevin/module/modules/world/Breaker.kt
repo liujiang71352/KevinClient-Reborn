@@ -202,7 +202,6 @@ class Breaker : Module("Breaker",description = "Destroys selected blocks around 
                     }
                 }
 
-                currentDamage += block.getPlayerRelativeBlockHardness(thePlayer, mc.theWorld!!, currentPos)
                 if (currentDamage >= 1F) {
                     mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK,
                         currentPos, facing))
@@ -212,6 +211,7 @@ class Breaker : Module("Breaker",description = "Destroys selected blocks around 
                     pos = null
                 }
 
+                currentDamage += block.getPlayerRelativeBlockHardness(thePlayer, mc.theWorld!!, currentPos)
                 mc.theWorld!!.sendBlockBreakProgress(thePlayer.entityId, currentPos, (currentDamage * 10F).toInt() - 1)
 
                 if (swingValue.get())

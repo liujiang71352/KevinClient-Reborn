@@ -308,7 +308,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         VecRotation vecRotation = null;
 
         final Rotation rot = bestServerRotation().cloneSelf();
-        if (random) {
+        if (random || outborder) {
             lastRandomDeltaRotation[0] *= 0.6f;
             lastRandomDeltaRotation[1] *= 0.6f;
             if (RotationUtils.random.nextGaussian() > 0.2) {
@@ -319,15 +319,12 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
                 lastRandomDeltaRotation[1] += RandomUtils.INSTANCE.nextFloat(-4, 4);
                 rot.setPitch(lastRandomDeltaRotation[1] + rot.getPitch());
             }
+            if (outborder) return new VecRotation(PlayerExtensionKt.getNearestPointBB(eyes, bb), rot);
         }
 
-        float adder = outborder ? 1f : 0;
-
-//        outborder = outborder && mc.thePlayer.ticksExisted % 10 != 0;
-
-        for(double xSearch = 0.15D - adder; xSearch < 0.85D + adder; xSearch += 0.1D) {
-            for (double ySearch = 0D - adder; ySearch < 1D + adder; ySearch += 0.02D) {
-                for (double zSearch = 0.15D - adder; zSearch < 0.85D + adder; zSearch += 0.1D) {
+        for(double xSearch = 0.15D; xSearch < 0.85D; xSearch += 0.1D) {
+            for (double ySearch = 0D; ySearch < 1D; ySearch += 0.02D) {
+                for (double zSearch = 0.15D; zSearch < 0.85D; zSearch += 0.1D) {
                     final Vec3 vec3 = new Vec3(
                             bb.minX + (bb.maxX - bb.minX) * xSearch,
                             bb.minY + (bb.maxY - bb.minY) * ySearch,

@@ -28,7 +28,7 @@ class NoC03 : Module("NoC03", "Cancel C03 packets", category=ModuleCategory.PLAY
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if (packet is C03PacketPlayer) {
-            if (!(packet.isMoving && packet.rotating && mc.thePlayer.isUsingItem)) {
+            if (!(packet.isMoving || packet.rotating || mc.thePlayer.isUsingItem)) {
                 if (lastGround == packet.onGround || !packetACBypass)
                     event.cancelEvent()
             }

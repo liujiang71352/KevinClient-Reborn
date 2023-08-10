@@ -20,6 +20,8 @@ import org.lwjgl.input.Keyboard;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class HackDetector extends Module {
     public static final HackDetector INSTANCE = new HackDetector();
@@ -38,6 +40,9 @@ public class HackDetector extends Module {
             Check.debug = newValue;
         }
     };
+    private final ExecutorService POOL = Executors.newSingleThreadExecutor();
+
+
     public HackDetector() {
         super("HackDetector", "Detect any player who is hacking in this game.", Keyboard.KEY_NONE, ModuleCategory.MISC);
         Check.debug = debugValue.get();
