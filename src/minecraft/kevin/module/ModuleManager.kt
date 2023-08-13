@@ -100,6 +100,7 @@ class ModuleManager : Listenable {
             ComponentOnHover,
             ConfigsManager,
             Diastimeter(),
+            ClientFriend,
             HackDetector.INSTANCE,
             HideAndSeekHack,
             KillerDetector(),

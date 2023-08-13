@@ -15,7 +15,7 @@
 package kevin.hud.element.elements
 
 import blur.GaussianBlur
-import cn.frozenmilk.milkjello.utils.StencilUtil
+import kevin.persional.milk.utils.StencilUtil
 import kevin.hud.designer.GuiHudDesigner
 import kevin.hud.element.*
 import kevin.hud.element.elements.ConnectNotificationType.*

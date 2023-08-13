@@ -1,4 +1,4 @@
-package cn.frozenmilk.milkjello.guis.font;
+package kevin.persional.milk.guis.font;
 
 import java.awt.Color;
 import java.awt.Font;

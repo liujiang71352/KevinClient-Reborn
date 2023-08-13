@@ -4,7 +4,7 @@
  * Could not load the following classes:
  *  org.lwjgl.opengl.GL11
  */
-package cn.frozenmilk.milkjello.guis.font;
+package kevin.persional.milk.guis.font;
 
 import java.awt.Color;
 import java.awt.Font;

@@ -29,27 +29,44 @@ import net.minecraft.network.Packet
 import net.minecraft.network.ThreadQuickExitException
 import net.minecraft.network.play.INetHandlerPlayClient
 import net.minecraft.network.play.client.C02PacketUseEntity
-import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.server.S14PacketEntity
+import net.minecraft.network.play.server.S19PacketEntityStatus
 import net.minecraft.util.AxisAlignedBB
 import org.lwjgl.opengl.GL11.*
+import kotlin.math.ceil
 
 class BackTrack: Module("BackTrack", "Lets you attack people in their previous locations", category = ModuleCategory.COMBAT) {
     private val minDistance: FloatValue = object : FloatValue("MinDistance", 2.9f, 2f, 4f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
-            if (newValue > maxDistance.get()) set(maxDistance.get())
+            if (newValue > maxStartDistance.get()) set(maxStartDistance.get())
         }
     }
-    private val maxDistance: FloatValue = object : FloatValue("MaxDistance", 5f, 2f, 6f) {
+    private val maxStartDistance : FloatValue = object : FloatValue("MaxStartDistance", 3.2f, 2f, 4f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
             if (newValue < minDistance.get()) set(minDistance.get())
+            else if (newValue > maxDistance.get()) set(maxDistance.get())
         }
     }
-    private val minTime = IntegerValue("MinTime", 100, 0, 500)
-    private val maxTime = IntegerValue("MaxTime", 200, 0, 1000)
+    private val maxDistance: FloatValue = object : FloatValue("MaxActiveDistance", 5f, 2f, 6f) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            if (newValue < maxStartDistance.get()) set(maxStartDistance.get())
+        }
+    }
+    private val minTime : IntegerValue = object : IntegerValue("MinTime", 100, 0, 500) {
+        override fun onChanged(oldValue: Int, newValue: Int) {
+            if (newValue > maxTime.get()) set(maxTime.get())
+        }
+    }
+    private val maxTime : IntegerValue = object : IntegerValue("MaxTime", 200, 0, 1000) {
+        override fun onChanged(oldValue: Int, newValue: Int) {
+            if (newValue < minTime.get()) set(minTime.get())
+        }
+    }
     private val smartPacket = BooleanValue("Smart", true)
+    private val maxHurtTime = IntegerValue("MaxHurtTime", 6, 0, 10)
+    private val hurtTimeWithPing = BooleanValue("CalculateHurtTimeWithPing", true)
     private val minAttackReleaseRange = FloatValue("MinAttackReleaseRange", 3.2F, 2f, 6f)
 
     private val onlyKillAura = BooleanValue("OnlyKillAura", true)
@@ -75,9 +92,11 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
     fun onPacket(event: PacketEvent) {
         mc.thePlayer ?: return
         val packet = event.packet
+        val theWorld = mc.theWorld!!
         if (packet.javaClass.name.contains("net.minecraft.network.play.server.", true)) {
             if (packet is S14PacketEntity) {
-                val entity = packet.getEntity(mc.theWorld!!)?: return
+                val entity = packet.getEntity(theWorld)?: return
+                if (entity !is EntityLivingBase) return
                 if (onlyPlayer.get() && entity !is EntityPlayer) return
                 entity.serverPosX += packet.func_149062_c().toInt()
                 entity.serverPosY += packet.func_149061_d().toInt()
@@ -85,7 +104,7 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
                 val x = entity.serverPosX.toDouble() / 32.0
                 val y = entity.serverPosY.toDouble() / 32.0
                 val z = entity.serverPosZ.toDouble() / 32.0
-                if (!onlyKillAura.get() || killAura.state || needFreeze) {
+                if ((!onlyKillAura.get() || killAura.state || needFreeze) && EntityUtils.isSelected(entity, true)) {
                     val afterBB = AxisAlignedBB(x - 0.4F, y - 0.1F, z - 0.4F, x + 0.4F, y + 1.9F, z + 0.4F)
                     var afterRange: Double
                     var beforeRange: Double
@@ -103,8 +122,8 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
                         beforeRange = mc.thePlayer!!.getDistanceToEntityBox(entity)
                     }
 
-                    if (beforeRange <= minDistance.get()) {
-                        if (afterRange in minDistance.get()..maxDistance.get() && (!smartPacket.get() || rangeCheckMode equal "RayCast" || afterRange > beforeRange + 0.02)) {
+                    if (beforeRange <= maxStartDistance.get()) {
+                        if (afterRange in minDistance.get()..maxDistance.get() && (!smartPacket.get() || afterRange > beforeRange + 0.02) && entity.hurtTime <= calculatedMaxHurtTime) {
                             if (!needFreeze) {
                                 timer.reset()
                                 needFreeze = true
@@ -134,7 +153,7 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
                     entity.onGround = packet.onGround
                 }
                 event.cancelEvent()
-//                storageEntities.add(entity)
+     //                storageEntities.add(entity)
             } else {
                 if ((packet is S12PacketEntityVelocity && resetOnVelocity.get()) || (packet is S08PacketPlayerPosLook && resetOnLagging.get())) {
                     storagePackets.add(packet as Packet<INetHandlerPlayClient>)
@@ -143,13 +162,16 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
                     return
                 }
                 if (needFreeze && !event.isCancelled) {
+                    if (packet is S19PacketEntityStatus) {
+                        if (packet.opCode == 2.toByte()) return
+                    }
                     storagePackets.add(packet as Packet<INetHandlerPlayClient>)
                     event.cancelEvent()
                 }
             }
         } else if (packet is C02PacketUseEntity) {
             if (packet.action == C02PacketUseEntity.Action.ATTACK && needFreeze) {
-                attacked = packet.getEntityFromWorld(mc.theWorld!!)
+                attacked = packet.getEntityFromWorld(theWorld)
             }
         }
     }
@@ -284,7 +306,7 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
         while (storagePackets.isNotEmpty()) {
             storagePackets.removeAt(0).let{
                 try {
-                    val packetEvent = PacketEvent(it ?: return)
+                    val packetEvent = PacketEvent(it)
                     if (!packetList.contains(it)) KevinClient.eventManager.callEvent(packetEvent)
                     if (!packetEvent.isCancelled) it.processPacket(netHandler)
                 } catch (_: ThreadQuickExitException) { }
@@ -302,6 +324,9 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
         }
         needFreeze = false
     }
+
+    private val calculatedMaxHurtTime : Int
+        get() = maxHurtTime.get() + if (hurtTimeWithPing.get()) ceil(mc.thePlayer.getPing() / 50.0).toInt() else 0
 
     fun update() {}
 

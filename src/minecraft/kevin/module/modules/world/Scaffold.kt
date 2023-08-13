@@ -234,8 +234,6 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
     private var lockRotation: Rotation? = null
     private var lockRotationTimer = TickTimer()
     private var aacRotationPositive = true
-    private var lastYaw = 0f
-    private var lastPitch = 0f
     private var grimRotationBoolean = false
 
     // Launch position
@@ -563,15 +561,6 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
         val packet = event.packet
         if ((packet) is C09PacketHeldItemChange) {
             slot = packet.slotId
-        }
-        if (grimACRotation.get() && (packet is C03PacketPlayer)) {
-            if (packet.rotating) {
-                if ((packet.yaw != lastYaw || (packet.pitch != lastPitch && lastPitch != 90f)) && lockRotation == null) {
-                    packet.pitch = 90f
-                }
-                lastYaw = packet.yaw
-                lastPitch = packet.pitch
-            }
         }
     }
 

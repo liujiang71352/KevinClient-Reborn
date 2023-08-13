@@ -1,7 +1,7 @@
 /*
  * Decompiled with CFR 0_132.
  */
-package cn.frozenmilk.milkjello.guis.font;
+package kevin.persional.milk.guis.font;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
@@ -9,7 +9,6 @@ import net.minecraft.util.ResourceLocation;
 import java.awt.*;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.Map;
 
 public class FontLoaders {
 

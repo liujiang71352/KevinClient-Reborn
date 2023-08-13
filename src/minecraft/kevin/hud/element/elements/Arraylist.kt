@@ -16,10 +16,9 @@ package kevin.hud.element.elements
 
 import blur.BloomUtil
 import blur.GaussianBlur
-import blur.KawaseBlur
 import blur.KawaseBlur.createFrameBuffer
-import cn.frozenmilk.milkjello.guis.font.FontLoaders
-import cn.frozenmilk.milkjello.utils.StencilUtil
+import kevin.persional.milk.guis.font.FontLoaders
+import kevin.persional.milk.utils.StencilUtil
 import kevin.font.RainbowFontShader
 import kevin.hud.designer.GuiHudDesigner
 import kevin.hud.element.Border
@@ -32,8 +31,6 @@ import kevin.utils.AnimationUtils
 import kevin.utils.MilkUtils
 import kevin.utils.RenderUtils
 import kevin.utils.render.shader.shaders.RainbowShader
-import net.minecraft.client.gui.ScaledResolution
-import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.shader.Framebuffer
 import org.lwjgl.opengl.GL11
 import java.awt.Color

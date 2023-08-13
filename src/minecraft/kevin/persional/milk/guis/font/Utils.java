@@ -1,7 +1,7 @@
 /*
  * Decompiled with CFR 0_132.
  */
-package cn.frozenmilk.milkjello.guis.font;
+package kevin.persional.milk.guis.font;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

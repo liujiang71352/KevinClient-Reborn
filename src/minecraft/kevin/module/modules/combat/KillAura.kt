@@ -110,7 +110,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
     //Timing
     private val hightVersionAttackDelay = BooleanValue("HighVersionAttackDelay", false)
     private val hightVersionAttackSwing = BooleanValue("HighVersionAttackSwing", false)
-    private val attackTimingValue = ListValue("AttackTiming", arrayOf("Legit", "Pre", "Post", "All"), "Legit")
+    private val attackTimingValue = ListValue("AttackTiming", arrayOf("Legit", "Pre", "Post"), "Legit")
     private val extraBlockTimingValue // vanilla will send block packet at pre
     = ListValue("ExtraBlockTiming", arrayOf("NoExtra", "Pre", "Post", "Update", "Pre&Post", "Update&Pre", "Update&Post", "Update&Pre&Post"), "NoExtra")
     private val afterTickTimingValue = ListValue("AfterTickBlockTiming", arrayOf("Pre", "Post", "Both"), "Post")

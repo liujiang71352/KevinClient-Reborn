@@ -1,6 +1,6 @@
 package blur;
 
-import cn.frozenmilk.milkjello.utils.ShaderUtil;
+import kevin.persional.milk.utils.ShaderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;

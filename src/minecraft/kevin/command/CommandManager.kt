@@ -34,6 +34,8 @@ class CommandManager {
 
         commands[arrayOf("bind")] = BindCommand()
 
+        commands[arrayOf("friend")] = FriendCommand()
+
         commands[arrayOf("binds")] = BindsCommand()
 
         val modulesCommand = arrayListOf<String>()

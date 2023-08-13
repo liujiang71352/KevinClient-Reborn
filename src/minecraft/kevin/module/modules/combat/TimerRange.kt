@@ -57,7 +57,11 @@ object TimerRange: Module("TimerRange", "Make you walk to target faster", catego
             if (newValue > minDistance.get()) set(minDistance.get())
         }
     }
-    private val reverseTime = IntegerValue("ReverseStopTime", 3, 1, 10)
+    private val reverseTime : IntegerValue = object : IntegerValue("ReverseStopTime", 3, 1, 10) {
+        override fun onChanged(oldValue: Int, newValue: Int) {
+            if (newValue < reverseTickTime.get()) set(reverseTickTime.get())
+        }
+    }
     private val reverseTickTime : IntegerValue = object : IntegerValue("ReverseTickTime", 3, 0, 10) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             if (newValue > reverseTime.get()) set(reverseTime.get())
@@ -65,6 +69,7 @@ object TimerRange: Module("TimerRange", "Make you walk to target faster", catego
     }
     private val reverseDelay = IntegerValue("ReverseDelay", 5, 0, 20)
     private val reverseTargetMaxHurtTime = IntegerValue("ReverseTargetMaxHurtTime", 3, 0, 10)
+    private val reverseAuraClick = ListValue("ReverseAuraClick", arrayOf("None", "BeforeTimer", "AfterTimer"), "None")
 
     private val killAura: KillAura by lazy { KevinClient.moduleManager.getModule(KillAura::class.java) }
 
@@ -207,13 +212,14 @@ object TimerRange: Module("TimerRange", "Make you walk to target faster", catego
             reverseFreeze = false
             var time = reverseTickTime.get()
             working = true
+            if (reverseAuraClick equal "BeforeTimer") killAura.clicks++
             while (time > 0) {
                 --time
                 mc.runTick()
             }
             working = false
             cooldown = reverseDelay.get()
-            if (auraClick.get()) killAura.clicks++
+            if (reverseAuraClick equal "AfterTimer") killAura.clicks++
         }
         if (cooldown > 0) --cooldown
         return false

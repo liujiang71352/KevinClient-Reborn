@@ -15,8 +15,7 @@
 package kevin.hud.element.elements
 
 import blur.GaussianBlur
-import blur.KawaseBlur
-import cn.frozenmilk.milkjello.utils.StencilUtil
+import kevin.persional.milk.utils.StencilUtil
 import kevin.hud.element.Border
 import kevin.hud.element.Element
 import kevin.hud.element.ElementInfo

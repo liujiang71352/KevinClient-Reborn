@@ -4,14 +4,13 @@
  * Could not load the following classes:
  *  org.lwjgl.opengl.GL11
  */
-package cn.frozenmilk.milkjello.guis.font;
+package kevin.persional.milk.guis.font;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 import kevin.utils.RenderUtils;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import org.lwjgl.opengl.GL11;

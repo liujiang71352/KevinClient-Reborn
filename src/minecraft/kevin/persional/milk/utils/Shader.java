@@ -1,4 +1,4 @@
-package cn.frozenmilk.milkjello.utils;
+package kevin.persional.milk.utils;
 
 import net.minecraft.client.Minecraft;
 import org.apache.commons.io.IOUtils;

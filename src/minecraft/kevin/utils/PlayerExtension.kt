@@ -14,6 +14,9 @@
  */
 package kevin.utils
 
+import kevin.module.modules.misc.ClientFriend
+import kevin.utils.ColorUtils.COLOR_PATTERN
+import kevin.utils.ColorUtils.stripColor
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.Entity
 import net.minecraft.entity.boss.EntityDragon
@@ -82,8 +85,8 @@ fun Entity.isMob(): Boolean {
 }
 
 fun EntityPlayer.isClientFriend(): Boolean {
-//    val entityName = name ?: return false
-
+    val entityName = name ?: return false
+    return ClientFriend.state && ClientFriend.isFriend(COLOR_PATTERN.matcher(entityName).replaceAll(""))
     //return LiquidBounce.fileManager.friendsConfig.isFriend(stripColor(entityName))
-    return false
+//    return false
 }

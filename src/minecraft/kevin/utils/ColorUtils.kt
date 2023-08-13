@@ -104,7 +104,7 @@ object ColorUtils {
     @JvmStatic
     fun rainbowWithAlpha(alpha: Int) = reAlpha(rainbow(),alpha)
 
-    private val COLOR_PATTERN = Pattern.compile("(?i)§[0-9A-FK-OR]")
+    val COLOR_PATTERN = Pattern.compile("(?i)§[0-9A-FK-OR]")
 
     @JvmField
     val hexColors = IntArray(16)

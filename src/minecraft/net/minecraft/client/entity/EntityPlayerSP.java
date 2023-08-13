@@ -184,7 +184,12 @@ public class EntityPlayerSP extends AbstractClientPlayer
         try {
             final MotionEvent preEvent = new MotionEvent(this.posX, this.getEntityBoundingBox().minY, this.posZ,EventState.PRE);
             KevinClient.eventManager.callEvent(preEvent);
-            if (preEvent.isCancelled()) return;
+            if (preEvent.isCancelled()) {
+                MotionEvent event = new MotionEvent(lastReportedPosX, lastReportedPosY, lastReportedPosZ, EventState.POST);
+                event.cancelEvent();
+                KevinClient.eventManager.callEvent(event);
+                return;
+            }
             final double posX = preEvent.getPosX(), posY = preEvent.getPosY(), posZ = preEvent.getPosZ();
             final InvMove invMove = KevinClient.moduleManager.getModule(InvMove.class);
             final boolean fakeSprint =

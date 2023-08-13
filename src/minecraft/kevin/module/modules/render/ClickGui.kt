@@ -28,7 +28,6 @@ import kevin.utils.render.shader.shaders.RainbowShader
 import kevin.utils.RenderUtils
 import kevin.utils.RenderUtils.glColor
 import net.minecraft.client.audio.PositionedSoundRecord
-import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.network.play.server.S2EPacketCloseWindow
@@ -43,18 +42,19 @@ import kotlin.collections.HashMap
 
 class ClickGui : Module("ClickGui","Opens the ClickGUI.", category = ModuleCategory.RENDER, keyBind = Keyboard.KEY_RSHIFT) {
 
-    private val mode = ListValue("Mode", arrayOf("New","Old"),"New")
+    private val mode = ListValue("Mode", arrayOf("Milk","New","Old"),"Milk")
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
-        if (packet is S2EPacketCloseWindow && (mc.currentScreen is ClickGUI || mc.currentScreen is NewClickGui)) {
+        if (packet is S2EPacketCloseWindow && mc.currentScreen is kevin.hud.ClickGui) {
             event.cancelEvent()
         }
     }
 
     override fun onEnable() {
         when(mode.get()){
+            "Milk" -> mc.displayGuiScreen(KevinClient.milkClickGui)
             "New" -> mc.displayGuiScreen(KevinClient.newClickGui)
             "Old" -> mc.displayGuiScreen(KevinClient.clickGUI)
         }
@@ -65,10 +65,10 @@ class ClickGui : Module("ClickGui","Opens the ClickGUI.", category = ModuleCateg
     }
 
     @EventTarget fun onTick(event: TickEvent) {
-        if (this.state && !(mc.currentScreen is ClickGUI || mc.currentScreen is NewClickGui)) this.state = false
+        if (this.state && mc.currentScreen !is kevin.hud.ClickGui) this.state = false
     }
 
-    class ClickGUI : GuiScreen(){
+    class ClickGUI : kevin.hud.ClickGui(){
         private val category = arrayListOf("Combat","Exploit","Misc","Movement","Player","Render","World","Targets")
         private var categoryOpen = 0
         private var categoryStart:HashMap<String,Int>? = null
@@ -639,7 +639,7 @@ class ClickGui : Module("ClickGui","Opens the ClickGUI.", category = ModuleCateg
     }
 
     //New ClickGui!!
-    class NewClickGui : GuiScreen(){
+    class NewClickGui : kevin.hud.ClickGui(){
         private val buttonsAnim = HashMap<String,Float>()
         private val lineAnim = HashMap<String,Float>()
         private enum class Category(name: String) {

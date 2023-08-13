@@ -14,6 +14,7 @@
  */
 package kevin.main
 
+import kevin.persional.milk.guis.clickgui.MilkClickGui
 import kevin.cape.CapeManager
 import kevin.command.CommandManager
 import kevin.command.bind.BindCommandManager
@@ -43,7 +44,7 @@ import java.util.concurrent.Executors
 
 object KevinClient {
     var name = "Kevin"
-    var version = "u2.4.7" // u - updated
+    var version = "u2.4.8" // u - updated
 
     var isStarting = true
 
@@ -57,6 +58,7 @@ object KevinClient {
     lateinit var fontManager: FontManager
     lateinit var clickGUI: ClickGUI
     lateinit var newClickGui: NewClickGui
+    lateinit var milkClickGui: MilkClickGui
     lateinit var hud: HUD
     lateinit var capeManager: CapeManager
     lateinit var combatManager: CombatManager
@@ -94,6 +96,7 @@ object KevinClient {
         commandManager.load()
         clickGUI = ClickGUI()
         newClickGui = NewClickGui()
+        milkClickGui = MilkClickGui()
         Display.setTitle("Kevin Client is loading.....")
         capeManager = CapeManager()
         capeManager.load()
