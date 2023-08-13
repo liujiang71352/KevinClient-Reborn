@@ -37,7 +37,11 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
     private val verticalValue = FloatValue("Vertical", 0F, -1F, 1F)
     private val modeValue = ListValue("Mode", arrayOf("Simple", "AAC", "AACPush", "AACZero", "AACv4",
         "Reverse", "SmoothReverse", "HypixelReverse", "Jump", "Glitch", "AAC5Packet", "MatrixReduce", "MatrixSimple", "MatrixReverse",
-        "Vulcan", "VulcanSmart", "VulcanS", "AllowFirst", "Click", "LegitSmart", "IntaveJump", "TestBuzzReverse", "PikaStable", "TestGrimAC"), "Simple")
+        "AllowFirst", "Click", "LegitSmart", "IntaveJump", "TestBuzzReverse", "PikaStable", "TestGrimAC"), "Simple")
+
+    // Simple
+    private val simpleCancelTransaction = BooleanValue("SimpleCancelTransactions", false)
+    private val simpleCancelTransactionCount = IntegerValue("SimpleCancelTransactionsCount", 6, 0, 20)
 
     // Reverse
     private val reverseStrengthValue = FloatValue("ReverseStrength", 1F, 0.1F, 1F)
@@ -77,6 +81,8 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
 
     // AACPush
     private var jump = false
+
+    private var transactionCancelCount = 0
 
     override val tag: String
         get() = if (modeValue.get() == "Simple") "H:${horizontalValue.get()*100}% V:${verticalValue.get()*100}%" else modeValue.get()
@@ -286,6 +292,8 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                     packet.motionX = (packet.motionX * horizontal).toInt()
                     packet.motionY = (packet.motionY * vertical).toInt()
                     packet.motionZ = (packet.motionZ * horizontal).toInt()
+
+                    if (simpleCancelTransaction.get()) transactionCancelCount = simpleCancelTransactionCount.get()
                 }
 
                 "aac", "reverse", "smoothreverse", "aaczero", "allowfirst", "pikastable", "intavejump" -> velocityInput = true
@@ -344,7 +352,6 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                     packet.motionX = -packet.motionX
                     packet.motionZ = -packet.motionZ
                 }
-                "vulcan", "vulcansmart" -> event.cancelEvent()
                 "click" -> {
                     if (packet.motionX == 0 && packet.motionZ == 0) return
                     if (attackRayTrace(
@@ -362,8 +369,10 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                 packet.func_149147_e() != 0F) explosion = true
             if (cancelExplosionPacket.get()) event.cancelEvent()
         } else if (packet is C0FPacketConfirmTransaction) {
-            if (modeValue equal "vulcan" && mc.thePlayer.hurtTime > 0) event.cancelEvent()
-            else if (modeValue equal "VulcanSmart" && packet.uid  >= -31767 && packet.uid  <= -30769) event.cancelEvent()
+            if (transactionCancelCount > 0) {
+                --transactionCancelCount
+                event.cancelEvent()
+            }
         }
     }
 
