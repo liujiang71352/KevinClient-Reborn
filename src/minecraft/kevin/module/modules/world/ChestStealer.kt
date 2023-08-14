@@ -17,6 +17,7 @@ package kevin.module.modules.world
 import kevin.event.EventTarget
 import kevin.event.PacketEvent
 import kevin.event.Render3DEvent
+import kevin.event.UpdateEvent
 import kevin.main.KevinClient
 import kevin.module.BooleanValue
 import kevin.module.IntegerValue
@@ -101,7 +102,7 @@ class ChestStealer : Module("ChestStealer", description = "Automatically steals 
     val overrideShowInvValue = BooleanValue("OverrideShowInv", true)
 
     @EventTarget
-    fun onRender3D(event: Render3DEvent?) {
+    fun onUpdate(event: UpdateEvent) {
         val thePlayer = mc.thePlayer!!
 
         if (mc.currentScreen !is GuiChest || mc.currentScreen == null) {
@@ -185,7 +186,7 @@ class ChestStealer : Module("ChestStealer", description = "Automatically steals 
         val packet = event.packet
 
         if (packet is S30PacketWindowItems) {
-            contentReceived = (packet as S30PacketWindowItems).windowId
+            contentReceived = packet.windowId
         }
     }
 
