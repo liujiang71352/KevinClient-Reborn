@@ -47,7 +47,7 @@ class FullBright : Module("FullBright", "Brightens up the world around you.", ca
         if (state /**|| LiquidBounce.moduleManager.getModule(XRay::class.java)!!.state**/) {
             when (modeValue.get().lowercase(Locale.getDefault())) {
                 "gamma" -> when {
-                    mc.gameSettings.gammaSetting <= 100f -> mc.gameSettings.gammaSetting++
+                    mc.gameSettings.gammaSetting <= 200f -> mc.gameSettings.gammaSetting++
                 }
                 "nightvision" -> mc.thePlayer?.addPotionEffect(PotionEffect(Potion.nightVision.id, 1337, 1))
             }

@@ -26,7 +26,7 @@ public class FloatButton extends Button {
         int cx = (int) (100 * ((value.get() - value.getMinimum()) / (value.getMaximum() - value.getMinimum())));
         valueAnim = animationUtils.animate(cx, valueAnim, 0.2);
         RenderUtils.drawRect(dx, y + 3, tx, y + 4, new Color(0, 166, 255, intalpha).getRGB());
-        FontLoaders.novo20.drawString(String.format("%.2f", value.get()), tx + 7, y, -1);
+        FontLoaders.novo18.drawString(String.format("%.2f", value.get()), tx + 7, y, -1);
         RenderUtils.drawSector(dx + valueAnim, y + 4, 0, 360, 5, new Color(49, 49, 49, intalpha));
         RenderUtils.drawSector(dx + valueAnim, y + 4, 0, 360, 4, new Color(200, 200, 200, intalpha));
 

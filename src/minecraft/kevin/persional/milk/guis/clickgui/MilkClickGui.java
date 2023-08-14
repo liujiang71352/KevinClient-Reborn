@@ -1,5 +1,6 @@
 package kevin.persional.milk.guis.clickgui;
 
+import blur.*;
 import kevin.persional.milk.guis.font.FontLoaders;
 import kevin.persional.milk.utils.StencilUtil;
 import kevin.persional.milk.utils.key.ClickUtils;
@@ -26,7 +27,7 @@ public class MilkClickGui extends ClickGui {
     public
     int x = 100;
     public
-    int y = 20;
+    int y = 30;
     int lastClickX;
     int lastClickY;
     int startX;
@@ -38,7 +39,7 @@ public class MilkClickGui extends ClickGui {
     boolean dragging = false;
     ModuleCategory selectCategory = null;
     ModulePanel selectPanel = null;
-    float animForCategory2 = 0,animForCategory = 0, animForModulePanel = 0, animJoin = 0, animScroll = 0, scroll = 0, scroll2 = 0, animForModules = 0;
+    float animForCategory2 = 0,animForCategory = 0, animForModulePanel = 0, animJoin = 0, animScroll = 0, scroll = 0, animPanelScroll = 0, scroll2 = 0, animForModules = 0;
     AnimationUtils animationUtils = new AnimationUtils(), animationUtilsPanel = new AnimationUtils(), animationUtils3 = new AnimationUtils(), animationUtils4 = new AnimationUtils(), scrollAnim = new AnimationUtils(), anim5 = new AnimationUtils();
     public MilkClickGui(){
     }
@@ -47,7 +48,7 @@ public class MilkClickGui extends ClickGui {
     public void handleMouseInput() throws IOException {
         if(Mouse.getEventDWheel() != 0){
             if(selectPanel != null)
-                scroll2 += Mouse.getEventDWheel() > 0 ? 5 : -5;
+                animPanelScroll += Mouse.getEventDWheel() > 0 ? 5 : -5;
             else
                 animScroll += Mouse.getEventDWheel() > 0 ? 5 : -5;
         }
@@ -62,7 +63,8 @@ public class MilkClickGui extends ClickGui {
     }
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        if(dragging){
+//        GaussianBlur.renderBlur(2);
+        if(dragging) {
             x = lastClickX + mouseX - startX;
             y = lastClickY + mouseY - startY;
             actX = x;
@@ -70,6 +72,11 @@ public class MilkClickGui extends ClickGui {
         }
         animScroll = (float) scrollAnim.animateHigh(0, animScroll, 0.2);
         scroll += animScroll;
+        if (selectPanel != null) {
+            animPanelScroll = (float) selectPanel.animScroll.animateHigh(0, animPanelScroll, 0.2);
+            scroll2 += animPanelScroll;
+            if (scroll2 > 0) scroll2 = 0;
+        }
         if(scroll > 0) scroll = 0;
         animJoin = (float) animationUtils3.animateHigh(1.0, animJoin, 0.3);
         if(animJoin < 0.95f) // for Anim
@@ -101,7 +108,7 @@ public class MilkClickGui extends ClickGui {
             Gui.drawRect(x + 50, y, x + 400, y + 300, -1);
             StencilUtil.readStencilBuffer(1);
             animForModulePanel = (float) animationUtilsPanel.animateHigh(1, animForModulePanel, 0.3);
-            selectPanel.drawPanel((int) (x + 5 - 400 + 400 * animForModulePanel), y, mouseX, mouseY, partialTicks, animForModulePanel, scroll2);
+            selectPanel.drawPanel((int) (x + 5 + 400 - 400 * animForModulePanel), y, mouseX, mouseY, partialTicks, animForModulePanel, scroll2);
             StencilUtil.uninitStencilBuffer();
         }else{
             animForModulePanel = 0;
@@ -154,7 +161,7 @@ public class MilkClickGui extends ClickGui {
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-        if(mouseButton == 0 && ClickUtils.isClickable(x, y, x + 400, y + 10, mouseX, mouseY)){
+        if(mouseButton == 0 && ClickUtils.isClickable(x, y, x + 400, y + 12, mouseX, mouseY)){
             startX = mouseX;
             startY = mouseY;
             lastClickX = this.x;

@@ -21,6 +21,8 @@ import kevin.main.KevinClient
 import kevin.module.*
 import kevin.utils.*
 import kevin.utils.PacketUtils.packetList
+import net.minecraft.client.entity.EntityOtherPlayerMP
+import net.minecraft.client.renderer.entity.RenderManager
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
@@ -75,7 +77,7 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
     private val resetOnLagging = BooleanValue("ResetOnLagging", true)
     private val rangeCheckMode = ListValue("RangeCheckMode", arrayOf("RayCast", "DirectDistance"), "DirectDistance")
 
-    private val espMode = ListValue("ESPMode", arrayOf("FullBox", "OutlineBox", "NormalBox", "OtherOutlineBox", "OtherFullBox", "None"), "Box")
+    private val espMode = ListValue("ESPMode", arrayOf("FullBox", "OutlineBox", "NormalBox", "OtherOutlineBox", "OtherFullBox", "Model", "None"), "Box")
 
     private val storagePackets = ArrayList<Packet<INetHandlerPlayClient>>()
     private val storageEntities = ArrayList<Entity>()
@@ -221,6 +223,28 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
 
     @EventTarget fun onRender3D(event: Render3DEvent) {
         if (espMode equal "None" || !needFreeze) return
+
+        if (espMode equal "Model") {
+            for (entity in storageEntities) {
+                if (entity !is EntityOtherPlayerMP) return
+                val mp = EntityOtherPlayerMP(mc.theWorld, entity.gameProfile)
+                mp.posX = entity.serverPosX / 32.0
+                mp.posY = entity.serverPosY / 32.0
+                mp.posZ = entity.serverPosZ / 32.0
+                mp.prevPosX = mp.posX
+                mp.prevPosY = mp.posY
+                mp.prevPosZ = mp.posZ
+                mp.lastTickPosX = mp.posX
+                mp.lastTickPosY = mp.posY
+                mp.lastTickPosZ = mp.posZ
+                mp.rotationYaw = entity.rotationYaw
+                mp.rotationPitch = entity.rotationPitch
+                mp.rotationYawHead = entity.rotationYawHead
+                mp.isInvisible = false
+                mc.renderManager.renderEntitySimple(mp, event.partialTicks)
+            }
+            return
+        }
 
         var outline = false
         var filled = false

@@ -9,6 +9,8 @@ import kevin.persional.milk.guis.font.CFontRenderer;
 import kevin.persional.milk.guis.font.FontLoaders;
 import kevin.persional.milk.utils.key.ClickUtils;
 import kevin.module.*;
+import kevin.persional.milk.utils.render.anims.AnimationUtils;
+import kevin.utils.RenderUtils;
 import net.minecraft.client.gui.Gui;
 import org.lwjgl.input.Keyboard;
 
@@ -17,8 +19,9 @@ import java.util.ArrayList;
 
 public class ModulePanel {
     Module module;
-    ArrayList<kevin.persional.milk.guis.clickgui.buttons.Button> buttons;
+    ArrayList<Button> buttons;
     boolean waitingForKey = false;
+    public AnimationUtils animScroll = new AnimationUtils();
     public ModulePanel(Module module){
         this.module = module;
         this.buttons = new ArrayList<>();
@@ -40,24 +43,29 @@ public class ModulePanel {
     public void drawPanel(int x, int y, int mx, int my, float pticks, float anim, float scroll){
         CFontRenderer font = FontLoaders.novo18;
         int ia = (int)(255 * anim);
-        FontLoaders.novo18.drawString("<", x + 52, y + 3, new Color(90, 90, 90, ia).getRGB());
-        FontLoaders.novo22.drawString(module.getName(), x + 60, y + 13, new Color(255, 255, 255, ia).getRGB());
-
         Color color = module.getState() ? new Color(22, 107, 22, ia) : new Color(161, 29, 29, ia);
         Color color2 = module.getState() ? new Color(39, 206, 39, ia) : new Color(232, 42, 42, ia);
-        Gui.drawRect(x + 300, y + 33, x + 320, y + 36, color.getRGB());
-        if(module.getState())
-            Gui.drawRect(x + 320 - 4, y + 33 - 4, x + 320 + 4, y + 36 + 4, color2.getRGB());
-        else
-            Gui.drawRect(x + 300 - 4, y + 33 - 4, x + 300 + 4, y + 36 + 4, color2.getRGB());
-        String keyname = module.getKeyBind() == -1 ? "None" : Keyboard.getKeyName(module.getKeyBind());
-        if(waitingForKey) keyname = "press... click again for NONE";
-        font.drawString("Bind key: " + keyname, x + 60, y + 25, new Color(255, 255, 255, ia).getRGB());
         int oy = (int) scroll;
-        for(kevin.persional.milk.guis.clickgui.buttons.Button button : buttons){
+        for(Button button : buttons){
             button.drawButton(x + 60, y + 50 + oy, mx, my, pticks, anim);
             oy += 13 + button.add;
         }
+
+        Gui.drawRect(x, y, x + 387, y + 45, new Color(23, 23, 33).getRGB());
+
+        FontLoaders.novo18.drawString("<", x + 52, y + 3, new Color(90, 90, 90, ia).getRGB());
+        FontLoaders.novo22.drawString(module.getName(), x + 60, y + 13, new Color(255, 255, 255, ia).getRGB());
+
+        Gui.drawRect(x + 300, y + 33, x + 320, y + 35, color.getRGB());
+        if(module.getState())
+            RenderUtils.drawSector(x + 320, y + 33 + 1, 0, 360, 4, color2);
+//            Gui.drawRect(x + 320 - 4, y + 33 - 4, x + 320 + 4, y + 36 + 4, color2.getRGB());
+        else
+            RenderUtils.drawSector(x + 300, y + 33 + 1, 0, 360, 4, color2);
+//            Gui.drawRect(x + 300 - 4, y + 33 - 4, x + 300 + 4, y + 36 + 4, color2.getRGB());
+        String keyname = module.getKeyBind() == -1 ? "None" : Keyboard.getKeyName(module.getKeyBind());
+        if(waitingForKey) keyname = "press... click again for NONE";
+        font.drawString("Bind key: " + keyname, x + 60, y + 25, new Color(255, 255, 255, ia).getRGB());
     }
     public void keyType(int key){
         if(waitingForKey){
@@ -66,18 +74,20 @@ public class ModulePanel {
         }
     }
     public void clickPanel(int x, int y, int mx, int my, float scroll){
-        if(ClickUtils.isClickable(x + 60, y + 25, x + 100, y + 33, mx, my)){
+        if(ClickUtils.isClickable(x + 60, y + 25, x + 108, y + 33, mx, my)){
             if(!waitingForKey) {
                 waitingForKey = true;
             }else{
                 waitingForKey = false;
                 module.setKeyBind(-1);
             }
+            return;
         }
-        if(ClickUtils.isClickable(x + 300, y + 33, x + 320, y + 36, mx, my)){
+        if(ClickUtils.isClickable(x + 297, y + 30, x + 323, y + 39, mx, my)){
             module.toggle();
             return;
         }
+        if (ClickUtils.isClickable(x, y, x + 400, y + 40, mx, my)) return;
         int oy = (int) scroll;
         for(Button button : buttons){
             button.clickButton(x + 60, y + 50 + oy, mx, my);
