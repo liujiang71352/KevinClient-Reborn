@@ -40,7 +40,7 @@ public class HackDetector extends Module {
             Check.debug = newValue;
         }
     };
-    private final ExecutorService POOL = Executors.newSingleThreadExecutor();
+    private final ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
 
 
     public HackDetector() {
@@ -50,7 +50,7 @@ public class HackDetector extends Module {
 
     @EventTarget
     public final void onUpdate(UpdateEvent ignored) {
-        POOL.execute(() -> {
+        singleThreadExecutor.execute(() -> {
             // process check
             for (CheckManager manager : playersChecks.values()) {
                 manager.livingUpdate();
@@ -83,7 +83,7 @@ public class HackDetector extends Module {
     public final void onPacket(PacketEvent event) {
         if (event.isCancelled()) return;
         if (event.getPacket() instanceof S14PacketEntity || event.getPacket() instanceof S18PacketEntityTeleport) {
-            POOL.execute(() -> {
+            singleThreadExecutor.execute(() -> {
                 int x, y, z, id;
                 if (event.getPacket() instanceof S14PacketEntity) {
                     S14PacketEntity packet = (S14PacketEntity) event.getPacket();

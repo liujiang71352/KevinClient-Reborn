@@ -17,6 +17,7 @@ package kevin.module.modules.combat;
 import kevin.event.EventTarget;
 import kevin.event.Render3DEvent;
 import kevin.event.ScreenEvent;
+import kevin.event.UpdateEvent;
 import kevin.module.BooleanValue;
 import kevin.module.IntegerValue;
 import kevin.module.Module;
@@ -71,7 +72,7 @@ public class AutoArmor extends Module {
     }
 
     @EventTarget
-    public void onRender3D(final Render3DEvent event) {
+    public void onUpdate(final UpdateEvent event) {
         if (!InventoryUtils.CLICK_TIMER.hasTimePassed(delay) || mc.thePlayer == null ||
                 (mc.thePlayer.openContainer != null && mc.thePlayer.openContainer.windowId != 0))
             return;

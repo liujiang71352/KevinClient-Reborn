@@ -21,14 +21,16 @@ public class ListButton extends Button {
         int bx = x + (bWidth = Math.max(80, FontLoaders.novo20.getStringWidth(nameText) + 8)), by = y;
         int add = 0;
         for(String mode : value.getValues()){
-            String realname = mode + (mode.equals(value.getValues()[value.getValues().length - 1]) ? "" : ", ");
+            String end = mode.equals(value.getValues()[value.getValues().length - 1]) ? "" : ", ";
+            String realname = mode + end;
             if(bx + FontLoaders.novo20.getStringWidth(realname) > x + 300){
                 by += 10;
                 add += 10;
                 bx = x + bWidth;
             }
             int color = mode.equals(value.get()) ? new Color(47, 243, 125, intalpha).getRGB() : new Color(100, 100, 100, intalpha).getRGB();
-            FontLoaders.novo20.drawString(realname, bx, by, color);
+            FontLoaders.novo20.drawString(mode, bx, by, color);
+            FontLoaders.novo20.drawString(end, bx + FontLoaders.novo20.getStringWidth(mode), by, new Color(100, 100, 100, intalpha).getRGB());
             bx += FontLoaders.novo20.getStringWidth(realname);
         }
         this.add = add;

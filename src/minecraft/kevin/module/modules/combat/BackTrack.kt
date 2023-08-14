@@ -22,6 +22,7 @@ import kevin.module.*
 import kevin.utils.*
 import kevin.utils.PacketUtils.packetList
 import net.minecraft.client.entity.EntityOtherPlayerMP
+import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.entity.RenderManager
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -225,6 +226,8 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
         if (espMode equal "None" || !needFreeze) return
 
         if (espMode equal "Model") {
+            glPushMatrix()
+            GlStateManager.disableAlpha()
             for (entity in storageEntities) {
                 if (entity !is EntityOtherPlayerMP) return
                 val mp = EntityOtherPlayerMP(mc.theWorld, entity.gameProfile)
@@ -240,9 +243,17 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
                 mp.rotationYaw = entity.rotationYaw
                 mp.rotationPitch = entity.rotationPitch
                 mp.rotationYawHead = entity.rotationYawHead
+                mp.prevRotationYaw = mp.rotationYaw
+                mp.prevRotationPitch = mp.rotationPitch
+                mp.prevRotationYawHead = mp.rotationYawHead
                 mp.isInvisible = false
+                mp.swingProgress = entity.swingProgress
+                mp.swingProgressInt = entity.swingProgressInt
                 mc.renderManager.renderEntitySimple(mp, event.partialTicks)
             }
+            GlStateManager.enableAlpha()
+            GlStateManager.resetColor()
+            glPopMatrix()
             return
         }
 

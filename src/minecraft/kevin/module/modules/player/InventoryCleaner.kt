@@ -14,10 +14,7 @@
  */
 package kevin.module.modules.player
 
-import kevin.event.ClickWindowEvent
-import kevin.event.EventTarget
-import kevin.event.PacketEvent
-import kevin.event.UpdateEvent
+import kevin.event.*
 import kevin.main.KevinClient
 import kevin.module.*
 import kevin.module.modules.combat.AutoArmor
@@ -52,6 +49,7 @@ class InventoryCleaner : Module(name = "InventoryCleaner", description = "Automa
     private val simulateInventory = BooleanValue("SimulateInventory", true)
     private val noMoveValue = BooleanValue("NoMove", false)
     private val onlyStill = BooleanValue("OnlyStandingStill", false)
+    private val delayOnOpen = BooleanValue("DelayOnOpen", true)
     private val ignoreVehiclesValue = BooleanValue("IgnoreVehicles", false)
     private val hotbarValue = BooleanValue("Hotbar", true)
     private val randomSlotValue = BooleanValue("RandomSlot", false)
@@ -121,6 +119,7 @@ class InventoryCleaner : Module(name = "InventoryCleaner", description = "Automa
                 mc.netHandler.addToSendQueue(C16PacketClientStatus(C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT))
 
             mc.playerController.windowClick(thePlayer.openContainer!!.windowId, garbageItem, 1, 4, thePlayer)
+            InventoryUtils.CLICK_TIMER.reset()
 
             if (openInventory)
                 mc.netHandler.addToSendQueue(C0DPacketCloseWindow())
@@ -508,6 +507,11 @@ class InventoryCleaner : Module(name = "InventoryCleaner", description = "Automa
     @EventTarget(ignoreCondition = true)
     fun onClick(event: ClickWindowEvent?) {
         InventoryUtils.CLICK_TIMER.reset()
+    }
+
+    @EventTarget(ignoreCondition = true)
+    fun onOpen(event: ScreenEvent) {
+        if (delayOnOpen.get()) InventoryUtils.CLICK_TIMER.reset()
     }
 
     @EventTarget(ignoreCondition = true)

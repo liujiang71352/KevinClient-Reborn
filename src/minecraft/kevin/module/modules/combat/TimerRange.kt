@@ -186,7 +186,7 @@ object TimerRange: Module("TimerRange", "Make you walk to target faster", catego
         working = true
         freezeTicks = 0
         if (betterAnimation.get()) firstAnimation = false
-        while (freezeTicks <= maxTimeValue.get() && !stopWorking) {
+        while (freezeTicks <= maxTimeValue.get() - (if (auraClick.get()) 1 else 0) && !stopWorking) {
             ++freezeTicks
             mc.runTick()
         }
