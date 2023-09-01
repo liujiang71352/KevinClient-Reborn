@@ -195,6 +195,7 @@ class ModuleManager : Listenable {
             XRay()
         )
         worldList = arrayListOf(
+//            BlockFly(),
             Breaker(),
             ChestStealer(),
             FastBreak(),

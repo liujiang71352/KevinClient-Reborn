@@ -48,6 +48,8 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
     public static double y = random.nextDouble();
     public static double z = random.nextDouble();
 
+    private static boolean lastHitable = false;
+
     public static Rotation getRotationsEntity(EntityLivingBase entity) {
         return getRotations(entity.posX, entity.posY + entity.getEyeHeight() - 0.4, entity.posZ);
     }
@@ -302,7 +304,7 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
     }
 
     public static VecRotation newSearchCenter(final AxisAlignedBB bb, boolean outborder, final boolean random,
-                                              final boolean predict, final boolean throughWalls, final float distance) {
+                                              final boolean predict, final boolean throughWalls, final float discoverRange, final float hitRange) {
         final Vec3 eyes = mc.thePlayer.getPositionEyes(1F);
 
         VecRotation vecRotation = null;
@@ -310,14 +312,14 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
         final Rotation rot = bestServerRotation().cloneSelf();
         final Vec3 nearestPointBB = PlayerExtensionKt.getNearestPointBB(eyes, bb);
         if (random || outborder) {
-            lastRandomDeltaRotation[0] *= 0.6f;
-            lastRandomDeltaRotation[1] *= 0.6f;
+            lastRandomDeltaRotation[0] *= 0.5f;
+            lastRandomDeltaRotation[1] *= 0.5f;
             if (RotationUtils.random.nextGaussian() > 0.2) {
-                lastRandomDeltaRotation[0] += RandomUtils.INSTANCE.nextFloat(-4, 4);
+                lastRandomDeltaRotation[0] += RandomUtils.INSTANCE.nextFloat(-5, 5);
                 rot.setYaw(lastRandomDeltaRotation[0] + rot.getYaw());
             }
             if (RotationUtils.random.nextGaussian() > 0.2) {
-                lastRandomDeltaRotation[1] += RandomUtils.INSTANCE.nextFloat(-4, 4);
+                lastRandomDeltaRotation[1] += RandomUtils.INSTANCE.nextFloat(-5, 5);
                 rot.setPitch(lastRandomDeltaRotation[1] + rot.getPitch());
             }
             if (outborder) {
@@ -339,18 +341,25 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
                     final Rotation rotation = toRotation(vec3, predict);
                     final double vecDist = eyes.distanceTo(vec3);
 
-                    if (vecDist > distance)
-                        continue;
+                    if (vecDist > discoverRange) continue;
 
                     if (throughWalls || isVisible(vec3)) {
                         final VecRotation currentVec = new VecRotation(vec3, rotation);
 
                         if (vecRotation == null || getRotationDifference(currentVec.getRotation(), rot) < getRotationDifference(vecRotation.getRotation(), rot))
                             vecRotation = currentVec;
+                        else if (!lastHitable) {
+                            if ((getRotationDifference(currentVec.getRotation(), rot) + getRotationDifference(currentVec.getRotation(), nearestRot)) / 2 < (getRotationDifference(vecRotation.getRotation(), rot) + getRotationDifference(vecRotation.getRotation(), nearestRot)) / 2) {
+                                vecRotation = currentVec;
+                            }
+                        }
                     }
                 }
             }
         }
+        if (vecRotation != null) {
+            lastHitable = vecRotation.getVec().distanceTo(eyes) > hitRange;
+        } else lastHitable = false;
         return vecRotation;
     }
 

@@ -590,14 +590,14 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 val renderPosY = mc.renderManager.renderPosY
                 val renderPosZ = mc.renderManager.renderPosZ
                 GL11.glPushMatrix()
-                GL11.glEnable(GL11.GL_BLEND)
-                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
+//                GL11.glEnable(GL11.GL_BLEND)
+//                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
                 GL11.glShadeModel(GL11.GL_SMOOTH)
                 GL11.glDisable(GL11.GL_TEXTURE_2D)
                 GL11.glEnable(GL11.GL_LINE_SMOOTH)
-                GL11.glDisable(GL11.GL_DEPTH_TEST)
+//                GL11.glDisable(GL11.GL_DEPTH_TEST)
                 GL11.glDisable(GL11.GL_LIGHTING)
-                GL11.glDepthMask(false)
+//                GL11.glDepthMask(false)
                 GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST)
                 GL11.glLoadIdentity()
                 mc.entityRenderer.setupCameraTransform(mc.timer.renderPartialTicks, 2)
@@ -609,11 +609,11 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 GL11.glVertex3d(vecRot.xCoord - renderPosX, vecRot.yCoord - renderPosY, vecRot.zCoord - renderPosZ)
                 GL11.glEnd()
 //                GL11.glColor4f(1F, 1F, 1F, 1F)
-                GL11.glDepthMask(true)
-                GL11.glEnable(GL11.GL_DEPTH_TEST)
+//                GL11.glDepthMask(true)
+//                GL11.glEnable(GL11.GL_DEPTH_TEST)
                 GL11.glDisable(GL11.GL_LINE_SMOOTH)
                 GL11.glEnable(GL11.GL_TEXTURE_2D)
-                GL11.glDisable(GL11.GL_BLEND)
+//                GL11.glDisable(GL11.GL_BLEND)
                 GL11.glEnable(GL11.GL_LIGHTING)
                 GL11.glPopMatrix()
             }
@@ -920,7 +920,8 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 randomCenterValue.get(),
                 predictValue.get(),
                 mc.thePlayer!!.getDistanceToEntityBox(entity) < throughWallsRangeValue.get(),
-                discoverRangeValue.get()
+                discoverRangeValue.get(),
+                rangeValue.get()
             ) ?: return false
             RotationUtils.limitAngleChange(aimingRotation, rotation,
                 (Math.random() * (yawMaxTurnSpeed.get() - yawMinTurnSpeed.get()) + yawMinTurnSpeed.get()).toFloat(),

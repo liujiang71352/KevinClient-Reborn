@@ -5,6 +5,7 @@ import kevin.persional.milk.utils.key.ClickUtils;
 import kevin.persional.milk.utils.render.anims.AnimationUtils;
 import kevin.module.IntegerValue;
 import kevin.utils.RenderUtils;
+import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 
 import java.awt.*;
@@ -31,11 +32,10 @@ public class IntegerButton extends Button {
         RenderUtils.drawSector(dx + valueAnim, y + 4, 0, 360, 4, new Color(200, 200, 200, intalpha));
 
         if(ClickUtils.isClickable(dx, y + 3 - 2, tx, y + 5 + 2, mx, my) && Mouse.isButtonDown(0)){
-            float width = tx - dx;
-            float pp = (mx - dx) / width;
-            pp = Math.max(0, pp);
-            pp = Math.min(1, pp);
-            float mmx = value.getMinimum() + pp * (value.getMaximum() - value.getMinimum());
+            double width = tx - dx;
+            double pp = (mx - dx) / width;
+            pp = MathHelper.clamp_double(pp, 0, 1);
+            double mmx = value.getMinimum() + pp * (value.getMaximum() - value.getMinimum());
             value.set(mmx);
         }
         super.drawButton(x, y, mx, my, pticks, alpha);

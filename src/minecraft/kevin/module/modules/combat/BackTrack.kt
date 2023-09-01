@@ -227,7 +227,9 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
 
         if (espMode equal "Model") {
             glPushMatrix()
-            GlStateManager.disableAlpha()
+            glDisable(GL_TEXTURE_2D)
+            glDisable(GL_DEPTH_TEST)
+//            GlStateManager.disableAlpha()
             for (entity in storageEntities) {
                 if (entity !is EntityOtherPlayerMP) return
                 val mp = EntityOtherPlayerMP(mc.theWorld, entity.gameProfile)
@@ -249,9 +251,13 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
                 mp.isInvisible = false
                 mp.swingProgress = entity.swingProgress
                 mp.swingProgressInt = entity.swingProgressInt
+                mp.hurtTime = entity.hurtTime
+                mp.hurtResistantTime = entity.hurtResistantTime
                 mc.renderManager.renderEntitySimple(mp, event.partialTicks)
             }
-            GlStateManager.enableAlpha()
+//            GlStateManager.enableAlpha()
+            glEnable(GL_TEXTURE_2D)
+            glEnable(GL_DEPTH_TEST)
             GlStateManager.resetColor()
             glPopMatrix()
             return

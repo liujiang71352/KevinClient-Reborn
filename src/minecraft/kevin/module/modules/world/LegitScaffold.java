@@ -66,7 +66,6 @@ public class LegitScaffold extends Module {
             this.start = true;
             this.startTimeHelper.reset();
         }
-
     }
 
     public void onDisable() {
@@ -328,7 +327,8 @@ public class LegitScaffold extends Module {
                             }
 
                             if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, itemstack, var27, var26.sideHit, var26.hitVec)) {
-                                mc.thePlayer.swingItem();
+                                if (swing.get()) mc.thePlayer.swingItem();
+                                else mc.getNetHandler().addToSendQueue(new C0APacketAnimation());
                             }
 
                             if (itemstack != null && itemstack.stackSize == 0) {
@@ -459,13 +459,13 @@ public class LegitScaffold extends Module {
             BlockPos blockPos = null;
             ArrayList<BlockPos> bp = this.getBlockPos();
             ArrayList<BlockPos> blockPositions = new ArrayList<>();
-            if(bp.size() > 0) {
+            if(!bp.isEmpty()) {
                 for(int i = 0; i < Math.min(bp.size(), 18); ++i) {
                     blockPositions.add(bp.get(i));
                 }
 
                 blockPositions.sort(Comparator.comparingDouble(this::getDistanceToBlockPos));
-                if(blockPositions.size() > 0) {
+                if(!blockPositions.isEmpty()) {
                     blockPos = blockPositions.get(0);
                 }
             }
