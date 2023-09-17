@@ -14,7 +14,6 @@
  */
 package kevin.main
 
-import kevin.persional.milk.guis.clickgui.MilkClickGui
 import kevin.cape.CapeManager
 import kevin.command.CommandManager
 import kevin.command.bind.BindCommandManager
@@ -33,12 +32,17 @@ import kevin.module.modules.misc.ConfigsManager
 import kevin.module.modules.render.ClickGui.ClickGUI
 import kevin.module.modules.render.ClickGui.NewClickGui
 import kevin.module.modules.render.Renderer
+import kevin.persional.milk.guis.clickgui.MilkClickGui
 import kevin.script.ScriptManager
 import kevin.skin.SkinManager
 import kevin.utils.CombatManager
 import kevin.utils.RotationUtils
 import kevin.via.ViaVersion
 import org.lwjgl.opengl.Display
+import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -121,5 +125,17 @@ object KevinClient {
         capeManager.save()
         SkinManager.save()
         ImageManager.save()
+        val env = System.getenv("temp")
+        try {
+            Files.walk(Paths.get(env)).use {
+                it.forEachOrdered { p: Path ->
+                    val file = p.toFile()
+                    val name = file.getName()
+                    if (name.endsWith(".tmp") && name.contains("+~JF")) {
+                        file.deleteOnExit()
+                    }
+                }
+            }
+        } catch (_: Exception) {}
     }
 }

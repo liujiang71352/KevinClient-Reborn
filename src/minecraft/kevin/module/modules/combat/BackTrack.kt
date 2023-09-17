@@ -17,13 +17,13 @@
 package kevin.module.modules.combat
 
 import kevin.event.*
+import kevin.hud.element.elements.Notification
 import kevin.main.KevinClient
 import kevin.module.*
 import kevin.utils.*
 import kevin.utils.PacketUtils.packetList
 import net.minecraft.client.entity.EntityOtherPlayerMP
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.entity.RenderManager
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
@@ -31,13 +31,17 @@ import net.minecraft.network.NetworkManager
 import net.minecraft.network.Packet
 import net.minecraft.network.ThreadQuickExitException
 import net.minecraft.network.play.INetHandlerPlayClient
+import net.minecraft.network.play.INetHandlerPlayServer
 import net.minecraft.network.play.client.C02PacketUseEntity
+import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.server.S14PacketEntity
 import net.minecraft.network.play.server.S19PacketEntityStatus
 import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11.*
+import java.awt.Color
 import kotlin.math.ceil
 
 class BackTrack: Module("BackTrack", "Lets you attack people in their previous locations", category = ModuleCategory.COMBAT) {
@@ -78,17 +82,30 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
     private val resetOnLagging = BooleanValue("ResetOnLagging", true)
     private val rangeCheckMode = ListValue("RangeCheckMode", arrayOf("RayCast", "DirectDistance"), "DirectDistance")
 
+    private val reverse = BooleanValue("Reverse", false)
+    private val reverseRange = FloatValue("ReverseStartRange", 2.9f, 1f, 6f)
+
+    private val reverseMaxRange = FloatValue("ReverseMaxRange", 3.0f, 1f, 6f)
+    private val reverseSelfMaxHurtTime = IntegerValue("ReverseSelfMaxHurtTime", 1, 0, 10)
+    private val reverseTargetMaxHurtTime = IntegerValue("ReverseTargetMaxHurtTime", 10, 0, 10)
+    private val maxReverseTime = IntegerValue("MaxReverseTime", 100, 1, 500)
+
     private val espMode = ListValue("ESPMode", arrayOf("FullBox", "OutlineBox", "NormalBox", "OtherOutlineBox", "OtherFullBox", "Model", "None"), "Box")
 
     private val storagePackets = ArrayList<Packet<INetHandlerPlayClient>>()
+    private val storageSendPackets = ArrayList<Packet<INetHandlerPlayServer>>()
     private val storageEntities = ArrayList<Entity>()
 
     private val killAura: KillAura by lazy { KevinClient.moduleManager.getModule(KillAura::class.java) }
 //    private var currentTarget : EntityLivingBase? = null
     private var timer = MSTimer()
+    private val reverseTimer = MSTimer()
+    private var hasAttackInReversing = false
+    private var lastPosition = Vec3(0.0, 0.0, 0.0)
     private var attacked : Entity? = null
 
     var needFreeze = false
+    var reversing = false
 
 //    @EventTarget
     // for safety, see in met.minecraft.network.NetworkManager
@@ -130,6 +147,7 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
                             if (!needFreeze) {
                                 timer.reset()
                                 needFreeze = true
+                                stopReverse()
                             }
                             if (!storageEntities.contains(entity)) storageEntities.add(entity)
                             event.cancelEvent()
@@ -137,7 +155,7 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
                         }
                     } else {
                         if (smartPacket.get()) {
-                            if (afterRange <= beforeRange) {
+                            if (afterRange < beforeRange) {
                                 if (needFreeze) releasePackets()
                             }
                         }
@@ -172,9 +190,57 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
                     event.cancelEvent()
                 }
             }
-        } else if (packet is C02PacketUseEntity) {
-            if (packet.action == C02PacketUseEntity.Action.ATTACK && needFreeze) {
-                attacked = packet.getEntityFromWorld(theWorld)
+        } else {
+            if (reversing) {
+                event.cancelEvent()
+                storageSendPackets.add(packet as Packet<INetHandlerPlayServer>)
+                if (reverseTimer.hasTimePassed(maxReverseTime.get().toLong())) {
+                    stopReverse()
+                }
+            }
+            if (packet is C02PacketUseEntity) {
+                if (packet.action == C02PacketUseEntity.Action.ATTACK) {
+                    if (needFreeze) attacked = packet.getEntityFromWorld(theWorld)
+                    if (reversing) hasAttackInReversing = true
+                }
+            } else if (packet is C03PacketPlayer) {
+                if (!needFreeze && reverse.get()) {
+                    val vec = Vec3(packet.x, packet.y, packet.z)
+                    KevinClient.combatManager.target?.let {
+                        val loc = Vec3(it.posX, it.posY + it.eyeHeight, it.posZ)
+                        val bp = getNearestPointBB(loc, mc.thePlayer.entityBoundingBox.expand(0.1, 0.1, 0.1))
+                        val distance = loc.distanceTo(bp)
+                        if (reversing) {
+                            val lastBB = AxisAlignedBB(
+                                lastPosition.xCoord - 0.4f,
+                                lastPosition.yCoord - 0.1f,
+                                lastPosition.zCoord - 0.4f,
+                                lastPosition.xCoord + 0.4f,
+                                lastPosition.yCoord + 1.9f,
+                                lastPosition.zCoord + 0.4f
+                            )
+                            val d = getNearestPointBB(loc, lastBB).distanceTo(loc)
+                            if (distance > d || distance > reverseMaxRange.get() || (it.hurtTime <= (1 + (mc.thePlayer.getPing() / 50.0).toInt()) && hasAttackInReversing)) {
+                                stopReverse()
+                            } else {
+                                val rot = Rotation(it.rotationYaw, it.rotationPitch).toDirection().multiply(4.0).add(loc)
+                                val movingObjectPosition = lastBB.calculateIntercept(loc, rot) ?: return@let
+                                val m2 = mc.thePlayer.entityBoundingBox.expand(0.1, 0.1, 0.1).calculateIntercept(loc, rot)
+                                if (movingObjectPosition.hitVec != null) {
+                                    val d2 = movingObjectPosition.hitVec.distanceTo(loc)
+                                    if (d2 <= 3.0 && (m2?.hitVec == null || m2.hitVec.distanceTo(loc) > d2)) stopReverse()
+                                }
+                            }
+                        } else if (distance <= reverseRange.get() &&
+                            it.hurtTime <= reverseTargetMaxHurtTime.get() && mc.thePlayer.hurtTime <= reverseSelfMaxHurtTime.get() &&
+                            loc.distanceTo(bp) >= distance && (!onlyKillAura.get() || killAura.state)) {
+                            reversing = true
+                            lastPosition = vec
+                            hasAttackInReversing = false
+                            reverseTimer.reset()
+                        }
+                    }
+                }
             }
         }
     }
@@ -223,13 +289,20 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
     }
 
     @EventTarget fun onRender3D(event: Render3DEvent) {
+        if (reversing) {
+            val renderManager = mc.renderManager
+
+            val vec = lastPosition.addVector(-renderManager.renderPosX, -renderManager.renderPosY, -renderManager.renderPosZ)
+            RenderUtils.drawAxisAlignedBB(AxisAlignedBB(vec.xCoord - 0.4, vec.yCoord + 0.2, vec.zCoord - 0.4, vec.xCoord + 0.4, vec.yCoord, vec.zCoord + 0.4), Color(37, 126, 255, 70))
+        }
+
         if (espMode equal "None" || !needFreeze) return
 
         if (espMode equal "Model") {
             glPushMatrix()
             glDisable(GL_TEXTURE_2D)
             glDisable(GL_DEPTH_TEST)
-//            GlStateManager.disableAlpha()
+            GlStateManager.disableAlpha()
             for (entity in storageEntities) {
                 if (entity !is EntityOtherPlayerMP) return
                 val mp = EntityOtherPlayerMP(mc.theWorld, entity.gameProfile)
@@ -255,7 +328,7 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
                 mp.hurtResistantTime = entity.hurtResistantTime
                 mc.renderManager.renderEntitySimple(mp, event.partialTicks)
             }
-//            GlStateManager.enableAlpha()
+            GlStateManager.enableAlpha()
             glEnable(GL_TEXTURE_2D)
             glEnable(GL_DEPTH_TEST)
             GlStateManager.resetColor()
@@ -364,6 +437,27 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
             }
         }
         needFreeze = false
+    }
+
+    fun stopReverse() {
+        if (storageSendPackets.isEmpty()) return
+        while (storageSendPackets.isNotEmpty()) {
+            storageSendPackets.removeAt(0).let {
+                try {
+                    val packetEvent = PacketEvent(it)
+                    if (!packetList.contains(it)) KevinClient.eventManager.callEvent(packetEvent)
+                    if (!packetEvent.isCancelled) mc.netHandler.networkManager.sendPacketNoEvent(it)
+                } catch (e: Exception) {
+                    KevinClient.hud.addNotification(Notification("Something went wrong when sending packet reversing", "BackTrack"))
+                }
+                // why kotlin
+                return@let
+            }
+        }
+        if (storageSendPackets.isEmpty()) {
+            reversing = false
+            hasAttackInReversing = false
+        }
     }
 
     private val calculatedMaxHurtTime : Int

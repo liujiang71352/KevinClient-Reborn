@@ -52,9 +52,16 @@ object TimerRange: Module("TimerRange", "Make you walk to target faster", catego
     private val debug = BooleanValue("Debug", false)
     private val betterAnimation = BooleanValue("BetterAnimation", true)
     private val reverseValue = BooleanValue("Reverse", false)
-    private val minReverseRange : FloatValue = object : FloatValue("MinReverseRange", 2.6f, 1f, 4f) {
+    private val maxReverseRange : FloatValue = object : FloatValue("MaxReverseRange", 2.8f, 1f, 4f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
             if (newValue > minDistance.get()) set(minDistance.get())
+            else if (newValue < minReverseRange.get()) set(minReverseRange.get())
+        }
+    }
+
+    private val minReverseRange : FloatValue = object : FloatValue("MinReverseRange", 2.5f, 1f, 4f) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            if (newValue > maxReverseRange.get()) set(maxReverseRange.get())
         }
     }
     private val reverseTime : IntegerValue = object : IntegerValue("ReverseStopTime", 3, 1, 10) {
@@ -115,7 +122,7 @@ object TimerRange: Module("TimerRange", "Make you walk to target faster", catego
             val range = box.distanceTo(vecEyes)
             val afterRange = box2.distanceTo(predictEyes)
             if (!working && reverseValue.get()) {
-                if (range < minReverseRange.get() && cooldown <= 0 && entity.hurtTime <= maxHurtTimeValue.get()) {
+                if (range <= maxReverseRange.get() && range >= minReverseRange.get() && cooldown <= 0 && entity.hurtTime <= reverseTargetMaxHurtTime.get()) {
                     freezeTicks = reverseTime.get()
                     firstAnimation = false
                     reverseFreeze = true
@@ -159,6 +166,14 @@ object TimerRange: Module("TimerRange", "Make you walk to target faster", catego
                     )
                     val range = box.distanceTo(vecEyes)
                     val afterRange = box2.distanceTo(afterEyes)
+                    if (!working && reverseValue.get()) {
+                        if (range <= maxReverseRange.get() && range >= minReverseRange.get() && cooldown <= 0 && entity.hurtTime <= reverseTargetMaxHurtTime.get()) {
+                            freezeTicks = reverseTime.get()
+                            firstAnimation = false
+                            reverseFreeze = true
+                            return
+                        }
+                    }
                     if (range < minDistance.get()) {
                         targetInRange = true
                         break

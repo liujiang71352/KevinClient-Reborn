@@ -20,6 +20,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import javax.vecmath.Vector2d;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -519,42 +520,43 @@ public class LegitScaffold extends Module {
 
     @EventTarget
     public void onEventRender3D(Render3DEvent event) {
-        if(this.esp.get()) {
-            GL11.glEnable(3042);
-            GL11.glBlendFunc(770, 771);
-            GL11.glEnable(2848);
-            GL11.glDisable(2929);
-            GL11.glDisable(3553);
-            GlStateManager.disableCull();
-            GL11.glDepthMask(false);
+        if(this.esp.get() && this.blockPos != null) {
+//            GL11.glEnable(3042);
+//            GL11.glBlendFunc(770, 771);
+//            GL11.glEnable(2848);
+//            GL11.glDisable(2929);
+//            GL11.glDisable(3553);
+//            GlStateManager.disableCull();
+//            GL11.glDepthMask(false);
             float red = 0.16470589F;
             float green = 0.5686275F;
             float blue = 0.96862745F;
-            float lineWidth = 0.0F;
-            if(this.blockPos != null) {
-                if(mc.thePlayer.getDistance(this.blockPos.getX(), this.blockPos.getY(), this.blockPos.getZ()) > 1.0D) {
-                    double d0 = 1.0D - mc.thePlayer.getDistance(this.blockPos.getX(), this.blockPos.getY(), this.blockPos.getZ()) / 20.0D;
-                    if(d0 < 0.3D) {
-                        d0 = 0.3D;
-                    }
-
-                    lineWidth = (float)((double)lineWidth * d0);
-                }
-                GL11.glLineWidth(lineWidth);
-                GL11.glColor4f(red, green, blue, 0.39215687F);
-
-                final RenderManager renderManager = mc.getRenderManager();
-                RenderUtils.drawFilledBox(new AxisAlignedBB(this.blockPos.getX() - renderManager.getRenderPosX(), this.blockPos.getY() - renderManager.getRenderPosY(), this.blockPos.getZ() - renderManager.getRenderPosZ(), this.blockPos.getX() + 1 - renderManager.getRenderPosX(), this.blockPos.getY() + 1 - renderManager.getRenderPosY(), this.blockPos.getZ() + 1 - renderManager.getRenderPosZ()));
-            }
-
-            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-            GL11.glDepthMask(true);
-            GlStateManager.enableCull();
-            GL11.glEnable(3553);
-            GL11.glEnable(2929);
-            GL11.glDisable(3042);
-            GL11.glBlendFunc(770, 771);
-            GL11.glDisable(2848);
+//            final RenderManager renderManager = mc.getRenderManager();
+//            float lineWidth = 0.0F;
+//            if(this.blockPos != null) {
+//                if(mc.thePlayer.getDistance(this.blockPos.getX(), this.blockPos.getY(), this.blockPos.getZ()) > 1.0D) {
+//                    double d0 = 1.0D - mc.thePlayer.getDistance(this.blockPos.getX(), this.blockPos.getY(), this.blockPos.getZ()) / 20.0D;
+//                    if(d0 < 0.3D) {
+//                        d0 = 0.3D;
+//                    }
+//
+//                    lineWidth = (float)((double)lineWidth * d0);
+//                }
+//                GL11.glLineWidth(lineWidth);
+//                GL11.glColor4f(red, green, blue, 0.39215687F);
+//
+//                RenderUtils.drawFilledBox(new AxisAlignedBB(this.blockPos.getX() - renderManager.getRenderPosX(), this.blockPos.getY() - renderManager.getRenderPosY(), this.blockPos.getZ() - renderManager.getRenderPosZ(), this.blockPos.getX() + 1 - renderManager.getRenderPosX(), this.blockPos.getY() + 1 - renderManager.getRenderPosY(), this.blockPos.getZ() + 1 - renderManager.getRenderPosZ()));
+//            }
+//
+//            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+//            GL11.glDepthMask(true);
+//            GlStateManager.enableCull();
+//            GL11.glEnable(3553);
+//            GL11.glEnable(2929);
+//            GL11.glDisable(3042);
+//            GL11.glBlendFunc(770, 771);
+//            GL11.glDisable(2848);
+            RenderUtils.drawBlockBox(this.blockPos, new Color(red, green, blue, 0.39215687F), false);
         }
 
     }

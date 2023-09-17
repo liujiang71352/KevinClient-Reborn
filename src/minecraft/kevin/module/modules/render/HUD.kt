@@ -24,10 +24,9 @@ import kevin.module.ModuleCategory
 import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.network.play.server.S09PacketHeldItemChange
 
-class HUD(currentSlot: Int) : Module("HUD","Toggles visibility of the HUD.",category = ModuleCategory.RENDER) {
+class HUD : Module("HUD","Toggles visibility of the HUD.",category = ModuleCategory.RENDER) {
     var keepScoreboard = BooleanValue("KeepScoreboard", true)
     private var hotBarShowCurrentSlot = BooleanValue("HotBarShowCurrentSlot", true)
-    private var currentPacketSlot = 0
 
     @EventTarget
     fun onRender2D(event: Render2DEvent?) {
@@ -75,4 +74,10 @@ class HUD(currentSlot: Int) : Module("HUD","Toggles visibility of the HUD.",cate
 
     val currentSlot: Int
         get() = if (hotBarShowCurrentSlot.get()) currentPacketSlot else mc.thePlayer.inventory.currentItem
+
+    companion object {
+        private var currentPacketSlot = 0
+        val packetSlot: Int
+            get() = currentPacketSlot
+    }
 }

@@ -173,7 +173,7 @@ class ModuleManager : Listenable {
             ESP(),
             FreeCam(),
             FullBright(),
-            HUD(0),
+            HUD(),
             HudDesigner(),
             ItemESP(),
             NameTags(),
@@ -195,7 +195,7 @@ class ModuleManager : Listenable {
             XRay()
         )
         worldList = arrayListOf(
-//            BlockFly(),
+            BlockFly(),
             Breaker(),
             ChestStealer(),
             FastBreak(),

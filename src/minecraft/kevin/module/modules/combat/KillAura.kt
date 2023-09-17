@@ -592,7 +592,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 GL11.glPushMatrix()
 //                GL11.glEnable(GL11.GL_BLEND)
 //                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
-                GL11.glShadeModel(GL11.GL_SMOOTH)
+//                GL11.glShadeModel(GL11.GL_SMOOTH)
                 GL11.glDisable(GL11.GL_TEXTURE_2D)
                 GL11.glEnable(GL11.GL_LINE_SMOOTH)
 //                GL11.glDisable(GL11.GL_DEPTH_TEST)
@@ -601,14 +601,14 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
                 GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST)
                 GL11.glLoadIdentity()
                 mc.entityRenderer.setupCameraTransform(mc.timer.renderPartialTicks, 2)
-                RenderUtils.glColor(255, 255, 255, 255)
+                GL11.glColor4f(1F, 1F, 1F, 1F)
                 GL11.glLineWidth(1.2f)
 
                 GL11.glBegin(GL11.GL_LINE)
                 GL11.glVertex3d(vecEyes.xCoord - renderPosX, vecEyes.yCoord - renderPosY, vecEyes.zCoord - renderPosZ)
                 GL11.glVertex3d(vecRot.xCoord - renderPosX, vecRot.yCoord - renderPosY, vecRot.zCoord - renderPosZ)
                 GL11.glEnd()
-//                GL11.glColor4f(1F, 1F, 1F, 1F)
+                GL11.glColor4f(1F, 1F, 1F, 1F)
 //                GL11.glDepthMask(true)
 //                GL11.glEnable(GL11.GL_DEPTH_TEST)
                 GL11.glDisable(GL11.GL_LINE_SMOOTH)
@@ -624,7 +624,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
         // prevent duplicated swing / attack
         if (hightVersionAttackDelay.get()) return
 
-        if (currentTarget != null && attackTimer.hasTimePassed(attackDelay + if (!smartAttackValue.get() || mc.thePlayer.hurtTime != 0 || (target !is EntityLivingBase || (target as EntityLivingBase).hurtTime <= 3)) 0 else 500) &&
+        if (currentTarget != null && attackTimer.hasTimePassed(attackDelay + if (!smartAttackValue.get() || mc.thePlayer.hurtTime != 0 || (target !is EntityLivingBase || (target as EntityLivingBase).hurtTime <= (3 + (mc.thePlayer.getPing() / 50.0).toInt()))) 0 else 500) &&
             (currentTarget !is EntityLivingBase || (currentTarget as EntityLivingBase).hurtTime <= hurtTimeValue.get())) {
             ++clicks
             rotationTime = 3

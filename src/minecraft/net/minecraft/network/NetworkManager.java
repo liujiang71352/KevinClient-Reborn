@@ -220,6 +220,17 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
     {
 
         final PacketEvent event = new PacketEvent(packetIn/*,PacketMode.SEND**/);
+        if (backTrack == null) {
+            backTrack = KevinClient.moduleManager.getModule(BackTrack.class);
+        }
+        if (backTrack.getState()) {
+            try {
+                backTrack.onPacket(event);
+            } catch (Exception e) {
+                Minecraft.logger.error("Exception caught in BackTrack", e);
+            }
+            if (event.isCancelled()) return;
+        }
         if (disabler == null) {
             disabler = KevinClient.moduleManager.getModule(Disabler.class);
         }

@@ -30,6 +30,7 @@ import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.util.*;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public final class RotationUtils extends MinecraftInstance implements Listenable {
 
@@ -507,6 +508,19 @@ public final class RotationUtils extends MinecraftInstance implements Listenable
      */
     public static void smoothReset() {
         keepLength = 0;
+    }
+
+    public static Rotation positionRotation(double posX, double posY, double posZ, Rotation lastRots, float yawSpeed, float pitchSpeed, boolean random) {
+        double x = posX - mc.thePlayer.posX;
+        double y = posY - (mc.thePlayer.posY + (double)mc.thePlayer.getEyeHeight());
+        double z = posZ - mc.thePlayer.posZ;
+        Rotation calcRot = new Rotation((float) (MathHelper.atan2((double) z, (double) x) * 180.0 / Math.PI - 90.0), (float) (-(MathHelper.atan2((double) y, (double) MathHelper.sqrt_double((double) (x * x + z * z))) * 180.0 / Math.PI)));
+        Rotation changed = limitAngleChange(lastRots, calcRot, yawSpeed, pitchSpeed);
+        if (random) {
+            changed.setYaw(changed.getYaw() + (float) ThreadLocalRandom.current().nextGaussian());
+            changed.setPitch(changed.getPitch() + (float) ThreadLocalRandom.current().nextGaussian());
+        }
+        return changed;
     }
 
     @EventTarget(ignoreCondition = true)
