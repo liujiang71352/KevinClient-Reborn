@@ -37,7 +37,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
     private val verticalValue = FloatValue("Vertical", 0F, -1F, 1F)
     private val modeValue = ListValue("Mode", arrayOf("Simple", "AAC", "AACPush", "AACZero", "AACv4",
         "Reverse", "SmoothReverse", "HypixelReverse", "Jump", "Glitch", "AAC5Packet", "MatrixReduce", "MatrixSimple", "MatrixReverse",
-        "AllowFirst", "Click", "LegitSmart", "IntaveJump", "TestBuzzReverse", "PikaStable", "TestGrimAC"), "Simple")
+        "AllowFirst", "Click", "LegitSmart", "IntaveJump", "TestBuzzReverse", "MMC", "Down", "TestGrimAC"), "Simple")
 
     // Simple
     private val simpleCancelTransaction = BooleanValue("SimpleCancelTransactions", false)
@@ -83,6 +83,10 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
     private var jump = false
 
     private var transactionCancelCount = 0
+    // MMC
+    private var mmcTicks = 0
+    private var mmcLastCancel = false
+    private var mmcCanCancel = false
 
     override val tag: String
         get() = if (modeValue.get() == "Simple") "H:${horizontalValue.get()*100}% V:${verticalValue.get()*100}%" else modeValue.get()
@@ -249,7 +253,19 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                     velocityInput = false
                 }
             }
-            "pikastable" -> if (velocityInput && velocityTimer.hasTimePassed(80)) {
+            "mmc" -> {
+                mmcTicks++
+                if (mmcTicks > 23) {
+                    mmcCanCancel = true
+                }
+                if (mmcTicks in 2..4 && !mmcLastCancel) {
+                    mc.thePlayer.motionX *= 0.99
+                    mc.thePlayer.motionZ *= 0.99
+                } else if (mmcTicks == 5 && !mmcLastCancel) {
+                    MovementUtils.strafe()
+                }
+            }
+            "down" -> if (velocityInput && velocityTimer.hasTimePassed(80)) {
                 if (!thePlayer.onGround) {
                     val reducer = (Math.random() - 0.5) / 50.0 + 0.2f
                     thePlayer.motionY *= reducer
@@ -351,6 +367,17 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                 "testbuzzreverse" -> {
                     packet.motionX = -packet.motionX
                     packet.motionZ = -packet.motionZ
+                }
+                "mmc" -> {
+                    mmcTicks = 0
+                    if (mmcCanCancel) {
+                        event.cancelEvent()
+                        mmcLastCancel = true
+                        mmcCanCancel = false
+                    } else {
+                        mc.thePlayer.jump()
+                        mmcLastCancel = false
+                    }
                 }
                 "click" -> {
                     if (packet.motionX == 0 && packet.motionZ == 0) return
