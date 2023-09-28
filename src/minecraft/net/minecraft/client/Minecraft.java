@@ -1560,7 +1560,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
             final FastPlace fastPlace = KevinClient.moduleManager.getModule(FastPlace.class);
 
             if (fastPlace.getState()) {
-                if (this.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK || !fastPlace.onlyBlock.get())
+                if ((this.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK || !fastPlace.onlyAimingBlock.get()) && (!fastPlace.onlyHandingBlock.get() || thePlayer == null || thePlayer.getHeldItem() == null || thePlayer.getHeldItem().getItem() instanceof ItemBlock))
                     rightClickDelayTimer = fastPlace.getSpeedValue().get();
             }
 

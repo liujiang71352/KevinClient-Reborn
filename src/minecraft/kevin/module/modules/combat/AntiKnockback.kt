@@ -25,10 +25,14 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.play.client.C02PacketUseEntity
 import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.network.play.client.C0APacketAnimation
 import net.minecraft.network.play.client.C0FPacketConfirmTransaction
+import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.server.S27PacketExplosion
+import net.minecraft.util.BlockPos
+import net.minecraft.util.EnumFacing
 import net.minecraft.util.MathHelper
 import java.util.*
 
@@ -37,7 +41,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
     private val verticalValue = FloatValue("Vertical", 0F, -1F, 1F)
     private val modeValue = ListValue("Mode", arrayOf("Simple", "AAC", "AACPush", "AACZero", "AACv4",
         "Reverse", "SmoothReverse", "HypixelReverse", "Jump", "Glitch", "AAC5Packet", "MatrixReduce", "MatrixSimple", "MatrixReverse",
-        "AllowFirst", "Click", "LegitSmart", "IntaveJump", "TestBuzzReverse", "MMC", "Down", "TestGrimAC"), "Simple")
+        "AllowFirst", "Click", "LegitSmart", "IntaveJump", "TestBuzzReverse", "MMC", "Down", "GrimAC"), "Simple")
 
     // Simple
     private val simpleCancelTransaction = BooleanValue("SimpleCancelTransactions", false)
@@ -53,6 +57,9 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
 
     // AAc v4
     private val aacv4MotionReducerValue = FloatValue("AACv4MotionReducer", 0.62F,0F,1F)
+
+    // GrimAC
+    private val grimACTicks = IntegerValue("GrimACTicks", 0, 0, 10)
 
     // Click
     private val clickCount = IntegerValue("ClickCount", 2, 1, 10)
@@ -87,6 +94,9 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
     private var mmcTicks = 0
     private var mmcLastCancel = false
     private var mmcCanCancel = false
+    // GrimAC
+    private var grimTicks = 0
+    private var grimDisable = 0
 
     override val tag: String
         get() = if (modeValue.get() == "Simple") "H:${horizontalValue.get()*100}% V:${verticalValue.get()*100}%" else modeValue.get()
@@ -272,10 +282,12 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                 }
                 velocityInput = false
             }
-            // by IamFrozenMilk
-            "testgrimac" -> if (velocityInput && thePlayer.hurtTime == 8) {
-                MovementUtils.strafe(0.025f)
-                velocityInput = false
+            "grimac" -> {
+                --grimDisable
+                if (grimTicks > 0) {
+                    --grimTicks
+                    mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK, BlockPos(thePlayer.posX, thePlayer.posY, thePlayer.posZ), EnumFacing.UP))
+                }
             }
         }
     }
@@ -312,7 +324,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                     if (simpleCancelTransaction.get()) transactionCancelCount = simpleCancelTransactionCount.get()
                 }
 
-                "aac", "reverse", "smoothreverse", "aaczero", "allowfirst", "pikastable", "intavejump" -> velocityInput = true
+                "aac", "reverse", "smoothreverse", "aaczero", "allowfirst", "down", "intavejump" -> velocityInput = true
 
                 "testgrimac" -> if (thePlayer.onGround) { velocityInput = true }
 
@@ -379,6 +391,13 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                         mmcLastCancel = false
                     }
                 }
+                "grimac" -> {
+                    if (grimDisable > 0) {
+                        return
+                    }
+                    event.cancelEvent()
+                    grimTicks = grimACTicks.get()
+                }
                 "click" -> {
                     if (packet.motionX == 0 && packet.motionZ == 0) return
                     if (attackRayTrace(
@@ -400,6 +419,8 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
                 --transactionCancelCount
                 event.cancelEvent()
             }
+        } else if (packet is S08PacketPlayerPosLook) {
+            if (modeValue equal "GrimAC") grimDisable = 10
         }
     }
 

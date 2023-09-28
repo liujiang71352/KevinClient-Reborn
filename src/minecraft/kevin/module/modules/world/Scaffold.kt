@@ -83,7 +83,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
     private val placeDelay = BooleanValue("PlaceDelay", true)
 
     // Autoblock
-    private val autoBlockValue = ListValue("AutoBlock", arrayOf("Off", "Pick", "Spoof", "Switch"), "Spoof")
+    private val autoBlockValue = ListValue("AutoBlock", arrayOf("Off", "Pick", "Spoof", "LiteSpoof", "Switch"), "Spoof")
 
     // Basic stuff
     private val sprintValue = ListValue("Sprint", arrayOf("Always", "Dynamic", "Smart", "OnGround", "OffGround", "OFF"), "Always")

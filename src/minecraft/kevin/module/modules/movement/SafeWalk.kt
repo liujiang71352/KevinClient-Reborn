@@ -19,12 +19,18 @@ import kevin.event.MoveEvent
 import kevin.module.BooleanValue
 import kevin.module.Module
 import kevin.module.ModuleCategory
+import net.minecraft.item.ItemBlock
 
 class SafeWalk : Module("SafeWalk", "Prevents you from falling down as if you were sneaking.", category = ModuleCategory.MOVEMENT) {
     private val airSafeValue = BooleanValue("AirSafe", false)
+    private val onlyBlock by BooleanValue("OnlyBlockInHand", false)
 
     @EventTarget
     fun onMove(event: MoveEvent) {
+        if (onlyBlock) {
+            val heldItem = mc.thePlayer?.heldItem ?: return
+            if (heldItem.item !is ItemBlock) return
+        }
         if (airSafeValue.get() || mc.thePlayer!!.onGround)
             event.isSafeWalk = true
     }
