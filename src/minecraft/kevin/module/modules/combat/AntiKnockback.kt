@@ -68,6 +68,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
     private val clickOnPacket = BooleanValue("ClickOnPacket", true)
     private val clickSwing = BooleanValue("ClickSwing", false)
     private val clickFakeSwing = BooleanValue("ClickFakeSwing", true)
+    private val clickOnlyNoBlocking = BooleanValue("ClickOnlyNoBlocking", false)
 
     // explosion value
     private val cancelExplosionPacket = BooleanValue("CancelExplosionPacket",false)
@@ -445,6 +446,7 @@ class AntiKnockback : Module("AntiKnockback","Allows you to modify the amount of
 
     fun attackRayTrace(attack: Int, range: Double, doAttack: Boolean=true): Boolean {
         if (mc.thePlayer == null) return false
+        if (clickOnlyNoBlocking.get() && (mc.thePlayer.isBlocking || mc.thePlayer.isUsingItem || KevinClient.moduleManager[KillAura::class.java].blockingStatus)) return true
         val raycastedEntity = RaycastUtils.raycastEntity(range + 1, object : RaycastUtils.EntityFilter {
             override fun canRaycast(entity: Entity?): Boolean {
                 return entity != null && entity is EntityLivingBase

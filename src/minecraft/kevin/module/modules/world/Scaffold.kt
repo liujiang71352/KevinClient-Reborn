@@ -45,7 +45,7 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
     //private val modeValue = ListValue("Mode", arrayOf("Normal", "Expand"), "Normal")
     private val towerModeValue = ListValue(
         "TowerMode",
-        arrayOf("Jump", "Jump2", "Motion", "Motion2", "ConstantMotion", "MotionTP", "MotionTP2", "Packet", "Teleport", "AAC3.3.9", "AAC3.6.4", "Vulcan"),
+        arrayOf("Jump", "Jump2", "Motion", "Motion2", "ConstantMotion", "MotionTP", "MotionTP2", "Packet", "Teleport", "AAC3.3.9", "AAC3.6.4", "Verus"),
         "Jump"
     )
 
@@ -418,6 +418,13 @@ class Scaffold : Module("Scaffold", "Automatically places blocks beneath your fe
             } else if (thePlayer.ticksExisted % 4 == 0) {
                 thePlayer.motionY = -0.5
                 thePlayer.setPosition(thePlayer.posX + 0.035, thePlayer.posY, thePlayer.posZ)
+            }
+            "verus" -> {
+                if (thePlayer.ticksExisted % 2 == 0) {
+                    thePlayer.setPosition(thePlayer.posX, floor((thePlayer.posY + 0.5) * 2) / 2, thePlayer.posZ)
+                }
+                thePlayer.motionY = 0.0
+                thePlayer.onGround = true
             }
         }
     }

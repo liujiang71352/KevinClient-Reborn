@@ -20,7 +20,7 @@ import kevin.main.KevinClient;
 import kevin.utils.ChatUtils;
 import kevin.utils.MinecraftInstance;
 
-import java.io.File;
+import java.io.*;
 import java.lang.reflect.Field;
 
 public class FileManager extends MinecraftInstance {
@@ -36,6 +36,7 @@ public class FileManager extends MinecraftInstance {
     public final File killMessages = new File(dir,"KillMessages");
     public final File playerModels = new File(dir,"PlayerModels");
     public final File scripts = new File(dir,"Scripts");
+    public final File plugins = new File(dir,"Plugins");
     public final File via = new File(dir,"Via");
     public final FileConfig modulesConfig = new ModulesConfig(new File(dir, "modules.json"));
     public final FileConfig hudConfig = new HudConfig(new File(dir, "hud.json"));
@@ -54,6 +55,23 @@ public class FileManager extends MinecraftInstance {
         if (!killMessages.exists()) killMessages.mkdir();
         if (!playerModels.exists()) playerModels.mkdir();
         if (!scripts.exists()) scripts.mkdir();
+        if (!plugins.exists()) {
+            plugins.mkdir();
+            try {
+                File file = new File(plugins, "README.txt");
+                file.createNewFile();
+                try (FileOutputStream outputStream = new FileOutputStream(file);
+                     OutputStreamWriter out = new OutputStreamWriter(outputStream);
+                     BufferedWriter writer = new BufferedWriter(out)) {
+                    writer.write("This is the plugin directory for loading your favorite plugins.\n" +
+                            "You need to note that: we can't guarantee that plugins from third parties are free of any malicious code,\n" +
+                            "please check it yourself before using it, we are not responsible for any damages caused by plugins from third parties!");
+                    writer.flush();
+                    out.flush();
+                    outputStream.flush();
+                }
+            } catch (IOException ignored) {}
+        }
         if (!via.exists()) via.mkdir();
     }
 

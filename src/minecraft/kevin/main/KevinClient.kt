@@ -33,6 +33,7 @@ import kevin.module.modules.render.ClickGui.ClickGUI
 import kevin.module.modules.render.ClickGui.NewClickGui
 import kevin.module.modules.render.Renderer
 import kevin.persional.milk.guis.clickgui.MilkClickGui
+import kevin.plugin.PluginManager
 import kevin.script.ScriptManager
 import kevin.skin.SkinManager
 import kevin.utils.CombatManager
@@ -48,7 +49,7 @@ import java.util.concurrent.Executors
 
 object KevinClient {
     var name = "Kevin"
-    var version = "u2.4.9-b3" // u - updated
+    var version = "u2.5.0" // u - updated
 
     var isStarting = true
 
@@ -110,7 +111,9 @@ object KevinClient {
         ConfigManager.load()
         ConfigsManager.updateValue()
         combatManager = CombatManager()
+        Display.setTitle("Kevin Client is loading..... [plugins]")
         ViaVersion.start()
+        PluginManager.initialize()
         Display.setTitle("$name $version | Minecraft 1.8.9")
         isStarting = false
         // ?!

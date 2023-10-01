@@ -180,7 +180,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     public EntityRenderer entityRenderer;
 
     /** Mouse left click counter */
-    private int leftClickCounter;
+    public int leftClickCounter;
 
     /** Display width */
     private int tempDisplayWidth;
@@ -263,7 +263,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     private SoundHandler mcSoundHandler;
     private MusicTicker mcMusicTicker;
     private ResourceLocation mojangLogo;
-    private final MinecraftSessionService sessionService;
+    private MinecraftSessionService sessionService;
     private SkinManager skinManager;
     private final Queue<FutureTask<?>> scheduledTasks = Queues.newArrayDeque();
     private long field_175615_aJ = 0L;
@@ -3169,6 +3169,10 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     public MinecraftSessionService getSessionService()
     {
         return this.sessionService;
+    }
+
+    public void setSessionService(MinecraftSessionService sessionService) {
+        this.sessionService = sessionService;
     }
 
     public SkinManager getSkinManager()

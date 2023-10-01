@@ -14,17 +14,21 @@
  */
 package kevin.utils.proxy
 
+import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService
+import com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.GuiTextField
 import org.lwjgl.input.Keyboard
 import java.net.Proxy
+import java.util.UUID
 
 class GuiProxySelect(private val prevGui: GuiScreen) : GuiScreen() {
 
     private lateinit var textField: GuiTextField
     private lateinit var type: GuiButton
     private lateinit var stat: GuiButton
+    private lateinit var auth: GuiButton
 
     override fun initGui() {
         Keyboard.enableRepeatEvents(true)
@@ -34,7 +38,8 @@ class GuiProxySelect(private val prevGui: GuiScreen) : GuiScreen() {
         textField.maxStringLength = 114514
         buttonList.add(GuiButton(1, width / 2 - 100, height / 4 + 96, "").also { type = it })
         buttonList.add(GuiButton(2, width / 2 - 100, height / 4 + 120, "").also { stat = it })
-        buttonList.add(GuiButton(0, width / 2 - 100, height / 4 + 144, "Back"))
+        buttonList.add(GuiButton(3, width / 2 - 100, height / 4 + 144, "SyncAuthServiceProxy").also { auth = it })
+        buttonList.add(GuiButton(0, width / 2 - 100, height / 4 + 168, "Back"))
         updateButtonStat()
     }
 
@@ -68,6 +73,10 @@ class GuiProxySelect(private val prevGui: GuiScreen) : GuiScreen() {
             }
             2 -> {
                 ProxyManager.isEnable = !ProxyManager.isEnable
+            }
+            3 -> {
+                mc.sessionService = YggdrasilAuthenticationService(if (ProxyManager.isEnable) ProxyManager.proxyInstance else Proxy.NO_PROXY, UUID.randomUUID().toString()).createMinecraftSessionService()
+                auth.displayString = "Auth service's proxy was set to: ${if (ProxyManager.isEnable) "§aEnabled" else "§cDisabled"}"
             }
         }
         updateButtonStat()
