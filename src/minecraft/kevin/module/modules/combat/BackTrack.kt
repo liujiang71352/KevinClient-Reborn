@@ -223,9 +223,9 @@ class BackTrack: Module("BackTrack", "Lets you attack people in their previous l
                             if (distance > d || distance > reverseMaxRange.get() || (it.hurtTime <= (1 + (mc.thePlayer.getPing() / 50.0).toInt()) && hasAttackInReversing)) {
                                 stopReverse()
                             } else {
-                                val rot = Rotation(it.rotationYaw, it.rotationPitch).toDirection().multiply(4.0).add(loc)
+                                val rot = (if (it is EntityOtherPlayerMP) Rotation(it.otherPlayerMPYaw.toFloat(), it.otherPlayerMPPitch.toFloat()) else Rotation(it.rotationYaw, it.rotationPitch)).toDirection().multiply(4.0).add(loc)
                                 val movingObjectPosition = lastBB.calculateIntercept(loc, rot) ?: return@let
-                                val m2 = mc.thePlayer.entityBoundingBox.expand(0.1, 0.1, 0.1).calculateIntercept(loc, rot)
+                                val m2 = mc.thePlayer.entityBoundingBox.expand(0.11, 0.1, 0.11).calculateIntercept(loc, rot)
                                 if (movingObjectPosition.hitVec != null) {
                                     val d2 = movingObjectPosition.hitVec.distanceTo(loc)
                                     if (d2 <= 3.0 && (m2?.hitVec == null || m2.hitVec.distanceTo(loc) > d2)) stopReverse()

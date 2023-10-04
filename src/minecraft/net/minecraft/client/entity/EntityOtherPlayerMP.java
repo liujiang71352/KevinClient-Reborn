@@ -16,8 +16,8 @@ public class EntityOtherPlayerMP extends AbstractClientPlayer
     public double otherPlayerMPX;
     public double otherPlayerMPY;
     public double otherPlayerMPZ;
-    private double otherPlayerMPYaw;
-    private double otherPlayerMPPitch;
+    public double otherPlayerMPYaw;
+    public double otherPlayerMPPitch;
 
     public EntityOtherPlayerMP(World worldIn, GameProfile gameProfileIn)
     {

@@ -53,6 +53,7 @@ class AutoClicker : Module("AutoClicker", "Constantly clicks when holding down a
     private val rightValue = BooleanValue("Right", true)
     private val leftValue = BooleanValue("Left", true)
     private val jitterValue = BooleanValue("Jitter", false)
+    private val noClickDelay = BooleanValue("NoClickDelay", false)
 
     private var rightDelay = TimeUtils.randomClickDelay(minCPSValue.get(), maxCPSValue.get())
     private var rightLastSwing = 0L
@@ -86,6 +87,10 @@ class AutoClicker : Module("AutoClicker", "Constantly clicks when holding down a
         //if (event.eventState == UpdateState.OnUpdate) return
 
         val thePlayer = mc.thePlayer ?: return
+
+        if (noClickDelay.get()) {
+            mc.leftClickCounter = 0
+        }
 
         if (jitterValue.get() && (leftValue.get() && mc.gameSettings.keyBindAttack.isKeyDown && mc.playerController.curBlockDamageMP == 0F
                     || rightValue.get() && mc.gameSettings.keyBindUseItem.isKeyDown && !thePlayer.isUsingItem)) {

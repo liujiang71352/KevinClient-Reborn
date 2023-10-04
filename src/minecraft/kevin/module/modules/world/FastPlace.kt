@@ -22,5 +22,7 @@ import kevin.module.ModuleCategory
 class FastPlace : Module("FastPlace", "Allows you to place blocks faster.", category = ModuleCategory.WORLD) {
     val speedValue = IntegerValue("Speed", 0, 0, 4)
     @JvmField
-    val onlyBlock = BooleanValue("OnlyBlock", true)
+    val onlyAimingBlock = BooleanValue("OnlyAimingBlock", true)
+    @JvmField
+    val onlyHandingBlock = BooleanValue("OnlyHandingBlock", true)
 }

@@ -292,7 +292,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
         )) {
             if (target != null && currentTarget != null) {
                 updateHitable()
-                if(canBlock)
+                if(canBlock && getRange(target!!) <= blockRange.get())
                     startBlocking(currentTarget!!, hitable)
             }
         }
@@ -856,7 +856,7 @@ class KillAura : Module("KillAura","Automatically attacks targets around you.", 
         if (highVersionSwing) doSwing()
 
         // Start blocking after attack
-        if ((autoBlockValue equal "Packet"||keepAutoBlock) && (thePlayer.isBlocking || canBlock))
+        if ((autoBlockValue equal "Packet"||keepAutoBlock) && (thePlayer.isBlocking || canBlock) && getRange(target!!) <= blockRange.get())
             startBlocking(entity, interactAutoBlockValue.get())
     }
 
